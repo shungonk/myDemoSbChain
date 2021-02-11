@@ -1,16 +1,18 @@
-package com.myexample;
+package com.myexample.blockchain;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 public class BlockChain {
 
-    public static final int DIFFICULTY = 5; 
+    public static final int DIFFICULTY = 4; 
     
-    private ArrayList<Block> chain;
+    private List<Block> chain;
 
     public BlockChain() {
         this.chain = new ArrayList<>(Arrays.asList(Block.INITIAL_BLOCK));
@@ -24,10 +26,10 @@ public class BlockChain {
         return new GsonBuilder().setPrettyPrinting().create().toJson(chain);		
     }
 
-    //TODO: how to unmarshal?
-    // public static ArrayList<Block> unmarshalJson(String json) {
-    //     return new GsonBuilder().setPrettyPrinting().create().fromJson(json, ArrayList.class);
-    // }
+    public static List<Block> unmarshalJson(String json) {
+        Type chainType = new TypeToken<List<Block>>(){}.getType();
+        return new GsonBuilder().setPrettyPrinting().create().fromJson(json, chainType);
+    }
 
     public Block lastBlock() {
         return chain.get(chain.size() - 1);
@@ -54,8 +56,7 @@ public class BlockChain {
         return true;
     }
 
-	public static void main(String[] args) {	
-		//add our blocks to the blockchain ArrayList:
+	public static void main(String[] args) {
         BlockChain blockchain = new BlockChain();
 
         blockchain.addNewBlock("Yo im the second block");

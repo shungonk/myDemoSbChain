@@ -1,9 +1,10 @@
-package com.myexample;
+package com.myexample.blockchain;
 
 import java.time.Instant;
 import java.util.Collections;
 
 import com.google.gson.GsonBuilder;
+import com.myexample.utils.CryptoUtil;
 
 public class Block {
 
@@ -43,7 +44,8 @@ public class Block {
     }
 
     public String calculateHash() {
-        return CryptoUtil.sha256(previousHash + timestamp + data + nonce);
+        return CryptoUtil.sha256(
+            previousHash + Long.toString(timestamp) + data + Integer.toString(nonce));
     }
 
     public String marshalJson() {
