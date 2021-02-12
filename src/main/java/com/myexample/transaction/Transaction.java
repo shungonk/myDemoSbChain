@@ -6,6 +6,7 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.myexample.blockchain.SBChain;
 import com.myexample.utils.CryptoUtil;
 
 public class Transaction {
@@ -16,21 +17,22 @@ public class Transaction {
     private float value;
     private byte[] signature;     // this is to prevent anybody else from spending funds in our wallet.
 
-    private List<TransactionInput> inputs = new ArrayList<>();
-    private List<TransactionOutput> outputs = new ArrayList<>();
+    private List<UTXO> inputs = new ArrayList<>();
+    private List<UTXO> outputs = new ArrayList<>();
 
     private static int sequence = 0; // a rough count of how many transactions have been generated. 
 
     private Transaction() {}
 
-    public static Transaction buildInstance(KeyPair senderKeyPair, PublicKey recipient, float value, List<TransactionInput> inputs) {
-        Transaction transaction = new Transaction();
+    public static Transaction createInstance(KeyPair senderKeyPair, PublicKey recipient, float value, List<UTXO> inputs) {
+        var transaction = new Transaction();
         transaction.sender = senderKeyPair.getPublic();
         transaction.recipient = recipient;
         transaction.value = value;
         transaction.inputs = inputs;
         transaction.calculateHash();
         transaction.generateSignature(senderKeyPair.getPrivate());
+        sequence++;
         return transaction;
     }
 
@@ -54,28 +56,62 @@ public class Transaction {
         return signature;
     }
 
-    public List<TransactionInput> getInputs() {
+    public List<UTXO> getInputs() {
         return inputs;
     }
 
-    public List<TransactionOutput> getOutputs() {
+    public List<UTXO> getOutputs() {
         return outputs;
     }
 
-    private String calculateHash() {
-        sequence++;
-        return CryptoUtil.sha256(
-            CryptoUtil.encodeKey(sender) + CryptoUtil.encodeKey(recipient) +
+    private void calculateHash() {
+        transactionId = CryptoUtil.sha256(CryptoUtil.encodeKey(sender) + CryptoUtil.encodeKey(recipient) +
             Float.toString(value) + Integer.toString(sequence));
     }
 
     private void generateSignature(PrivateKey privateKey) {
-        String data = CryptoUtil.encodeKey(sender) + CryptoUtil.encodeKey(recipient) + Float.toString(value);
+        var data = CryptoUtil.encodeKey(sender) + CryptoUtil.encodeKey(recipient) + Float.toString(value);
         signature = CryptoUtil.ecdsaSign(privateKey, data);
     }
 
     public boolean verifySignature() {
-        String data = CryptoUtil.encodeKey(sender) + CryptoUtil.encodeKey(recipient) + Float.toString(value);
+        var data = CryptoUtil.encodeKey(sender) + CryptoUtil.encodeKey(recipient) + Float.toString(value);
         return CryptoUtil.verifyEcdsaSign(sender, data, signature);
+    }
+
+    public float getInputsValue() {
+        return inputs.stream()
+            .map(UTXO::getValue)
+            .reduce(0f, Float::sum);
+    }
+
+    public float getOutputsValue() {
+        return outputs.stream()
+            .map(UTXO::getValue)
+            .reduce(0f, Float::sum);
+    }
+
+    public boolean processTransaction() {
+        if (!verifySignature()) {
+            System.out.println("#Transaction Signature failed to verify.");
+            return false;
+        }
+        
+        // check if transaction is valid
+        if (getInputsValue() < SBChain.minimumTransactionValue) {
+            System.out.println("#Transaction Inputs too small: " + getInputsValue());
+            return false;
+        }
+
+        // create two outputs related to this transaction
+        var leftOver = getInputsValue() - value;
+        outputs.add(new UTXO(recipient, value, transactionId));
+        outputs.add(new UTXO(sender, leftOver, transactionId));
+
+        // add outputs to UTXOPool and remove inputs from UTXOPool
+        SBChain.uTXOPool.putAll(outputs);
+        SBChain.uTXOPool.removeAll(inputs);
+
+        return true;
     }
 }

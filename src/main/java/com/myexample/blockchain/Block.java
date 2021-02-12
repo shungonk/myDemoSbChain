@@ -1,10 +1,10 @@
 package com.myexample.blockchain;
 
 import java.time.Instant;
-import java.util.Collections;
 
 import com.google.gson.GsonBuilder;
 import com.myexample.utils.CryptoUtil;
+import com.myexample.utils.StringUtil;
 
 public class Block {
 
@@ -13,8 +13,6 @@ public class Block {
     private String data;
     private long timestamp;
     private int nonce;
-
-    public static final Block INITIAL_BLOCK = new Block("0", "Initial block");
 
     public Block(String previousHash, String data) {
         this.previousHash = previousHash;
@@ -43,6 +41,10 @@ public class Block {
         return nonce;
     }
 
+    public static Block getInitialBlock() {
+        return new Block("0", "Initial block");
+    }
+
     public String calculateHash() {
         return CryptoUtil.sha256(
             previousHash + Long.toString(timestamp) + data + Integer.toString(nonce));
@@ -57,7 +59,7 @@ public class Block {
     }
 
     public void mining(int difficulty) {
-        String zeros = String.join("", Collections.nCopies(difficulty, "0"));
+        String zeros = StringUtil.repeat("0", difficulty);
         while (!hash.substring(0, difficulty).equals(zeros)) {
             nonce++;
             hash = calculateHash();

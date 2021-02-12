@@ -34,7 +34,7 @@ public class TransactionOutput {
         return parentTransactionId;
     }
 
-    public boolean isMine(PublicKey publicKey) {
+    public boolean belongsTo(PublicKey publicKey) {
         return recipient == publicKey; //Check if coin belongs to you
     }
 }
