@@ -20,18 +20,27 @@ public class Transaction {
     private List<UTXO> inputs = new ArrayList<>();
     private List<UTXO> outputs = new ArrayList<>();
 
-    private static int sequence = 0; // a rough count of how many transactions have been generated. 
+    private static int sequence = 0; // a rough count of how many transactions have been generated.
+    private static final String GENESIS_ID = "0"; // id of genesis transaction
 
-    private Transaction() {}
+    private Transaction(KeyPair senderKeyPair, PublicKey recipient, float value) {
+        this.sender = senderKeyPair.getPublic();
+        this.recipient = recipient;
+        this.value = value;
+        this.generateSignature(senderKeyPair.getPrivate());
+    }
 
-    public static Transaction createInstance(KeyPair senderKeyPair, PublicKey recipient, float value, List<UTXO> inputs) {
-        var transaction = new Transaction();
-        transaction.sender = senderKeyPair.getPublic();
-        transaction.recipient = recipient;
-        transaction.value = value;
+    public static Transaction create(KeyPair senderKeyPair, PublicKey recipient, float value, List<UTXO> inputs) {
+        var transaction = new Transaction(senderKeyPair, recipient, value);
         transaction.inputs = inputs;
-        transaction.calculateHash();
-        transaction.generateSignature(senderKeyPair.getPrivate());
+        transaction.calculateHashedId();
+        sequence++;
+        return transaction;
+    }
+
+    public static Transaction createGenesis(KeyPair senderKeyPair, PublicKey recipient, float value) {
+        var transaction = new Transaction(senderKeyPair, recipient, value);
+        transaction.transactionId = GENESIS_ID;
         sequence++;
         return transaction;
     }
@@ -56,15 +65,11 @@ public class Transaction {
         return signature;
     }
 
-    public List<UTXO> getInputs() {
-        return inputs;
+    public boolean isGenesis() {
+        return transactionId.equals(GENESIS_ID);
     }
 
-    public List<UTXO> getOutputs() {
-        return outputs;
-    }
-
-    private void calculateHash() {
+    private void calculateHashedId() {
         transactionId = CryptoUtil.sha256(CryptoUtil.encodeKey(sender) + CryptoUtil.encodeKey(recipient) +
             Float.toString(value) + Integer.toString(sequence));
     }
@@ -91,26 +96,46 @@ public class Transaction {
             .reduce(0f, Float::sum);
     }
 
+    public boolean doProcess() {
+        return isGenesis()
+            ? processGenesisTransaction()
+            : processTransaction();
+    }
+
     public boolean processTransaction() {
         if (!verifySignature()) {
             System.out.println("#Transaction Signature failed to verify.");
             return false;
         }
         
-        // check if transaction is valid
         if (getInputsValue() < SBChain.minimumTransactionValue) {
             System.out.println("#Transaction Inputs too small: " + getInputsValue());
             return false;
         }
 
-        // create two outputs related to this transaction
+        // create outputs and set in transaction
         var leftOver = getInputsValue() - value;
         outputs.add(new UTXO(recipient, value, transactionId));
         outputs.add(new UTXO(sender, leftOver, transactionId));
 
-        // add outputs to UTXOPool and remove inputs from UTXOPool
+        // update UTXOPool of blockchain
         SBChain.uTXOPool.putAll(outputs);
         SBChain.uTXOPool.removeAll(inputs);
+
+        return true;
+    }
+
+    public boolean processGenesisTransaction() {
+        if (!verifySignature()) {
+            System.out.println("#Transaction Signature failed to verify.");
+            return false;
+        }
+
+        // create outputs and set in transaction
+        outputs.add(new UTXO(recipient, value, transactionId));
+
+        // update UTXOPool of blockchain
+        SBChain.uTXOPool.putAll(outputs);
 
         return true;
     }

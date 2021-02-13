@@ -35,6 +35,6 @@ public class UTXO {
     }
 
     public boolean belongsTo(PublicKey publicKey) {
-        return recipient == publicKey; //Check if coin belongs to you
+        return recipient == publicKey;
     }
 }

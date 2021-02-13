@@ -30,26 +30,25 @@ public class Wallet {
         return keyPair.getPublic();
     }
 
-    public float getBalance() {
-        return walletUTXOPool.totalValue();
-    }
-
-    public void updateuTXOPool() {
+    public void updateUTXOPool() {
         SBChain.uTXOPool.values().stream()
             .filter(uTXO -> uTXO.belongsTo(getPublicKey()))
             .forEach(walletUTXOPool::put);
     }
 
+    public float getBalance() {
+        updateUTXOPool();
+        return walletUTXOPool.totalValue();
+    }
+
     public Transaction sendFunds(PublicKey recipient, float value) {
-        updateuTXOPool();
-        
         if (getBalance() < value) {
             System.out.println("#Not enough funds to send transaction. Transaction discarded.");
             return null;
         }
 
         var inputs = walletUTXOPool.ceilingList(value);
-        var newTransaction = Transaction.createInstance(keyPair, recipient, value, inputs);
+        var newTransaction = Transaction.create(keyPair, recipient, value, inputs);
 		walletUTXOPool.removeAll(inputs);
 
 		return newTransaction;

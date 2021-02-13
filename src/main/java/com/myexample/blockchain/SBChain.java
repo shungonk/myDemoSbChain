@@ -13,9 +13,9 @@ public class SBChain {
 
     public static int difficulty = 4;
     public static float minimumTransactionValue = 0.1f;
-    
+
     public static UTXOPool uTXOPool = new UTXOPool();
-    private static List<Block> chain = new ArrayList<>(Arrays.asList(Block.getInitialBlock()));
+    private static List<Block> chain = new ArrayList<>(Arrays.asList(Block.createInitial()));
 
     public static String marshalJson() {
         return new GsonBuilder().setPrettyPrinting().create().toJson(chain);		
@@ -30,10 +30,9 @@ public class SBChain {
         return chain.get(chain.size() - 1);
     }
 
-    public static void addNewBlock(String data) {
-        var newBlock = new Block(lastBlock().getHash(), data);
-        newBlock.mining(difficulty);
-        chain.add(newBlock);
+    public static void addNewBlock(Block block) {
+        block.mining(difficulty);
+        chain.add(block);
     }
 
     public static boolean isChainValid() {
