@@ -1,6 +1,7 @@
 package com.myexample.utils;
 
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -9,7 +10,14 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.myexample.transaction.Transaction;
 
 public class CryptoUtil {
 
@@ -43,25 +51,61 @@ public class CryptoUtil {
 		return Base64.getEncoder().encodeToString(key.getEncoded());
 	}
 
-	public static byte[] ecdsaSign(PrivateKey privateKey, String data) {
+	public static PublicKey decodePublicKey(String keyString) {
+        try {
+			var keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(keyString));
+			return KeyFactory.getInstance("ECDSA").generatePublic(keySpec);
+		} catch (Exception e) {
+			throw new RuntimeException();
+		}
+	}
+
+	public static PrivateKey decodePrivateKey(String keyString) {
+        try {
+			var keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(keyString));
+			return KeyFactory.getInstance("ECDSA").generatePrivate(keySpec);
+		} catch (Exception e) {
+			throw new RuntimeException();
+		}
+	}
+
+	public static String ecdsaSign(PrivateKey privateKey, String data) {
 		try {
 			var dsa = Signature.getInstance("ECDSA", "BC");
 			dsa.initSign(privateKey);
 			dsa.update(data.getBytes("UTF-8"));
-			return dsa.sign();
+			var sign = dsa.sign();
+			return Base64.getEncoder().encodeToString(sign);
 		} catch (Exception e) {
 			throw new RuntimeException();
 		}	
 	}
 
-	public static boolean verifyEcdsaSign(PublicKey publicKey, String data, byte[] signature) {
+	public static boolean verifyEcdsaSign(PublicKey publicKey, String data, String signature) {
 		try {
 			var dsa = Signature.getInstance("ECDSA", "BC");
 			dsa.initVerify(publicKey);
 			dsa.update(data.getBytes("UTF-8"));
-			return dsa.verify(signature);
+			var sign = Base64.getDecoder().decode(signature);
+			return dsa.verify(sign);
 		} catch (Exception e) {
 			throw new RuntimeException();
 		}
+	}
+
+	public static String merkleRoot(List<Transaction> transactions) {
+		var treeLayer = transactions.stream()
+					.map(Transaction::getTransactionId)
+					.collect(Collectors.toList());
+
+		while (treeLayer.size() > 1) {
+			var nextTreeLayer = new ArrayList<String>(); 
+			for (int i = 1; i < treeLayer.size(); i++) {
+				nextTreeLayer.add(sha256(treeLayer.get(i - 1) + treeLayer.get(i)));
+			}
+			treeLayer = nextTreeLayer;
+		}
+		
+		return treeLayer.size() == 1 ? treeLayer.get(0) : ""; 
 	}
 }

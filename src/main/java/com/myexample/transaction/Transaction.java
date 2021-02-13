@@ -12,10 +12,10 @@ import com.myexample.utils.CryptoUtil;
 public class Transaction {
 
     private String transactionId; // this is also the hash of the transaction.
-    private PublicKey sender;     // senders address/public key.
-    private PublicKey recipient;  // Recipients address/public key.
+    private String sender;     // senders address/public key.
+    private String recipient;  // Recipients address/public key.
     private float value;
-    private byte[] signature;     // this is to prevent anybody else from spending funds in our wallet.
+    private String signature;     // this is to prevent anybody else from spending funds in our wallet.
 
     private List<UTXO> inputs = new ArrayList<>();
     private List<UTXO> outputs = new ArrayList<>();
@@ -24,16 +24,16 @@ public class Transaction {
     private static final String GENESIS_ID = "0"; // id of genesis transaction
 
     private Transaction(KeyPair senderKeyPair, PublicKey recipient, float value) {
-        this.sender = senderKeyPair.getPublic();
-        this.recipient = recipient;
+        this.sender = CryptoUtil.encodeKey(senderKeyPair.getPublic());
+        this.recipient = CryptoUtil.encodeKey(recipient);
         this.value = value;
-        this.generateSignature(senderKeyPair.getPrivate());
+        this.signature = generateSignature(senderKeyPair.getPrivate());
     }
 
     public static Transaction create(KeyPair senderKeyPair, PublicKey recipient, float value, List<UTXO> inputs) {
         var transaction = new Transaction(senderKeyPair, recipient, value);
         transaction.inputs = inputs;
-        transaction.calculateHashedId();
+        transaction.transactionId = transaction.calculateHash();
         sequence++;
         return transaction;
     }
@@ -49,11 +49,11 @@ public class Transaction {
         return transactionId;
     }
 
-    public PublicKey getSender() {
+    public String getSender() {
         return sender;
     }
 
-    public PublicKey getRecipient() {
+    public String getRecipient() {
         return recipient;
     }
 
@@ -61,7 +61,7 @@ public class Transaction {
         return value;
     }
 
-    public byte[] getSignature() {
+    public String getSignature() {
         return signature;
     }
 
@@ -69,19 +69,32 @@ public class Transaction {
         return transactionId.equals(GENESIS_ID);
     }
 
-    private void calculateHashedId() {
-        transactionId = CryptoUtil.sha256(CryptoUtil.encodeKey(sender) + CryptoUtil.encodeKey(recipient) +
-            Float.toString(value) + Integer.toString(sequence));
+    private String calculateHash() {
+        return CryptoUtil.sha256(
+            sender + 
+            recipient +
+            Float.toString(value) + 
+            Integer.toString(sequence)
+        );
     }
 
-    private void generateSignature(PrivateKey privateKey) {
-        var data = CryptoUtil.encodeKey(sender) + CryptoUtil.encodeKey(recipient) + Float.toString(value);
-        signature = CryptoUtil.ecdsaSign(privateKey, data);
+    private String generateSignature(PrivateKey privateKey) {
+        return CryptoUtil.ecdsaSign(
+            privateKey,
+            sender + 
+            recipient +
+            Float.toString(value)
+        );
     }
 
     public boolean verifySignature() {
-        var data = CryptoUtil.encodeKey(sender) + CryptoUtil.encodeKey(recipient) + Float.toString(value);
-        return CryptoUtil.verifyEcdsaSign(sender, data, signature);
+        return CryptoUtil.verifyEcdsaSign(
+            CryptoUtil.decodePublicKey(sender),
+            sender +
+            recipient +
+            Float.toString(value),
+            signature
+        );
     }
 
     public float getInputsValue() {
@@ -102,7 +115,7 @@ public class Transaction {
             : processTransaction();
     }
 
-    public boolean processTransaction() {
+    private boolean processTransaction() {
         if (!verifySignature()) {
             System.out.println("#Transaction Signature failed to verify.");
             return false;
@@ -125,7 +138,7 @@ public class Transaction {
         return true;
     }
 
-    public boolean processGenesisTransaction() {
+    private boolean processGenesisTransaction() {
         if (!verifySignature()) {
             System.out.println("#Transaction Signature failed to verify.");
             return false;

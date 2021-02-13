@@ -33,6 +33,7 @@ public class Wallet {
     public void updateUTXOPool() {
         SBChain.uTXOPool.values().stream()
             .filter(uTXO -> uTXO.belongsTo(getPublicKey()))
+            .sorted((o1, o2) -> Float.compare(o1.getValue(), o2.getValue())) //TODO: ordering
             .forEach(walletUTXOPool::put);
     }
 
@@ -52,5 +53,9 @@ public class Wallet {
 		walletUTXOPool.removeAll(inputs);
 
 		return newTransaction;
+    }
+
+    public Transaction sendGenesisFunds(PublicKey recipient, float value) {
+		return Transaction.createGenesis(getKeyPair(), recipient, value);
     }
 }

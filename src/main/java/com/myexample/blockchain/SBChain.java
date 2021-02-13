@@ -1,12 +1,10 @@
 package com.myexample.blockchain;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import com.myexample.transaction.Transaction;
 import com.myexample.transaction.UTXOPool;
 
 public class SBChain {
@@ -15,24 +13,25 @@ public class SBChain {
     public static float minimumTransactionValue = 0.1f;
 
     public static UTXOPool uTXOPool = new UTXOPool();
-    private static List<Block> chain = new ArrayList<>(Arrays.asList(Block.createInitial()));
+    private static List<Block> chain = new ArrayList<>();
+    private static Block lastBlock = Block.createInitial();
 
     public static String marshalJson() {
-        return new GsonBuilder().setPrettyPrinting().create().toJson(chain);		
+        return new GsonBuilder()
+            // .excludeFieldsWithoutExposeAnnotation()
+            .setPrettyPrinting()
+            .create().toJson(chain);		
     }
 
-    public static List<Block> unmarshalJson(String json) {
-        Type chainType = new TypeToken<List<Block>>(){}.getType();
-        return new GsonBuilder().setPrettyPrinting().create().fromJson(json, chainType);
+    public static boolean addTransaction(Transaction transaction) {
+        return lastBlock.addTransaction(transaction);
     }
 
-    public static Block lastBlock() {
-        return chain.get(chain.size() - 1);
-    }
-
-    public static void addNewBlock(Block block) {
-        block.mining(difficulty);
-        chain.add(block);
+    public static void mining() {
+        //TODO: have to accept transactions in the middle of mining.
+        lastBlock.proofOfWork(difficulty);
+        chain.add(lastBlock);
+        lastBlock = new Block(lastBlock.getHash());
     }
 
     public static boolean isChainValid() {

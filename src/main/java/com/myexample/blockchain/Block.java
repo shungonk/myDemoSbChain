@@ -51,15 +51,18 @@ public class Block {
 
     public String calculateHash() {
         return CryptoUtil.sha256(
-            previousHash + Long.toString(timestamp) + Integer.toString(nonce) + merkleRoot);
+            previousHash + 
+            Long.toString(timestamp) +
+            Integer.toString(nonce) + 
+            merkleRoot
+        );
     }
 
     public String marshalJson() {
-        return new GsonBuilder().setPrettyPrinting().create().toJson(this);
-    }
-
-    public static Block unmarshalJson(String json) {
-        return new GsonBuilder().setPrettyPrinting().create().fromJson(json, Block.class);
+        return new GsonBuilder()
+            // .excludeFieldsWithoutExposeAnnotation()
+            .setPrettyPrinting()
+            .create().toJson(this);		
     }
 
     public boolean addTransaction(Transaction transaction) {
@@ -74,8 +77,8 @@ public class Block {
         return false;
     }
 
-    public void mining(int difficulty) {
-        merkleRoot = StringUtil.merkleRoot(transactions);
+    public void proofOfWork(int difficulty) {
+        merkleRoot = CryptoUtil.merkleRoot(transactions);
         String zeros = StringUtil.repeat("0", difficulty);
         while (!hash.substring(0, difficulty).equals(zeros)) {
             nonce++;

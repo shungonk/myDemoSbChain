@@ -7,22 +7,22 @@ import com.myexample.utils.CryptoUtil;
 public class UTXO {
     
     private String id;
-    private PublicKey recipient;        //also known as the new owner of these coins.
+    private String recipient;        //also known as the new owner of these coins.
     private float value;                //the amount of coins they own
     private String parentTransactionId; //the id of the transaction this output was created in
 
-    public UTXO(PublicKey recipient, float value, String parentTransactionId) {
+    public UTXO(String recipient, float value, String parentTransactionId) {
         this.recipient = recipient;
         this.value = value;
         this.parentTransactionId = parentTransactionId;
-        this.id = CryptoUtil.sha256(CryptoUtil.encodeKey(recipient) + Float.toString(value) + parentTransactionId);
+        this.id = calculateHash();
     }
 
     public String getId() {
         return id;
     }
 
-    public PublicKey getRecipient() {
+    public String getRecipient() {
         return recipient;
     }
 
@@ -34,7 +34,15 @@ public class UTXO {
         return parentTransactionId;
     }
 
+    public String calculateHash() {
+        return CryptoUtil.sha256(
+            recipient +
+            Float.toString(value) + 
+            parentTransactionId
+        );
+    }
+
     public boolean belongsTo(PublicKey publicKey) {
-        return recipient == publicKey;
+        return recipient.equals(CryptoUtil.encodeKey(publicKey));
     }
 }
