@@ -75,7 +75,7 @@ public class Block {
     }
 
     public void mining(int difficulty) {
-        merkleRoot = CryptoUtil.merkleRoot(transactions);
+        merkleRoot = StringUtil.merkleRoot(transactions);
         String zeros = StringUtil.repeat("0", difficulty);
         while (!hash.substring(0, difficulty).equals(zeros)) {
             nonce++;
