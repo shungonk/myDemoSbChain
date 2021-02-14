@@ -1,6 +1,4 @@
-package com.myexample.transaction;
-
-import java.security.PublicKey;
+package com.myexample.blockchain;
 
 import com.myexample.utils.CryptoUtil;
 
@@ -42,7 +40,7 @@ public class UTXO {
         );
     }
 
-    public boolean belongsTo(PublicKey publicKey) {
-        return recipient.equals(CryptoUtil.encodeKey(publicKey));
+    public boolean belongsTo(String publicKeyString) {
+        return recipient.equals(publicKeyString);
     }
 }

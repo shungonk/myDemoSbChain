@@ -2,13 +2,12 @@ package com.myexample.blockchain;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import com.google.gson.GsonBuilder;
-import com.myexample.transaction.Transaction;
 import com.myexample.utils.CryptoUtil;
-import com.myexample.utils.StringUtil;
 
 public class Block {
 
@@ -57,14 +56,7 @@ public class Block {
             merkleRoot
         );
     }
-
-    public String marshalJson() {
-        return new GsonBuilder()
-            // .excludeFieldsWithoutExposeAnnotation()
-            .setPrettyPrinting()
-            .create().toJson(this);		
-    }
-
+    
     public boolean addTransaction(Transaction transaction) {
         if (Objects.isNull(transaction)) return false;
 
@@ -78,8 +70,12 @@ public class Block {
     }
 
     public void proofOfWork(int difficulty) {
-        merkleRoot = CryptoUtil.merkleRoot(transactions);
-        String zeros = StringUtil.repeat("0", difficulty);
+        var hashList = transactions.stream()
+            .map(Transaction::getTransactionId)
+            .collect(Collectors.toList());
+
+        merkleRoot = CryptoUtil.calculateMerkleRoot(hashList);
+        var zeros = String.join("", Collections.nCopies(difficulty, "0"));
         while (!hash.substring(0, difficulty).equals(zeros)) {
             nonce++;
             hash = calculateHash();

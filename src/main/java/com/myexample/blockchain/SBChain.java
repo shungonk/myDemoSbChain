@@ -4,15 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.transaction.Transaction;
-import com.myexample.transaction.UTXOPool;
 
 public class SBChain {
 
     public static int difficulty = 4;
     public static float minimumTransactionValue = 0.1f;
 
-    public static UTXOPool uTXOPool = new UTXOPool();
+    public static UTXOPool UTXOPool = new UTXOPool();
     private static List<Block> chain = new ArrayList<>();
     private static Block lastBlock = Block.createInitial();
 

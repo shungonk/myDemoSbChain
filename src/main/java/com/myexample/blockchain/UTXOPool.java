@@ -1,9 +1,11 @@
-package com.myexample.transaction;
+package com.myexample.blockchain;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class UTXOPool {
 
@@ -33,6 +35,15 @@ public class UTXOPool {
         return values().stream()
             .map(UTXO::getValue)
             .reduce(0f, Float::sum);
+    }
+
+    public UTXOPool select(Predicate<UTXO> matcher) {
+        var result = new UTXOPool();
+        var newPool =  values().stream()
+            .filter(matcher)
+            .collect(Collectors.toMap(UTXO::getId, v -> v, (k1 ,k2) -> k1, HashMap::new));
+        result.pool = newPool;
+        return result;
     }
 
     public List<UTXO> ceilingList(float value) {
