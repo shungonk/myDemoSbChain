@@ -2,14 +2,10 @@ package com.myexample.utils;
 
 import java.security.Key;
 import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Signature;
-import java.security.spec.ECGenParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
@@ -34,18 +30,6 @@ public class CryptoUtil {
 			throw new RuntimeException(e);
 		}
 	}
-    
-    public static KeyPair generateKeyPair() {
-        try {
-            var generator = KeyPairGenerator.getInstance("ECDSA", "BC");
-            var random = SecureRandom.getInstance("SHA1PRNG");
-            var eSpec = new ECGenParameterSpec("prime192v1");
-            generator.initialize(eSpec, random);
-            return generator.generateKeyPair();
-        } catch (Exception e) {
-            throw new RuntimeException();
-        }
-    }
 
 	public static String encodeKey(Key key) {
 		return Base64.getEncoder().encodeToString(key.getEncoded());

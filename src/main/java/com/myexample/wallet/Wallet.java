@@ -1,13 +1,15 @@
 package com.myexample.wallet;
 
 import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.spec.ECGenParameterSpec;
 
 import com.myexample.blockchain.SBChain;
 import com.myexample.transaction.Transaction;
 import com.myexample.transaction.UTXOPool;
-import com.myexample.utils.CryptoUtil;
 
 public class Wallet {
 
@@ -15,7 +17,15 @@ public class Wallet {
     private UTXOPool walletUTXOPool = new UTXOPool();
 
     public Wallet() {
-        this.keyPair = CryptoUtil.generateKeyPair();
+        try {
+            var generator = KeyPairGenerator.getInstance("ECDSA", "BC");
+            var random = SecureRandom.getInstance("SHA1PRNG");
+            var eSpec = new ECGenParameterSpec("prime192v1");
+            generator.initialize(eSpec, random);
+            this.keyPair =  generator.generateKeyPair();
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
     }
 
     public KeyPair getKeyPair() {
@@ -33,7 +43,6 @@ public class Wallet {
     public void updateUTXOPool() {
         SBChain.uTXOPool.values().stream()
             .filter(uTXO -> uTXO.belongsTo(getPublicKey()))
-            .sorted((o1, o2) -> Float.compare(o1.getValue(), o2.getValue())) //TODO: ordering
             .forEach(walletUTXOPool::put);
     }
 
