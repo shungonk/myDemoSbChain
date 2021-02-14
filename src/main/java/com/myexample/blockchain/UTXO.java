@@ -33,11 +33,7 @@ public class UTXO {
     }
 
     public String calculateHash() {
-        return CryptoUtil.sha256(
-            recipient +
-            Float.toString(value) + 
-            parentTransactionId
-        );
+        return CryptoUtil.sha256(recipient + Float.toString(value) +  parentTransactionId);
     }
 
     public boolean belongsTo(String publicKeyString) {

@@ -19,24 +19,24 @@ public class WalletServer {
 		var publicKeyStrB = walletB.publicKeyString();
 
 		System.out.println("Transaction base -> A");
-		var tranFrom1 = new TransactionForm(
+		var tranForm1 = new TransactionForm(
 			privateKeyStrBase, publicKeyStrBase, publicKeyStrA, 100);
-		sendTransaction(tranFrom1);
+		sendTransaction(tranForm1);
 
 		System.out.println("Transaction A -> B");
-		var tranFrom2 = new TransactionForm(
+		var tranForm2 = new TransactionForm(
 			privateKeyStrA, publicKeyStrA, publicKeyStrB, 80);
-		sendTransaction(tranFrom2);
+		sendTransaction(tranForm2);
 
 		System.out.println("Transaction B -> A");
-		var tranFrom3 = new TransactionForm(
+		var tranForm3 = new TransactionForm(
 			privateKeyStrB, publicKeyStrB, publicKeyStrA, 45);
-		sendTransaction(tranFrom3);
+		sendTransaction(tranForm3);
 
 		System.out.println("Transaction B -> A");
-		var tranFrom4 = new TransactionForm(
+		var tranForm4 = new TransactionForm(
 			privateKeyStrB, publicKeyStrB, publicKeyStrA, 90);
-		sendTransaction(tranFrom4);
+		sendTransaction(tranForm4);
 
     }
 
@@ -53,8 +53,8 @@ public class WalletServer {
 
 		// debug
 		System.out.println("======= Transaction =======");
-		System.out.println(request.marshalJsonPrettyPrinting());
-		// System.out.println(request.marshalJson());
+		// System.out.println(request.marshalJsonPrettyPrinting());
+		System.out.println(request.marshalJson());
 
 		// request to blockchain server and get response XXX
 		var response = "XXX";

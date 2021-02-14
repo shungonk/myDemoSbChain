@@ -43,7 +43,7 @@ public class TransactionRequest {
         return new Gson().toJson(this);
     }
 
-    public static TransactionRequest unmarshalJson(String json) {
+    public static TransactionRequest fromJson(String json) {
         return new Gson().fromJson(json, TransactionRequest.class);
     }
 }

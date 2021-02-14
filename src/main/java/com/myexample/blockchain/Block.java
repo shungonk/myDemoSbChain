@@ -1,31 +1,28 @@
 package com.myexample.blockchain;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.google.gson.GsonBuilder;
 import com.myexample.utils.CryptoUtil;
 
 public class Block {
 
-    private String hash;
-    private String previousHash;
+    private String hash;                     // determined in proofOfWork method
+    private String previousHash;              
+	private List<Transaction> transactions;
     private String merkleRoot;
-	private List<Transaction> transactions = new ArrayList<>();
     private long timestamp;
-    private int nonce;
+    private int nonce;                       // determined in proofOfWork method
 
-    public Block(String previousHash) {
+    public Block(String previousHash, List<Transaction> transactions) {
         this.previousHash = previousHash;
         this.timestamp = Instant.now().toEpochMilli();
+        this.transactions = transactions;
+        this.merkleRoot = calculateMerkleTree();
         this.hash = calculateHash();
-    }
-
-    public static Block createInitial() {
-        return new Block("0");
     }
 
     public String getHash() {
@@ -40,6 +37,10 @@ public class Block {
         return merkleRoot;
     }
 
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
     public long getTimestamp() {
         return timestamp;
     }
@@ -48,33 +49,25 @@ public class Block {
         return nonce;
     }
 
+    public String marshalJson() {
+        return new GsonBuilder()
+            .setPrettyPrinting()
+            .create().toJson(this);		
+    }
     public String calculateHash() {
         return CryptoUtil.sha256(
-            previousHash + 
-            Long.toString(timestamp) +
-            Integer.toString(nonce) + 
-            merkleRoot
-        );
+            previousHash + Long.toString(timestamp) + Integer.toString(nonce) + merkleRoot
+            );
     }
-    
-    public boolean addTransaction(Transaction transaction) {
-        if (Objects.isNull(transaction)) return false;
 
-        if (transaction.doProcess()) {
-            transactions.add(transaction);
-            System.out.println("Transaction Successfully added to Block");
-            return true;
-        } 
-        System.out.println("Transaction failed to process. Discarded.");
-        return false;
+    private String calculateMerkleTree() {
+        var idList = transactions.stream()
+            .map(Transaction::getTransactionId)
+            .collect(Collectors.toList());
+        return CryptoUtil.calculateMerkleRoot(idList);
     }
 
     public void proofOfWork(int difficulty) {
-        var hashList = transactions.stream()
-            .map(Transaction::getTransactionId)
-            .collect(Collectors.toList());
-
-        merkleRoot = CryptoUtil.calculateMerkleRoot(hashList);
         var zeros = String.join("", Collections.nCopies(difficulty, "0"));
         while (!hash.substring(0, difficulty).equals(zeros)) {
             nonce++;

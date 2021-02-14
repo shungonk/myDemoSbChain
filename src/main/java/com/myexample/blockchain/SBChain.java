@@ -1,7 +1,9 @@
 package com.myexample.blockchain;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.google.gson.GsonBuilder;
 
@@ -10,26 +12,43 @@ public class SBChain {
     public static int difficulty = 4;
     public static float minimumTransactionValue = 0.1f;
 
-    public static UTXOPool UTXOPool = new UTXOPool();
+    public static UTXOPool uTXOPool = new UTXOPool();
+
     private static List<Block> chain = new ArrayList<>();
-    private static Block lastBlock = Block.createInitial();
+	private static List<Transaction> transactionPool = Collections.synchronizedList(new ArrayList<>());
+
+    private SBChain() {}
 
     public static String marshalJson() {
         return new GsonBuilder()
-            // .excludeFieldsWithoutExposeAnnotation()
             .setPrettyPrinting()
             .create().toJson(chain);		
     }
 
     public static boolean addTransaction(Transaction transaction) {
-        return lastBlock.addTransaction(transaction);
+        synchronized (transactionPool) {
+            if (Objects.isNull(transaction)) return false;
+            if (!transaction.doProcess()) {
+                System.out.println("Transaction failed to process. Discarded.");
+                return false;
+            }
+            transactionPool.add(transaction);
+            System.out.println("Transaction Successfully pooled");
+            return true;
+        }
     }
 
     public static void mining() {
-        //TODO: have to accept transactions in the middle of mining.
-        lastBlock.proofOfWork(difficulty);
-        chain.add(lastBlock);
-        lastBlock = new Block(lastBlock.getHash());
+        synchronized (chain) {
+            var transactions = List.copyOf(transactionPool);
+            var newBlock = chain.isEmpty()
+                ? new Block("0", transactions)
+                : new Block(chain.get(chain.size() - 1).getHash(), transactions);
+            newBlock.proofOfWork(difficulty);
+            chain.add(newBlock);
+            transactionPool.removeAll(transactions);
+            System.out.println(newBlock.marshalJson()); //debug
+        }
     }
 
     public static boolean isChainValid() {

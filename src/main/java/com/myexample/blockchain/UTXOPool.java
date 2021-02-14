@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class UTXOPool {
 
-    private HashMap<String, UTXO> pool = new HashMap<>();
+    private Map<String, UTXO> pool = new ConcurrentHashMap<>();
 
     public Collection<UTXO> values() {
         return pool.values();
@@ -41,19 +43,19 @@ public class UTXOPool {
         var result = new UTXOPool();
         var newPool =  values().stream()
             .filter(matcher)
-            .collect(Collectors.toMap(UTXO::getId, v -> v, (k1 ,k2) -> k1, HashMap::new));
+            .collect(Collectors.toMap(UTXO::getId, v -> v, (v1 ,v2) -> v1, HashMap::new));
         result.pool = newPool;
         return result;
     }
 
     public List<UTXO> ceilingList(float value) {
         var total = 0f;
-        var ceiling = new ArrayList<UTXO>();
+        var ceilingList = new ArrayList<UTXO>();
         for (var uTXO: values()) {
             total += uTXO.getValue();
-            ceiling.add(uTXO);
+            ceilingList.add(uTXO);
             if (total > value) break;
         }
-        return ceiling;
+        return ceilingList;
     }
 }

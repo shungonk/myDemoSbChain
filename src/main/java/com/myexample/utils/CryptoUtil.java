@@ -40,7 +40,7 @@ public class CryptoUtil {
             generator.initialize(eSpec, random);
             return generator.generateKeyPair();
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
 	}
 
@@ -53,7 +53,7 @@ public class CryptoUtil {
 			var keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyString));
 			return KeyFactory.getInstance("ECDSA").generatePublic(keySpec);
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class CryptoUtil {
 			var keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString));
 			return KeyFactory.getInstance("ECDSA").generatePrivate(keySpec);
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -74,7 +74,7 @@ public class CryptoUtil {
 			var sign = dsa.sign();
 			return Base64.getEncoder().encodeToString(sign);
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}	
 	}
 
@@ -86,7 +86,7 @@ public class CryptoUtil {
 			var sign = Base64.getDecoder().decode(signature);
 			return dsa.verify(sign);
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 

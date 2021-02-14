@@ -49,7 +49,7 @@ public class Transaction {
     }
 
     private boolean processTransaction() {
-        var senderUTXOs = SBChain.UTXOPool
+        var senderUTXOs = SBChain.uTXOPool
             .select(v -> v.belongsTo(sender));
 
         // set inputs
@@ -59,18 +59,18 @@ public class Transaction {
             .reduce(0f, Float::sum);
 
         // validate transaction
-        if (senderUTXOs.totalValue() < value) {
-            System.out.println("#Not enough balance to send transaction. Transaction discarded.");
+        if (!verifySignature()) {
+            System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
+            return false;
+        }
+        if (inputsValue < value) {
+            System.out.println("# Not enough balance to send transaction. Transaction discarded.");
             return false;
         }
         if (inputsValue < SBChain.minimumTransactionValue) {
-            System.out.println("#Transaction Inputs too small: " + inputsValue);
+            System.out.println("# Transaction Inputs too small: " + inputsValue + ". Transaction discarded.");
             return false;
 
-        }
-        if (!verifySignature()) {
-            System.out.println("#Transaction Signature failed to verify.");
-            return false;
         }
 
         // set outputs in transaction
@@ -79,15 +79,15 @@ public class Transaction {
             new UTXO(sender, inputsValue - value, transactionId));
 
         // update UTXOPool of blockchain
-        SBChain.UTXOPool.putAll(outputs);
-        SBChain.UTXOPool.removeAll(inputs);
+        SBChain.uTXOPool.putAll(outputs);
+        SBChain.uTXOPool.removeAll(inputs);
 
         return true;
     }
 
     private boolean processGenesisTransaction() {
         if (!verifySignature()) {
-            System.out.println("#Transaction Signature failed to verify.");
+            System.out.println("#Transaction Signature failed to verify. Transaction discarded.");
             return false;
         }
 
@@ -95,7 +95,7 @@ public class Transaction {
         outputs = List.of(new UTXO(recipient, value, transactionId));
 
         // update UTXOPool of blockchain
-        SBChain.UTXOPool.putAll(outputs);
+        SBChain.uTXOPool.putAll(outputs);
 
         return true;
     }
