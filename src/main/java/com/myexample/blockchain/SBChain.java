@@ -20,14 +20,16 @@ public class SBChain {
 
     private SBChain() {}
 
+    public static int getChainSize() {
+        return chain.size();
+    }
+
     private static Block lastBlock() {
         return chain.get(chain.size() - 1);
     }
 
-    public static String marshalJson() {
-        return new GsonBuilder()
-            .setPrettyPrinting()
-            .create().toJson(chain);		
+    public static int getTransactionPoolSize() {
+        return transactionPool.size();
     }
 
     public static boolean addTransaction(Transaction transaction) {
@@ -67,5 +69,11 @@ public class SBChain {
             }
         }
         return true;
+    }
+
+    public static String marshalJson() {
+        return new GsonBuilder()
+            .setPrettyPrinting()
+            .create().toJson(chain);		
     }
 }
