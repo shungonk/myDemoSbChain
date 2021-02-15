@@ -86,11 +86,6 @@ public class Transaction {
     }
 
     private boolean processGenesisTransaction() {
-        if (!verifySignature()) {
-            System.out.println("#Transaction Signature failed to verify. Transaction discarded.");
-            return false;
-        }
-
         // set outputs in transaction
         outputs = List.of(new UTXO(recipient, value, transactionId));
 
