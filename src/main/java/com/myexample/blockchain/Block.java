@@ -1,6 +1,7 @@
 package com.myexample.blockchain;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,12 @@ public class Block {
     private String merkleRoot;
     private long timestamp;
     private int nonce;                       // determined in proofOfWork method
+
+    public static final Block INITIAL;
+    static {
+        INITIAL = new Block("0", new ArrayList<>());
+        // write initialiation if necessarry.
+    }
 
     public Block(String previousHash, List<Transaction> transactions) {
         this.previousHash = previousHash;
@@ -73,6 +80,5 @@ public class Block {
             nonce++;
             hash = calculateHash();
         }
-		System.out.println("Block Mined!!! : " + hash);
     }
 }
