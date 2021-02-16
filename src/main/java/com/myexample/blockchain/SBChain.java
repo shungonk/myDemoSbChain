@@ -34,32 +34,32 @@ public class SBChain {
     }
     
     public static boolean acceptTransactionRequest(TransactionRequest request) {
-        synchronized (transactionPool) {
-            System.out.println("Accept transaction request");
-            System.out.println(request.marshalJsonPrettyPrinting());
+        System.out.println("Accept transaction request");
+        System.out.println(request.marshalJsonPrettyPrinting());
 
-            if (!request.verifySignature()) {
-                System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
-                return false;
-            }
-            var transaction = new Transaction(
-                request.calculateHash(),
-                request.getSenderAddress(),
-                request.getRecipientAddress(),
-                request.getValue());
-            return addTransaction(transaction);
+        if (!request.verifySignature()) {
+            System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
+            return false;
         }
+        var transaction = new Transaction(
+            request.calculateHash(),
+            request.getSenderAddress(),
+            request.getRecipientAddress(),
+            request.getValue());
+        return addTransaction(transaction);
     }
 
     public static boolean addTransaction(Transaction transaction) {
-        if (Objects.isNull(transaction)) return false;
-        if (!transaction.doProcess()) {
-            System.out.println("Transaction failed to process. Discarded.");
-            return false;
+        synchronized (transactionPool) {
+            if (Objects.isNull(transaction)) return false;
+            if (!transaction.doProcess()) {
+                System.out.println("Transaction failed to process. Discarded.");
+                return false;
+            }
+            transactionPool.add(transaction);
+            System.out.println("Transaction Successfully pooled.");
+            return true;
         }
-        transactionPool.add(transaction);
-        System.out.println("Transaction Successfully pooled.");
-        return true;
     }
 
     public static void mining() {

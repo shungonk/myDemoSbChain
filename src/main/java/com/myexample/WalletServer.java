@@ -24,6 +24,12 @@ public class WalletServer {
 			coinbase.getAddress(),
 			walletA.getAddress(),
 			100);
+
+		System.out.println(walletA.getAddress());
+		System.out.println(walletA.getPrivateKey());
+		System.out.println(walletA.getPublicKey());
+
+
 		sendTransaction(tranForm1);
 
 		System.out.println("Transaction A -> B");
