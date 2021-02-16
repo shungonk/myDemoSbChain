@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.common.utils.CryptoUtil;
+import com.myexample.common.utils.SecurityUtil;
 
 public class Block {
 
@@ -62,7 +62,7 @@ public class Block {
             .create().toJson(this);		
     }
     public String calculateHash() {
-        return CryptoUtil.sha256(
+        return SecurityUtil.sha256(
             previousHash + Long.toString(timestamp) + Integer.toString(nonce) + merkleRoot
             );
     }
@@ -71,7 +71,7 @@ public class Block {
         var idList = transactions.stream()
             .map(Transaction::getTransactionId)
             .collect(Collectors.toList());
-        return CryptoUtil.calculateMerkleRoot(idList);
+        return SecurityUtil.calculateMerkleRoot(idList);
     }
 
     public void proofOfWork(int difficulty) {

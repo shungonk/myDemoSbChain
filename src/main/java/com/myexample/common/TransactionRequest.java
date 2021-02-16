@@ -2,7 +2,7 @@ package com.myexample.common;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.myexample.common.utils.CryptoUtil;
+import com.myexample.common.utils.SecurityUtil;
 
 public class TransactionRequest {
 
@@ -41,11 +41,11 @@ public class TransactionRequest {
     }
 
     public String calculateHash() {
-        return CryptoUtil.sha256(senderAddress + recipientAddress + Float.toString(value));
+        return SecurityUtil.sha256(senderAddress + recipientAddress + Float.toString(value));
     }
 
     public boolean verifySignature() {
-        return CryptoUtil.verifyEcdsaSign(
+        return SecurityUtil.verifyEcdsaSign(
             senderPublicKey,
             senderAddress + recipientAddress + Float.toString(value),
             signature

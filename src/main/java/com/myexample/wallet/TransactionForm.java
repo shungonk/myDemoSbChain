@@ -1,6 +1,6 @@
 package com.myexample.wallet;
 
-import com.myexample.common.utils.CryptoUtil;
+import com.myexample.common.utils.SecurityUtil;
 
 public class TransactionForm {
 
@@ -40,7 +40,7 @@ public class TransactionForm {
     }
 
     public String generateSignature() {
-        return CryptoUtil.createEcdsaSign(
+        return SecurityUtil.createEcdsaSign(
             senderPrivateKey,
             senderAddress + recipientAddress + Float.toString(value)
             );

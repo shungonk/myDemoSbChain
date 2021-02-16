@@ -3,7 +3,7 @@ package com.myexample.wallet;
 import java.security.Security;
 
 import com.myexample.common.TransactionRequest;
-import com.myexample.common.utils.CryptoUtil;
+import com.myexample.common.utils.SecurityUtil;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -83,7 +83,7 @@ public class WalletServer {
 		var value = 45.0f;
 		var signature = "MEUCIQDr6AfYrTy25bEWcBh0bhItleQI0SdIxEv08QnS0VoX1gIgYhoIItKkwBPJV8aHTkazjjnWXOPmDmtiP4d+LgrhsAA\u003d";
 
-		boolean isValid = CryptoUtil.verifyEcdsaSign(
+		boolean isValid = SecurityUtil.verifyEcdsaSign(
 			senderPublicKey,
 			senderAddress + recipirntAddress + Float.toString(value),
 			signature);

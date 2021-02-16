@@ -1,6 +1,6 @@
 package com.myexample.blockchain;
 
-import com.myexample.common.utils.CryptoUtil;
+import com.myexample.common.utils.SecurityUtil;
 
 public class UTXO {
     
@@ -33,7 +33,7 @@ public class UTXO {
     }
 
     public String calculateHash() {
-        return CryptoUtil.sha256(recipientAddress + Float.toString(value) +  parentTransactionId);
+        return SecurityUtil.sha256(recipientAddress + Float.toString(value) +  parentTransactionId);
     }
 
     public boolean belongsTo(String address) {

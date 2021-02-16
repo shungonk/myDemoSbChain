@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-public class CryptoUtil {
+public class SecurityUtil {
 
 	public static String sha256(String input) {		
 		try {
