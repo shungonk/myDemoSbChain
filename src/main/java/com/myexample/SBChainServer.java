@@ -1,9 +1,11 @@
-package com.myexample.blockchain;
+package com.myexample;
 
 import java.security.Security;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.myexample.blockchain.SBChain;
+import com.myexample.blockchain.Transaction;
 import com.myexample.common.TransactionRequest;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;

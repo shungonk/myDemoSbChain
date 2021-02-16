@@ -1,9 +1,11 @@
-package com.myexample.wallet;
+package com.myexample;
 
 import java.security.Security;
 
 import com.myexample.common.TransactionRequest;
 import com.myexample.common.utils.SecurityUtil;
+import com.myexample.wallet.TransactionForm;
+import com.myexample.wallet.Wallet;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
