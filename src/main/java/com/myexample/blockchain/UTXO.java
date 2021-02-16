@@ -1,16 +1,16 @@
 package com.myexample.blockchain;
 
-import com.myexample.utils.CryptoUtil;
+import com.myexample.common.utils.CryptoUtil;
 
 public class UTXO {
     
     private String id;
-    private String recipient;        //also known as the new owner of these coins.
+    private String recipientAddress;        //also known as the new owner of these coins.
     private float value;                //the amount of coins they own
     private String parentTransactionId; //the id of the transaction this output was created in
 
-    public UTXO(String recipient, float value, String parentTransactionId) {
-        this.recipient = recipient;
+    public UTXO(String recipientAddress, float value, String parentTransactionId) {
+        this.recipientAddress = recipientAddress;
         this.value = value;
         this.parentTransactionId = parentTransactionId;
         this.id = calculateHash();
@@ -20,8 +20,8 @@ public class UTXO {
         return id;
     }
 
-    public String getRecipient() {
-        return recipient;
+    public String getRecipientAddress() {
+        return recipientAddress;
     }
 
     public float getValue() {
@@ -33,10 +33,10 @@ public class UTXO {
     }
 
     public String calculateHash() {
-        return CryptoUtil.sha256(recipient + Float.toString(value) +  parentTransactionId);
+        return CryptoUtil.sha256(recipientAddress + Float.toString(value) +  parentTransactionId);
     }
 
-    public boolean belongsTo(String publicKeyString) {
-        return recipient.equals(publicKeyString);
+    public boolean belongsTo(String address) {
+        return recipientAddress.equals(address);
     }
 }

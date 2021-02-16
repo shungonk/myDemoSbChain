@@ -22,6 +22,13 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.bitcoinj</groupId>
+      <artifactId>bitcoinj-core</artifactId>
+      <version>0.15.9</version>
+    </dependency>
+
+
+    <dependency>
       <groupId>org.bouncycastle.bcprov-jdk15on.1.57.org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
       <version>1.57</version>

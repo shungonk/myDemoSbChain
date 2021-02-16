@@ -3,27 +3,23 @@ package com.myexample.blockchain;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.myexample.utils.CryptoUtil;
-
 public class Transaction {
 
     private String transactionId;
-    private String sender;
-    private String recipient;
+    private String senderAddress;
+    private String recipientAddress;
     private float value;
-    private String signature;
 
     private List<UTXO> inputs = new ArrayList<>();
     private List<UTXO> outputs = new ArrayList<>();
 
-    private static final String GENESIS_ID = "0"; // id of genesis transaction
+    public static final String GENESIS_ID = "0"; // id of genesis transaction
 
-    public Transaction(String transactionId, String sender, String recipient, float value, String signature) {
+    public Transaction(String transactionId, String senderAddress, String recipientAddress, float value) {
         this.transactionId = transactionId;
-        this.sender = sender;
-        this.recipient = recipient;
+        this.senderAddress = senderAddress;
+        this.recipientAddress = recipientAddress;
         this.value = value;
-        this.signature = signature;
     }
 
     public String getTransactionId() {
@@ -34,14 +30,6 @@ public class Transaction {
         return transactionId.equals(GENESIS_ID);
     }
 
-    public boolean verifySignature() {
-        return CryptoUtil.verifyEcdsaSign(
-            sender,
-            sender + recipient + Float.toString(value),
-            signature
-            );
-    }
-
     public boolean doProcess() {
         return isGenesis()
             ? processGenesisTransaction()
@@ -50,7 +38,7 @@ public class Transaction {
 
     private boolean processTransaction() {
         var senderUTXOs = SBChain.uTXOPool
-            .select(v -> v.belongsTo(sender));
+            .select(v -> v.belongsTo(senderAddress));
 
         // set inputs
         inputs = senderUTXOs.ceilingList(value);
@@ -58,25 +46,19 @@ public class Transaction {
             .map(UTXO::getValue)
             .reduce(0f, Float::sum);
 
-        // validate transaction
-        if (!verifySignature()) {
-            System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
-            return false;
-        }
         if (inputsValue < value) {
             System.out.println("# Not enough balance to send transaction. Transaction discarded.");
             return false;
         }
-        if (inputsValue < SBChain.minimumTransactionValue) {
+        if (inputsValue < SBChain.MINIMUM_TRANSACTION_VALUE) {
             System.out.println("# Transaction Inputs too small: " + inputsValue + ". Transaction discarded.");
             return false;
-
         }
 
         // set outputs in transaction
         outputs = List.of(
-            new UTXO(recipient, value, transactionId),
-            new UTXO(sender, inputsValue - value, transactionId));
+            new UTXO(recipientAddress, value, transactionId),
+            new UTXO(senderAddress, inputsValue - value, transactionId));
 
         // update UTXOPool of blockchain
         SBChain.uTXOPool.putAll(outputs);
@@ -87,7 +69,7 @@ public class Transaction {
 
     private boolean processGenesisTransaction() {
         // set outputs in transaction
-        outputs = List.of(new UTXO(recipient, value, transactionId));
+        outputs = List.of(new UTXO(recipientAddress, value, transactionId));
 
         // update UTXOPool of blockchain
         SBChain.uTXOPool.putAll(outputs);

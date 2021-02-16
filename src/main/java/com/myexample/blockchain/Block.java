@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.utils.CryptoUtil;
+import com.myexample.common.utils.CryptoUtil;
 
 public class Block {
 

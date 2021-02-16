@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.gson.GsonBuilder;
+import com.myexample.common.TransactionRequest;
 
 public class SBChain {
 
-    public static int difficulty = 4;
-    public static float minimumTransactionValue = 0.1f;
+    public static final int DIFFICULTY = 4;
+    public static final float MINIMUM_TRANSACTION_VALUE = 0.1f;
 
     public static UTXOPool uTXOPool = new UTXOPool();
 
@@ -20,36 +21,52 @@ public class SBChain {
 
     private SBChain() {}
 
-    public static int getChainSize() {
-        return chain.size();
-    }
-
     private static Block lastBlock() {
         return chain.get(chain.size() - 1);
+    }
+
+    public static int getChainSize() {
+        return chain.size();
     }
 
     public static int getTransactionPoolSize() {
         return transactionPool.size();
     }
-
-    public static boolean addTransaction(Transaction transaction) {
+    
+    public static boolean acceptTransactionRequest(TransactionRequest request) {
         synchronized (transactionPool) {
-            if (Objects.isNull(transaction)) return false;
-            if (!transaction.doProcess()) {
-                System.out.println("Transaction failed to process. Discarded.");
+            System.out.println("Accept transaction request");
+            System.out.println(request.marshalJsonPrettyPrinting());
+
+            if (!request.verifySignature()) {
+                System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
                 return false;
             }
-            transactionPool.add(transaction);
-            System.out.println("Transaction Successfully pooled");
-            return true;
+            var transaction = new Transaction(
+                request.calculateHash(),
+                request.getSenderAddress(),
+                request.getRecipientAddress(),
+                request.getValue());
+            return addTransaction(transaction);
         }
+    }
+
+    public static boolean addTransaction(Transaction transaction) {
+        if (Objects.isNull(transaction)) return false;
+        if (!transaction.doProcess()) {
+            System.out.println("Transaction failed to process. Discarded.");
+            return false;
+        }
+        transactionPool.add(transaction);
+        System.out.println("Transaction Successfully pooled.");
+        return true;
     }
 
     public static void mining() {
         synchronized (chain) {
             var transactions = List.copyOf(transactionPool);
             var newBlock = new Block(lastBlock().getHash(), transactions);
-            newBlock.proofOfWork(difficulty);
+            newBlock.proofOfWork(DIFFICULTY);
             chain.add(newBlock);
             transactionPool.removeAll(transactions);
             

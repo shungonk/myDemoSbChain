@@ -1,18 +1,21 @@
 package com.myexample.wallet;
 
-import com.myexample.utils.CryptoUtil;
+import com.myexample.common.utils.CryptoUtil;
 
 public class TransactionForm {
 
     private String senderPrivateKey;
     private String senderPublicKey;
-    private String recipientPublicKey;
+    private String senderAddress;
+    private String recipientAddress;
     private float value;
 
-    public TransactionForm(String senderPrivateKey, String senderPublicKey, String recipientPublicKey, float value) {
+    public TransactionForm(String senderPrivateKey, String senderPublicKey, String senderAddress,
+            String recipientAddress, float value) {
         this.senderPrivateKey = senderPrivateKey;
         this.senderPublicKey = senderPublicKey;
-        this.recipientPublicKey = recipientPublicKey;
+        this.senderAddress = senderAddress;
+        this.recipientAddress = recipientAddress;
         this.value = value;
     }
 
@@ -24,22 +27,23 @@ public class TransactionForm {
         return senderPublicKey;
     }
 
-    public String getRecipientPublicKey() {
-        return recipientPublicKey;
+    public String getSenderAddress() {
+        return senderAddress;
+    }
+
+    public String getRecipientAddress() {
+        return recipientAddress;
     }
 
     public float getValue() {
         return value;
     }
 
-    public String calculateHash() {
-        return CryptoUtil.sha256(senderPublicKey + recipientPublicKey + Float.toString(value));
-    }
-
     public String generateSignature() {
         return CryptoUtil.createEcdsaSign(
             senderPrivateKey,
-            senderPublicKey + recipientPublicKey + Float.toString(value)
+            senderAddress + recipientAddress + Float.toString(value)
             );
     }
+    
 }
