@@ -13,6 +13,10 @@ public class SBChain {
 
     public static final int DIFFICULTY = 4;
     public static final float MINIMUM_TRANSACTION_VALUE = 0.1f;
+    public static final float MINING_REWARD = 2f;
+    public static final String BLOCKCHAIN_NAME = "THE SBCHAIN";
+
+    public static String minerAddress;
 
     public static UTXOPool uTXOPool = new UTXOPool();
 
@@ -64,6 +68,15 @@ public class SBChain {
 
     public static void mining() {
         synchronized (chain) {
+            // send mining reward to miner
+            var miningTransaction = new Transaction(
+                Transaction.GENESIS_ID, 
+                BLOCKCHAIN_NAME, 
+                minerAddress, 
+                MINING_REWARD);
+            addTransaction(miningTransaction);
+
+            // mine block
             var transactions = List.copyOf(transactionPool);
             var newBlock = new Block(lastBlock().getHash(), transactions);
             newBlock.proofOfWork(DIFFICULTY);

@@ -18,6 +18,9 @@ public class SBChainServer {
         ExecutorService requestExecutor = Executors.newCachedThreadPool();
         ExecutorService minerExecutor = Executors.newCachedThreadPool();
 
+        System.out.println("============ Set blockchain miner ============");
+        SBChain.minerAddress = "temporary_miner_address";
+
         System.out.println("============ Request ============");
 		System.out.println("Transaction base -> A");
         var coinbaseTransaction = new Transaction(
