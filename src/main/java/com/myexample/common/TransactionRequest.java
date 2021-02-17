@@ -44,6 +44,17 @@ public class TransactionRequest {
         return SecurityUtil.sha256(senderAddress + recipientAddress + Float.toString(value));
     }
 
+    public boolean validateTransactionRequest() {
+        if (senderPublicKey == null ||
+            senderAddress == null ||
+            recipientAddress == null ||
+            Float.compare(value, 0f) == 0 ||
+            signature == null) {
+            return false;
+        }
+        return true;
+    }
+
     public boolean verifySignature() {
         return SecurityUtil.verifyEcdsaSign(
             senderPublicKey,

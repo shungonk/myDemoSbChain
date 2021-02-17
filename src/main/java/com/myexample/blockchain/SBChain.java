@@ -41,6 +41,11 @@ public class SBChain {
         System.out.println("Accept transaction request");
         System.out.println(request.marshalJsonPrettyPrinting());
 
+        if (!request.validateTransactionRequest()) {
+            System.out.println("Transaction missing field(s)");
+            return false;
+        }
+
         if (!request.verifySignature()) {
             System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
             return false;
