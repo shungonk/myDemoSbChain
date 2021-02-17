@@ -28,7 +28,6 @@ public class Block {
         this.previousHash = previousHash;
         this.timestamp = Instant.now().toEpochMilli();
         this.transactions = transactions;
-        this.merkleRoot = calculateMerkleTree();
         this.hash = calculateHash();
     }
 
@@ -75,6 +74,7 @@ public class Block {
     }
 
     public void proofOfWork(int difficulty) {
+        merkleRoot = calculateMerkleTree();
         var zeros = String.join("", Collections.nCopies(difficulty, "0"));
         while (!hash.substring(0, difficulty).equals(zeros)) {
             nonce++;
