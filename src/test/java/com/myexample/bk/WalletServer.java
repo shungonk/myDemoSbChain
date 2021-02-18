@@ -1,4 +1,4 @@
-package com.myexample;
+package com.myexample.bk;
 
 import java.security.Security;
 
@@ -24,12 +24,9 @@ public class WalletServer {
 			coinbase.getAddress(),
 			walletA.getAddress(),
 			100);
-
 		System.out.println(walletA.getAddress());
 		System.out.println(walletA.getPrivateKey());
 		System.out.println(walletA.getPublicKey());
-
-
 		sendTransaction(tranForm1);
 
 		System.out.println("Transaction A -> B");
@@ -74,8 +71,7 @@ public class WalletServer {
 
 		// debug
 		System.out.println("======= Transaction =======");
-		// System.out.println(request.marshalJsonPrettyPrinting());
-		System.out.println(request.marshalJson());
+		System.out.println(request.marshalJsonPrettyPrinting());
 		System.out.println("Is signature valid?: " + request.verifySignature());
 
 		// request to blockchain server and get response XXX

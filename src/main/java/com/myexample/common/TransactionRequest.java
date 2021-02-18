@@ -45,11 +45,11 @@ public class TransactionRequest {
     }
 
     public boolean validateTransactionRequest() {
-        if (senderPublicKey == null ||
-            senderAddress == null ||
-            recipientAddress == null ||
+        if (senderPublicKey == null || senderPublicKey.isBlank() ||
+            senderAddress == null || senderAddress.isBlank() ||
+            recipientAddress == null || recipientAddress.isBlank() ||
             Float.compare(value, 0f) == 0 ||
-            signature == null) {
+            signature == null || signature.isBlank()) {
             return false;
         }
         return true;

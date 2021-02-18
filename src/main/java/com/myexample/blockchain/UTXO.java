@@ -5,7 +5,7 @@ import com.myexample.common.utils.SecurityUtil;
 public class UTXO {
     
     private String id;
-    private String recipientAddress;        //also known as the new owner of these coins.
+    private String recipientAddress;    //also known as the new owner of these coins.
     private float value;                //the amount of coins they own
     private String parentTransactionId; //the id of the transaction this output was created in
 

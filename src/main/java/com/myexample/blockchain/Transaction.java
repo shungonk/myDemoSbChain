@@ -3,6 +3,8 @@ package com.myexample.blockchain;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 public class Transaction {
 
     private String transactionId;
@@ -26,17 +28,15 @@ public class Transaction {
         return transactionId;
     }
 
+    public String marshalJson() {
+        return new Gson().toJson(this);
+    }
+
     public boolean isGenesis() {
         return transactionId.equals(GENESIS_ID);
     }
 
-    public boolean doProcess() {
-        return isGenesis()
-            ? processGenesisTransaction()
-            : processTransaction();
-    }
-
-    private boolean processTransaction() {
+    public boolean processTransaction() {
         var senderUTXOs = SBChain.uTXOPool
             .select(v -> v.belongsTo(senderAddress));
 
@@ -55,23 +55,23 @@ public class Transaction {
             return false;
         }
 
-        // set outputs in transaction
+        // set outputs in this transaction
         outputs = List.of(
             new UTXO(recipientAddress, value, transactionId),
             new UTXO(senderAddress, inputsValue - value, transactionId));
 
-        // update UTXOPool of blockchain
+        // update blockchain UTXOPool
         SBChain.uTXOPool.putAll(outputs);
         SBChain.uTXOPool.removeAll(inputs);
 
         return true;
     }
 
-    private boolean processGenesisTransaction() {
-        // set outputs in transaction
+    public boolean processGenesisTransaction() {
+        // set outputs in this transaction
         outputs = List.of(new UTXO(recipientAddress, value, transactionId));
 
-        // update UTXOPool of blockchain
+        // update blockchain UTXOPool
         SBChain.uTXOPool.putAll(outputs);
 
         return true;
