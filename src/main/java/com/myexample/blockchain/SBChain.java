@@ -33,8 +33,22 @@ public class SBChain {
         return chain.size();
     }
 
+    public String marshalJson() {
+        return new Gson().toJson(chain);
+    }
+
+    public String marshalJsonPrettyPrinting() {
+        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+        return gsonBuilder.toJson(chain);
+    }
+
     public static String transactionPoolJson() {
         return new Gson().toJson(transactionPool);
+    }
+
+    public static String transactionPoolJsonPrettyPrinting() {
+        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+        return gsonBuilder.toJson(transactionPool);
     }
 
     public static int getTransactionPoolSize() {
@@ -44,12 +58,11 @@ public class SBChain {
     public static boolean addTransaction(Transaction transaction) {
         synchronized (transactionPool) {
             if (!transaction.processTransaction()) {
-                System.out.println("Transaction failed to process. Discarded.");
                 return false;
             }
             transactionPool.add(transaction);
             System.out.println("Transaction Successfully pooled.");
-            System.out.println(transaction.marshalJson());
+            System.out.println(transaction.marshalJsonPrettyPrinting());
             return true;
         }
     }
@@ -64,7 +77,7 @@ public class SBChain {
             transaction.processGenesisTransaction();
             transactionPool.add(transaction);
             System.out.println("Genesis transaction pooled.");
-            System.out.println(transaction.marshalJson());
+            System.out.println(transaction.marshalJsonPrettyPrinting());
             return true;
         }
     }
@@ -74,7 +87,7 @@ public class SBChain {
         System.out.println(request.marshalJson());
 
         if (!request.validateTransactionRequest()) {
-            System.out.println("Transaction missing field(s)");
+            System.out.println("# Transaction missing field(s)");
             return false;
         }
 
@@ -104,7 +117,7 @@ public class SBChain {
             transactionPool.removeAll(transactions);
             
 		    System.out.println("========== Block Mined!!! ==========");
-            System.out.println(newBlock.marshalJson());
+            System.out.println(newBlock.marshalJsonPrettyPrinting());
         }
     }
 
@@ -119,11 +132,5 @@ public class SBChain {
             }
         }
         return true;
-    }
-
-    public static String marshalJson() {
-        return new GsonBuilder()
-            .setPrettyPrinting()
-            .create().toJson(chain);		
     }
 }

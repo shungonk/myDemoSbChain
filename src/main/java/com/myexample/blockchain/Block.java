@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myexample.common.utils.SecurityUtil;
 
@@ -56,10 +57,15 @@ public class Block {
     }
 
     public String marshalJson() {
-        return new GsonBuilder()
-            .setPrettyPrinting()
-            .create().toJson(this);		
+        return new Gson().toJson(this);
     }
+
+    public String marshalJsonPrettyPrinting() {
+        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+        return gsonBuilder.toJson(this);
+    }
+
+
     public String calculateHash() {
         return SecurityUtil.sha256(
             previousHash + Long.toString(timestamp) + Integer.toString(nonce) + merkleRoot

@@ -48,7 +48,7 @@ public class TransactionRequest {
         if (senderPublicKey == null || senderPublicKey.isBlank() ||
             senderAddress == null || senderAddress.isBlank() ||
             recipientAddress == null || recipientAddress.isBlank() ||
-            Float.compare(value, 0f) == 0 ||
+            Float.compare(value, 0f) <= 0 ||
             signature == null || signature.isBlank()) {
             return false;
         }

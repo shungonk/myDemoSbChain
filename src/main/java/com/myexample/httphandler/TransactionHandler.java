@@ -11,34 +11,32 @@ import com.sun.net.httpserver.HttpHandler;
 
 public class TransactionHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
-        switch (t.getRequestMethod()) {
+        var responseHeader = t.getResponseHeaders();
+        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+            switch (t.getRequestMethod()) {
             case "GET":
 
 
                 break;
 
             case "POST":
-                try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
-                    var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                    var transactionRequest = TransactionRequest.fromJson(json);
-                    //debug
-                    System.out.println(transactionRequest);
-                    var isSuccess = SBChain.acceptTransactionRequest(transactionRequest);
-    
-                    if (isSuccess) {
-                        var response = StringUtil.messageJson("transaction accepted");
-                        t.sendResponseHeaders(200, response.length());
-                        os.write(response.getBytes());
-                    } else {
-                        var response = StringUtil.messageJson("transaction not accepted.");
-                        t.sendResponseHeaders(400, response.length());
-                        os.write(response.getBytes());
-                    }
-                }
+                var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                var transactionRequest = TransactionRequest.fromJson(json);
+                var isSuccess = SBChain.acceptTransactionRequest(transactionRequest);
+
+                responseHeader.add("Content-Type", "application/json");
+                var postResponse = isSuccess
+                    ? StringUtil.messageJson("Transaction accepted!")
+                    : StringUtil.messageJson("Unacceptable transaction.");
+                t.sendResponseHeaders(200, postResponse.length());
+                os.write(postResponse.getBytes());
                 break;
 
             default:
-
+                var response = "Invalid HTTP Method";
+                t.sendResponseHeaders(400, response.length());
+                os.write(response.getBytes());
+            }
         }
     }
 }

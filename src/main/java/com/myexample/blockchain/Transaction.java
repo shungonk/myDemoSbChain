@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class Transaction {
 
@@ -31,6 +32,12 @@ public class Transaction {
     public String marshalJson() {
         return new Gson().toJson(this);
     }
+
+    public String marshalJsonPrettyPrinting() {
+        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+        return gsonBuilder.toJson(this);
+    }
+
 
     public boolean isGenesis() {
         return transactionId.equals(GENESIS_ID);
