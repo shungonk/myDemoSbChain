@@ -33,8 +33,8 @@ public class TransactionHandler implements HttpHandler {
                 break;
 
             default:
-                var response = "Invalid HTTP Method";
-                t.sendResponseHeaders(400, response.length());
+                var response = "Method Not Allowed";
+                t.sendResponseHeaders(405, response.length());
                 os.write(response.getBytes());
             }
         }
