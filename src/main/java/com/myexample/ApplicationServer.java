@@ -6,7 +6,7 @@ import java.security.Security;
 
 import com.myexample.blockchain.SBChain;
 import com.myexample.common.utils.PropertyUtil;
-import com.myexample.httphandler.TransactionHandler;
+import com.myexample.web.TransactionHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -14,8 +14,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class ApplicationServer {
     public void run() {
         try {
-            var host = PropertyUtil.getProperty("serverhost", "localhost");
-            var port = Integer.parseInt(PropertyUtil.getProperty("serverport", "8080"));
+            var host = PropertyUtil.getProperty("host", "localhost");
+            var port = Integer.parseInt(PropertyUtil.getProperty("port", "8080"));
             var server = HttpServer.create(new InetSocketAddress(host, port), 0);
             server.createContext("/transaction", new TransactionHandler());
             server.setExecutor(null);

@@ -1,4 +1,4 @@
-package com.myexample.httphandler;
+package com.myexample.web;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
