@@ -27,7 +27,6 @@ public class PropertyUtil {
         return getProperty(key, "");
     }
 
-
     public static String getProperty(final String key, final String defaultValue) {
         return properties.getProperty(key, defaultValue);
     }
