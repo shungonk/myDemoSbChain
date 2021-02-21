@@ -65,10 +65,9 @@ public class SBChain {
         return true;
     }
 
-    public static boolean addGenesisTransaction(String recipientAddress, float value) {
+    public static boolean generateTransaction(String recipientAddress, float value) {
         synchronized (transactionPool) {
             var transaction = new Transaction(
-                Transaction.GENESIS_ID, 
                 BLOCKCHAIN_NAME, 
                 recipientAddress, 
                 value);
@@ -94,7 +93,6 @@ public class SBChain {
                 return false;
             }
             var transaction = new Transaction(
-                request.calculateHash(),
                 request.getSenderAddress(),
                 request.getRecipientAddress(),
                 request.getValue());
@@ -105,7 +103,7 @@ public class SBChain {
     public static void mining() {
         synchronized (chain) {
             // send reward to miner
-            addGenesisTransaction(MINER_ADDRESS, MINING_REWARD);
+            generateTransaction(MINER_ADDRESS, MINING_REWARD);
 
             // mine block
             System.out.println("Mining...");

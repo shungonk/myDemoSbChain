@@ -40,10 +40,6 @@ public class TransactionRequest {
         return signature;
     }
 
-    public String calculateHash() {
-        return SecurityUtil.sha256(senderAddress + recipientAddress + Float.toString(value));
-    }
-
     public boolean validateTransactionRequest() {
         if (senderPublicKey == null || senderPublicKey.isBlank() ||
             senderAddress == null || senderAddress.isBlank() ||

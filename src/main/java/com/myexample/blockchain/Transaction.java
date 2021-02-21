@@ -1,14 +1,17 @@
 package com.myexample.blockchain;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.myexample.common.utils.SecurityUtil;
 
 public class Transaction {
 
     private String transactionId;
+    private Long timestamp;
     private String senderAddress;
     private String recipientAddress;
     private float value;
@@ -16,19 +19,24 @@ public class Transaction {
     private List<UTXO> inputs = new ArrayList<>();
     private List<UTXO> outputs = new ArrayList<>();
 
-    public static final String GENESIS_ID = "0"; // id of genesis transaction
-
-    public Transaction(String transactionId, String senderAddress, String recipientAddress, float value) {
-        this.transactionId = transactionId;
+    public Transaction(String senderAddress, String recipientAddress, float value) {
+        this.timestamp = Instant.now().toEpochMilli();
         this.senderAddress = senderAddress;
         this.recipientAddress = recipientAddress;
         this.value = value;
+        this.transactionId = calculateHash();
     }
 
     public String getTransactionId() {
         return transactionId;
     }
 
+    public String calculateHash() {
+        return SecurityUtil.sha256(
+            Long.toString(timestamp) + senderAddress + recipientAddress + Float.toString(value)
+            );
+    }
+    
     public String marshalJson() {
         return new Gson().toJson(this);
     }
@@ -36,11 +44,6 @@ public class Transaction {
     public String marshalJsonPrettyPrinting() {
         var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
         return gsonBuilder.toJson(this);
-    }
-
-
-    public boolean isGenesis() {
-        return transactionId.equals(GENESIS_ID);
     }
 
     public boolean processTransaction() {

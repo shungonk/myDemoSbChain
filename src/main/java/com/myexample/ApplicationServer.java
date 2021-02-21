@@ -49,7 +49,7 @@ public class ApplicationServer {
                 var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
                 var address = query.get("address");
                 var value = Float.parseFloat(query.get("value"));
-                SBChain.addGenesisTransaction(address, value);
+                SBChain.generateTransaction(address, value);
 
                 responseHeader.set("Content-Type", "application/json");
                 var postResponse = StringUtil.messageJson("Purchase accepted!");
@@ -138,7 +138,7 @@ public class ApplicationServer {
         // add provider for security
         Security.addProvider(new BouncyCastleProvider());
         // demo initialization
-        SBChain.addGenesisTransaction(SBChain.MINER_ADDRESS, 1000f);
+        SBChain.generateTransaction(SBChain.MINER_ADDRESS, 1000f);
 
         new ApplicationServer().run();
     }
