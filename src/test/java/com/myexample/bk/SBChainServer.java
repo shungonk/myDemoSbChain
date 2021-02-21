@@ -14,21 +14,30 @@ public class SBChainServer {
     public static void main(String[] args) {
         Security.addProvider(new BouncyCastleProvider());
 
-        System.out.println("============ Set coinbase ============");
-        SBChain.addGenesisTransaction(SBChain.MINER_ADDRESS, 100f);
-
-        System.out.println("============ Request ============");
         ExecutorService executor = Executors.newCachedThreadPool();
-        var request2 = "{\"senderPublicKey\":\"MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE2wX86iloHbt9Pf6xAvkLjEhIMoXSez5cZyiKVEktvCv3z4q1mWcl4KxYpSlgQ1zW9rsaWFxC+X8J380CnN653A\u003d\u003d\",\"senderAddress\":\"1Bhsy5VY7quSsB5Rcexe4gStHismfeEgJ\",\"recipientAddress\":\"1MgsoN669KWhdTqX253aJsahqmr8ZjkWR1\",\"value\":80.0,\"signature\":\"MEUCIGnLuwbRNGmlH9AfIyQOFPSOOQyVG3sR1U1hYUIU7RK7AiEA0iwY5FKmiIyWpxfmuQDjvL/6QcDGhZ+urJe4Tg9mpM0\u003d\"}";
-        var request3 = "{\"senderPublicKey\":\"MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEM0mioVbXjoZrtQNWsIUhpGZY08wHdNWXqAIxPkQR8gCRl4nsWrQ4YJd6TwFW1vrafYQ7KqDqaEvVvdNHLQAWfw\u003d\u003d\",\"senderAddress\":\"1MgsoN669KWhdTqX253aJsahqmr8ZjkWR1\",\"recipientAddress\":\"1Bhsy5VY7quSsB5Rcexe4gStHismfeEgJ\",\"value\":45.0,\"signature\":\"MEUCIQDr6AfYrTy25bEWcBh0bhItleQI0SdIxEv08QnS0VoX1gIgYhoIItKkwBPJV8aHTkazjjnWXOPmDmtiP4d+LgrhsAA\u003d\"}";
-        var request4 = "{\"senderPublicKey\":\"MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEM0mioVbXjoZrtQNWsIUhpGZY08wHdNWXqAIxPkQR8gCRl4nsWrQ4YJd6TwFW1vrafYQ7KqDqaEvVvdNHLQAWfw\u003d\u003d\",\"senderAddress\":\"1MgsoN669KWhdTqX253aJsahqmr8ZjkWR1\",\"recipientAddress\":\"1Bhsy5VY7quSsB5Rcexe4gStHismfeEgJ\",\"value\":90.0,\"signature\":\"MEYCIQDeWH0LnG32y8rVBzcG88fgny1IOM4s5YkSWDKUU4kYfwIhAPR33xy+bfuE/LgGNe3aCMq3uBKO2kAHimgtaZacLKt8\"}";
-        executor.execute(() -> transactionResponse(request2));
-        executor.execute(() -> SBChain.mining());
-        executor.execute(() -> transactionResponse(request3));
-        executor.execute(() -> transactionResponse(request4));
-        executor.execute(() -> SBChain.mining());
+        var request2 = "{\"senderPublicKey\":\"MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeJ9hfzw+tkrBV47QM67htmK31Vg/otuDudsMFIRpVKWsqr+1kJsnifB4gpjWTIyc4UJIdaQsAJ000q+TFfPJlQ\u003d\u003d\",\"senderAddress\":\"1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p\",\"recipientAddress\":\"1MU4DNa19NyWBLgBmEEraySiKSk8u4Zhbw\",\"value\":80.0,\"signature\":\"MEUCIBZWGACHZJLNTqE7nZ+JsQ3q8+KDoRAcnr/ijfa4LOfBAiEA1ZXxdrvs+XkrrQk7HZG5eGcQXIWThaNYUd6TQ68yDCI\u003d\"}";
+        var request3 = "{\"senderPublicKey\":\"MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEx/4qh5VHgEpCiuVEpTWNVFB3Y/+IQUk2q4kjgpMDYWEvy2W/Iq9POMIv/Fk4SZPSD8807SZD6bNx8ZPkpk0ZCQ\u003d\u003d\",\"senderAddress\":\"1MU4DNa19NyWBLgBmEEraySiKSk8u4Zhbw\",\"recipientAddress\":\"1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p\",\"value\":45.0,\"signature\":\"MEYCIQDin/SAZSz6vbhdBSLoqeRx4Aqav4IgJWfsTeGefopEWQIhAKsgRa0MQthkM+uqZirnI7OF9nOzLk7TXmuvpj4hR6Ha\"}";
+        var request4 = "{\"senderPublicKey\":\"MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEx/4qh5VHgEpCiuVEpTWNVFB3Y/+IQUk2q4kjgpMDYWEvy2W/Iq9POMIv/Fk4SZPSD8807SZD6bNx8ZPkpk0ZCQ\u003d\u003d\",\"senderAddress\":\"1MU4DNa19NyWBLgBmEEraySiKSk8u4Zhbw\",\"recipientAddress\":\"1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p\",\"value\":90.0,\"signature\":\"MEYCIQCgzsRhLFgpFMAaBso8D3QF3NSotI1vV2IQS6PMGqHTaQIhALLw5LXKYzqHqvCs3vIQcbD/PNWTwEN+dcXjM1Fy77ji\"}";
+        
+        try {
+            executor.execute(() -> SBChain.addGenesisTransaction(SBChain.MINER_ADDRESS, 100f));
+            executor.execute(() -> transactionResponse(request2));
+    
+            Thread.sleep(3000);
+            executor.execute(() -> SBChain.mining());
 
-        executor.shutdown();
+            Thread.sleep(3000);
+            executor.execute(() -> transactionResponse(request3));
+            executor.execute(() -> transactionResponse(request4));
+
+            Thread.sleep(3000);
+            executor.execute(() -> SBChain.mining());
+    
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            executor.shutdown();
+        }
     }
 
     public static void transactionResponse(String request) {

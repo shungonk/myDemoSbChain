@@ -16,20 +16,25 @@ public class WalletServer {
 		var walletA = new Wallet();
 		var walletB = new Wallet();
 		var coinbase = new Wallet();
+		System.out.println("Wallet A");
+		System.out.println(" Address: " + walletA.getAddress());
+		System.out.println(" Private Key: " + walletA.getPrivateKey());
+		System.out.println(" Public Key: " + walletA.getPublicKey());
+		System.out.println("Wallet B");
+		System.out.println(" Address: " + walletB.getAddress());
+		System.out.println(" Private Key: " + walletB.getPrivateKey());
+		System.out.println(" Public Key: " + walletB.getPublicKey());
 
-		System.out.println("Transaction base -> A");
+		System.out.println("======== Transaction base -> A ========");
 		var tranForm1 = new TransactionForm(
 			coinbase.getPrivateKey(),
 			coinbase.getPublicKey(), 
 			coinbase.getAddress(),
 			walletA.getAddress(),
 			100);
-		System.out.println(walletA.getAddress());
-		System.out.println(walletA.getPrivateKey());
-		System.out.println(walletA.getPublicKey());
 		sendTransaction(tranForm1);
 
-		System.out.println("Transaction A -> B");
+		System.out.println("======== Transaction A -> B ========");
 		var tranForm2 = new TransactionForm(
 			walletA.getPrivateKey(),
 			walletA.getPublicKey(), 
@@ -38,7 +43,7 @@ public class WalletServer {
 			80);
 		sendTransaction(tranForm2);
 
-		System.out.println("Transaction B -> A");
+		System.out.println("======== Transaction B -> A ========");
 		var tranForm3 = new TransactionForm(
 			walletB.getPrivateKey(),
 			walletB.getPublicKey(), 
@@ -47,7 +52,7 @@ public class WalletServer {
 			45);
 		sendTransaction(tranForm3);
 
-		System.out.println("Transaction B -> A");
+		System.out.println("======== Transaction B -> A ========");
 		var tranForm4 = new TransactionForm(
 			walletB.getPrivateKey(),
 			walletB.getPublicKey(), 
@@ -70,7 +75,6 @@ public class WalletServer {
 		var requestJson = request.marshalJson();
 
 		// debug
-		System.out.println("======= Transaction =======");
 		System.out.println(request.marshalJsonPrettyPrinting());
 		System.out.println("Is signature valid?: " + request.verifySignature());
 

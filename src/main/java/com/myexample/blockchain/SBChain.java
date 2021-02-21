@@ -56,15 +56,13 @@ public class SBChain {
     }
 
     private static boolean addTransaction(Transaction transaction) {
-        synchronized (transactionPool) {
-            if (!transaction.processTransaction()) {
-                return false;
-            }
-            transactionPool.add(transaction);
-            System.out.println("Transaction Successfully pooled.");
-            System.out.println(transaction.marshalJsonPrettyPrinting());
-            return true;
+        if (!transaction.processTransaction()) {
+            return false;
         }
+        transactionPool.add(transaction);
+        System.out.println("Transaction Successfully pooled.");
+        System.out.println(transaction.marshalJsonPrettyPrinting());
+        return true;
     }
 
     public static boolean addGenesisTransaction(String recipientAddress, float value) {
@@ -77,30 +75,31 @@ public class SBChain {
             transaction.processGenesisTransaction();
             transactionPool.add(transaction);
             System.out.println("Genesis transaction pooled.");
-            System.out.println(transaction.marshalJsonPrettyPrinting());
             return true;
         }
     }
     
     public static boolean acceptTransactionRequest(TransactionRequest request) {
-        System.out.println("Accepting transaction request");
-        System.out.println(request.marshalJson());
+        synchronized (transactionPool) {
+            System.out.println("Accepting transaction request");
+            System.out.println(request.marshalJson());
 
-        if (!request.validateTransactionRequest()) {
-            System.out.println("# Transaction missing field(s)");
-            return false;
-        }
+            if (!request.validateTransactionRequest()) {
+                System.out.println("# Transaction missing field(s)");
+                return false;
+            }
 
-        if (!request.verifySignature()) {
-            System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
-            return false;
+            if (!request.verifySignature()) {
+                System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
+                return false;
+            }
+            var transaction = new Transaction(
+                request.calculateHash(),
+                request.getSenderAddress(),
+                request.getRecipientAddress(),
+                request.getValue());
+            return addTransaction(transaction);
         }
-        var transaction = new Transaction(
-            request.calculateHash(),
-            request.getSenderAddress(),
-            request.getRecipientAddress(),
-            request.getValue());
-        return addTransaction(transaction);
     }
 
     public static void mining() {
