@@ -116,6 +116,36 @@ public class ApplicationServer {
         }
     };
 
+    public HttpHandler mineHandler = (HttpExchange t) -> {
+        var responseHeader = t.getResponseHeaders();
+        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+            switch (t.getRequestMethod()) {
+            case "POST":
+                var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
+                var address = query.get("address");
+                String postResponse;
+                if (!SBChain.MINER_ADDRESS.equals(address)) {
+                    postResponse = StringUtil.messageJson("You are no miner.");
+                } else if (SBChain.isTransactionPoolEmpty()) {
+                    postResponse = StringUtil.messageJson("TransactionPool Empty.");
+                } else {
+                    SBChain.mining();
+                    postResponse = StringUtil.messageJson("Mining Success!");
+                }
+
+                responseHeader.set("Content-Type", "application/json");
+                t.sendResponseHeaders(200, postResponse.length());
+                os.write(postResponse.getBytes());
+                break;
+
+            default:
+                var response = "Method Not Allowed";
+                t.sendResponseHeaders(405, response.length());
+                os.write(response.getBytes());
+            }
+        }
+    };
+
     public void run() {
         try {
             var host = PropertyUtil.getProperty("host", "localhost");
@@ -125,6 +155,7 @@ public class ApplicationServer {
             server.createContext("/purchase", purchaseHandler);
             server.createContext("/chain", chainHandler);
             server.createContext("/transaction", transactionHandler);
+            server.createContext("/mine", mineHandler);
             server.setExecutor(null);
             server.start();
             System.out.println("Server started on port " + port);

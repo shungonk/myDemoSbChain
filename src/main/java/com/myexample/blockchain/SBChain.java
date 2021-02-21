@@ -14,7 +14,7 @@ public class SBChain {
 
     public static final int DIFFICULTY = 4;
     public static final float MINIMUM_TRANSACTION_VALUE = 0.1f;
-    public static final float MINING_REWARD = 2f;
+    public static final float MINING_REWARD = 5f;
     public static final String BLOCKCHAIN_NAME = "THE SBCHAIN";
     public static final String MINER_ADDRESS = PropertyUtil.getProperty("mineraddress");
 
@@ -53,6 +53,10 @@ public class SBChain {
 
     public static int getTransactionPoolSize() {
         return transactionPool.size();
+    }
+
+    public static boolean isTransactionPoolEmpty() {
+        return transactionPool.isEmpty();
     }
 
     private static boolean addTransaction(Transaction transaction) {
