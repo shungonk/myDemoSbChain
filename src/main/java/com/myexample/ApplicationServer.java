@@ -40,6 +40,25 @@ public class ApplicationServer {
         }
     };
 
+    public HttpHandler chainHandler = (HttpExchange t) -> {
+        var responseHeader = t.getResponseHeaders();
+        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+            switch (t.getRequestMethod()) {
+            case "GET":
+                responseHeader.set("Content-Type", "application/json");
+                var getResponse = SBChain.marshalJson();
+                t.sendResponseHeaders(200, getResponse.length());
+                os.write(getResponse.getBytes());
+                break;
+
+            default:
+                var response = "Method Not Allowed";
+                t.sendResponseHeaders(405, response.length());
+                os.write(response.getBytes());
+            }
+        }
+    };
+
     public HttpHandler transactionHandler = (HttpExchange t) -> {
         var responseHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
@@ -79,6 +98,7 @@ public class ApplicationServer {
             var server = HttpServer.create(new InetSocketAddress(host, port), 0);
             server.createContext("/balance", balanceHandler);
             server.createContext("/transaction", transactionHandler);
+            server.createContext("/chain", chainHandler);
             server.setExecutor(null);
             server.start();
             System.out.println("Server started on port " + port);

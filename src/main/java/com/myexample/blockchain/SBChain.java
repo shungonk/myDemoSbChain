@@ -33,11 +33,11 @@ public class SBChain {
         return chain.size();
     }
 
-    public String marshalJson() {
+    public static String marshalJson() {
         return new Gson().toJson(chain);
     }
 
-    public String marshalJsonPrettyPrinting() {
+    public static String marshalJsonPrettyPrinting() {
         var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
         return gsonBuilder.toJson(chain);
     }
