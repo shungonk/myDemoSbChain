@@ -40,6 +40,31 @@ public class ApplicationServer {
         }
     };
 
+    // demo api
+    public HttpHandler purchaseHandler = (HttpExchange t) -> {
+        var responseHeader = t.getResponseHeaders();
+        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+            switch (t.getRequestMethod()) {
+            case "POST":
+                var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
+                var address = query.get("address");
+                var value = Float.parseFloat(query.get("value"));
+                SBChain.addGenesisTransaction(address, value);
+
+                responseHeader.set("Content-Type", "application/json");
+                var postResponse = StringUtil.messageJson("Purchase accepted!");
+                t.sendResponseHeaders(200, postResponse.length());
+                os.write(postResponse.getBytes());
+                break;
+
+            default:
+                var response = "Method Not Allowed";
+                t.sendResponseHeaders(405, response.length());
+                os.write(response.getBytes());
+            }
+        }
+    };
+
     public HttpHandler chainHandler = (HttpExchange t) -> {
         var responseHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
@@ -97,13 +122,15 @@ public class ApplicationServer {
             var port = Integer.parseInt(PropertyUtil.getProperty("port", "8080"));
             var server = HttpServer.create(new InetSocketAddress(host, port), 0);
             server.createContext("/balance", balanceHandler);
-            server.createContext("/transaction", transactionHandler);
+            server.createContext("/purchase", purchaseHandler);
             server.createContext("/chain", chainHandler);
+            server.createContext("/transaction", transactionHandler);
             server.setExecutor(null);
             server.start();
             System.out.println("Server started on port " + port);
         } catch (IOException e) {
             e.printStackTrace();
+            throw new RuntimeException("Exception occured in Application statring");
         }
     }
 

@@ -55,7 +55,7 @@ public class SBChain {
         return transactionPool.size();
     }
 
-    public static boolean addTransaction(Transaction transaction) {
+    private static boolean addTransaction(Transaction transaction) {
         synchronized (transactionPool) {
             if (!transaction.processTransaction()) {
                 return false;
