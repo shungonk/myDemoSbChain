@@ -39,8 +39,8 @@ public class ApplicationServer {
             }
         }
     };
-
-    // demo api
+    
+    ////////// for demo //////////
     public HttpHandler purchaseHandler = (HttpExchange t) -> {
         var responseHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
@@ -64,6 +64,7 @@ public class ApplicationServer {
             }
         }
     };
+    //////////////////////////////
 
     public HttpHandler chainHandler = (HttpExchange t) -> {
         var responseHeader = t.getResponseHeaders();
@@ -125,7 +126,7 @@ public class ApplicationServer {
                 var address = query.get("address");
                 String postResponse;
                 if (!SBChain.MINER_ADDRESS.equals(address)) {
-                    postResponse = StringUtil.messageJson("You are no miner.");
+                    postResponse = StringUtil.messageJson("You are not miner.");
                 } else if (SBChain.isTransactionPoolEmpty()) {
                     postResponse = StringUtil.messageJson("TransactionPool Empty.");
                 } else {
