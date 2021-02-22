@@ -169,7 +169,7 @@ public class ApplicationServer {
         // add provider for security
         Security.addProvider(new BouncyCastleProvider());
         // demo initialization
-        SBChain.generateTransaction(SBChain.MINER_ADDRESS, 1000f);
+        SBChain.generateTransaction(SBChain.MINER_ADDRESS, 10000f);
 
         new ApplicationServer().run();
     }
