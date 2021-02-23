@@ -1,8 +1,8 @@
 package com.myexample.common;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myexample.common.utils.SecurityUtil;
+import com.myexample.common.utils.StringUtil;
 
 public class TransactionRequest {
 
@@ -60,7 +60,7 @@ public class TransactionRequest {
     }
 
     public String marshalJson() {
-        return new Gson().toJson(this);
+        return StringUtil.toJson(this);
     }
 
     public String marshalJsonPrettyPrinting() {
@@ -69,7 +69,7 @@ public class TransactionRequest {
     }
 
     public static TransactionRequest fromJson(String json) {
-        return new Gson().fromJson(json, TransactionRequest.class);
+        return StringUtil.fromJson(json, TransactionRequest.class);
     }
     
 }

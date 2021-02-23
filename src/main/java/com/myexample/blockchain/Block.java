@@ -1,16 +1,19 @@
 package com.myexample.blockchain;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myexample.common.utils.SecurityUtil;
+import com.myexample.common.utils.StringUtil;
 
-public class Block {
+public class Block implements Serializable {
+
+    private static final long serialVersionUID = 5762484348074109752L;
 
     private String hash;                     // determined in proofOfWork method
     private String previousHash;              
@@ -45,7 +48,7 @@ public class Block {
     }
 
     public List<Transaction> getTransactions() {
-        return transactions;
+        return Collections.unmodifiableList(transactions);
     }
 
     public long getTimestamp() {
@@ -57,7 +60,7 @@ public class Block {
     }
 
     public String marshalJson() {
-        return new Gson().toJson(this);
+        return StringUtil.toJson(this);
     }
 
     public String marshalJsonPrettyPrinting() {
@@ -81,7 +84,7 @@ public class Block {
 
     public void proofOfWork(int difficulty) {
         merkleRoot = calculateMerkleTree();
-        var zeros = String.join("", Collections.nCopies(difficulty, "0"));
+        var zeros = StringUtil.repeat("0", difficulty);
         while (!hash.substring(0, difficulty).equals(zeros)) {
             nonce++;
             hash = calculateHash();

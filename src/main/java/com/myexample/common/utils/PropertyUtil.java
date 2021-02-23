@@ -8,7 +8,7 @@ import java.util.Properties;
 
 public class PropertyUtil {
 
-    private static final String INIT_FILE_PATH = "application.properties";
+    private static final String INIT_FILE_PATH = "src/main/java/com/myexample/resource/application.properties";
     private static final Properties properties;
 
     private PropertyUtil() {}

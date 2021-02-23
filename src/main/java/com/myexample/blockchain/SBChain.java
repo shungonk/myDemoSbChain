@@ -1,28 +1,52 @@
 package com.myexample.blockchain;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myexample.common.Result;
 import com.myexample.common.TransactionRequest;
+import com.myexample.common.utils.FileUtil;
 import com.myexample.common.utils.PropertyUtil;
+import com.myexample.common.utils.StringUtil;
 
 public class SBChain {
 
-    public static final int DIFFICULTY = 4;
+    public static final int DIFFICULTY = 5;
     public static final float MINIMUM_TRANSACTION_VALUE = 0.1f;
-    public static final float MINING_REWARD = 5f;
+    public static final float MINING_REWARD = 10f;
     public static final String BLOCKCHAIN_NAME = "THE SBCHAIN";
     public static final String MINER_ADDRESS = PropertyUtil.getProperty("mineraddress");
 
     public static UTXOPool uTXOPool = new UTXOPool();
-
     private static List<Block> chain = new ArrayList<>(Arrays.asList(Block.INITIAL));
 	private static List<Transaction> transactionPool = Collections.synchronizedList(new ArrayList<>());
+
+    static {
+        try {
+            loadChain();
+        } catch (FileNotFoundException e) {
+            System.out.println("Chain file not found");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            // TODO: handle exception
+        }
+
+        try {
+            loadTransactionPool();
+        } catch (FileNotFoundException e) {
+            System.out.println("TransactionPool file not found");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            // TODO: handle exception
+        }
+
+        loadUTXOPool();
+    }
 
     private SBChain() {}
 
@@ -34,8 +58,12 @@ public class SBChain {
         return chain.size();
     }
 
+    public static boolean isTransactionPoolEmpty() {
+        return transactionPool.isEmpty();
+    }
+
     public static String marshalJson() {
-        return new Gson().toJson(chain);
+        return StringUtil.toJson(chain);
     }
 
     public static String marshalJsonPrettyPrinting() {
@@ -44,20 +72,12 @@ public class SBChain {
     }
 
     public static String transactionPoolJson() {
-        return new Gson().toJson(transactionPool);
+        return StringUtil.toJson(transactionPool);
     }
 
     public static String transactionPoolJsonPrettyPrinting() {
         var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
         return gsonBuilder.toJson(transactionPool);
-    }
-
-    public static int getTransactionPoolSize() {
-        return transactionPool.size();
-    }
-
-    public static boolean isTransactionPoolEmpty() {
-        return transactionPool.isEmpty();
     }
 
     private static Result addTransaction(Transaction transaction) {
@@ -68,6 +88,9 @@ public class SBChain {
         transactionPool.add(transaction);
         System.out.println("Transaction Successfully pooled.");
         System.out.println(transaction.marshalJsonPrettyPrinting());
+
+        // save objects
+        saveTransactionPool();
         return result;
     }
 
@@ -81,6 +104,9 @@ public class SBChain {
             transactionPool.add(transaction);
             System.out.println("Genesis transaction pooled.");
             System.out.println(transaction.marshalJsonPrettyPrinting());
+
+            // save objects
+            saveTransactionPool();
             return Result.TRANSACTION_SUCCESS;
         }
     }
@@ -124,6 +150,10 @@ public class SBChain {
             
 		    System.out.println("========== Block Mined!!! ==========");
             System.out.println(newBlock.marshalJsonPrettyPrinting());
+
+            // save objects
+            saveChain();
+            saveTransactionPool();
             return Result.MINING_SUCCESS;
         }
     }
@@ -139,5 +169,53 @@ public class SBChain {
             }
         }
         return true;
+    }
+
+    private static void saveChain() {
+        try {
+            var path = PropertyUtil.getProperty("chainfile");
+            FileUtil.serializeObject(path, chain);
+            System.out.println("Blockchain is saved");
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO: handle exception
+        }
+    }
+
+    private static void saveTransactionPool() {
+        try {
+            var path = PropertyUtil.getProperty("transactionsfile");
+            FileUtil.serializeObject(path, transactionPool);
+            System.out.println("Transaction pool is saved");
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO: handle exception
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void loadChain() throws IOException, ClassNotFoundException {
+        var path = PropertyUtil.getProperty("chainfile");
+        chain = FileUtil.deserializeObject(path, chain.getClass());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void loadTransactionPool() throws IOException, ClassNotFoundException {
+        var path = PropertyUtil.getProperty("transactionsfile");
+        transactionPool = FileUtil.deserializeObject(path, transactionPool.getClass());
+    }
+
+    private static void loadUTXOPool() {
+        for (var block: chain) {
+            var transactions = block.getTransactions();
+            for (var t: transactions) {
+                uTXOPool.putAll(t.getOutputs());
+                uTXOPool.removeAll(t.getInputs());
+            }
+        }
+        for (var t: transactionPool) {
+            uTXOPool.putAll(t.getOutputs());
+            uTXOPool.removeAll(t.getInputs());
+        }
     }
 }

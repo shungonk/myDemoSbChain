@@ -116,6 +116,25 @@ public class ApplicationServer {
         }
     };
 
+    public HttpHandler uTXOHandler = (HttpExchange t) -> {
+        var responseHeader = t.getResponseHeaders();
+        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+            switch (t.getRequestMethod()) {
+            case "GET":
+                responseHeader.set("Content-Type", "application/json");
+                var getResponse = SBChain.uTXOPool.marshalJson();
+                t.sendResponseHeaders(200, getResponse.length());
+                os.write(getResponse.getBytes());
+                break;
+
+            default:
+                var response = Result.HTTP_METHOD_NOT_ALLOWED.toMessageJson();
+                t.sendResponseHeaders(405, response.length());
+                os.write(response.getBytes());
+            }
+        }
+    };
+
     public HttpHandler mineHandler = (HttpExchange t) -> {
         var responseHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
@@ -150,6 +169,7 @@ public class ApplicationServer {
             server.createContext("/purchase", purchaseHandler);
             server.createContext("/chain", chainHandler);
             server.createContext("/transaction", transactionHandler);
+            server.createContext("/utxo", uTXOHandler);
             server.createContext("/mine", mineHandler);
             server.setExecutor(null);
             server.start();
@@ -164,7 +184,9 @@ public class ApplicationServer {
         // add provider for security
         Security.addProvider(new BouncyCastleProvider());
         // demo initialization
-        SBChain.generateTransaction(SBChain.MINER_ADDRESS, 10000f);
+        if (SBChain.getChainSize() == 1 && SBChain.isTransactionPoolEmpty()) {
+            SBChain.generateTransaction(SBChain.MINER_ADDRESS, 10000f);
+        }
 
         new ApplicationServer().run();
     }

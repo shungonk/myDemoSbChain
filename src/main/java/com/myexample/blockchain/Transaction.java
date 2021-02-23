@@ -1,18 +1,22 @@
 package com.myexample.blockchain;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myexample.common.Result;
 import com.myexample.common.utils.SecurityUtil;
+import com.myexample.common.utils.StringUtil;
 
-public class Transaction {
+public class Transaction implements Serializable {
+
+    private static final long serialVersionUID = -4830434376199056194L;
 
     private String transactionId;
-    private Long timestamp;
+    private long timestamp;
     private String senderAddress;
     private String recipientAddress;
     private float value;
@@ -32,6 +36,30 @@ public class Transaction {
         return transactionId;
     }
 
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public String getSenderAddress() {
+        return senderAddress;
+    }
+
+    public String getRecipientAddress() {
+        return recipientAddress;
+    }
+
+    public float getValue() {
+        return value;
+    }
+
+    public List<UTXO> getInputs() {
+        return Collections.unmodifiableList(inputs);
+    }
+
+    public List<UTXO> getOutputs() {
+        return Collections.unmodifiableList(outputs);
+    }
+
     public String calculateHash() {
         return SecurityUtil.sha256(
             Long.toString(timestamp) + senderAddress + recipientAddress + Float.toString(value)
@@ -39,7 +67,7 @@ public class Transaction {
     }
     
     public String marshalJson() {
-        return new Gson().toJson(this);
+        return StringUtil.toJson(this);
     }
 
     public String marshalJsonPrettyPrinting() {

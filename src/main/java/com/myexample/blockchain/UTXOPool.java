@@ -1,5 +1,6 @@
 package com.myexample.blockchain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,9 +10,23 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class UTXOPool {
+import com.google.gson.GsonBuilder;
+import com.myexample.common.utils.StringUtil;
+
+public class UTXOPool implements Serializable {
+
+    private static final long serialVersionUID = 5409898258250952264L;
 
     private Map<String, UTXO> pool = new ConcurrentHashMap<>();
+
+    public String marshalJson() {
+        return StringUtil.toJson(pool);
+    }
+
+    public String marshalJsonPrettyPrinting() {
+        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+        return gsonBuilder.toJson(pool);
+    }
 
     public Collection<UTXO> values() {
         return pool.values();

@@ -12,7 +12,17 @@ public class StringUtil {
     public static final String AMPERSAND = "&";
     public static final String EQUAL = "=";
 
+    private static final Gson GSON = new Gson();
+
     private StringUtil() {}
+
+    public static String repeat(String str, int n) {
+        var nStr = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            nStr.append(str);
+        }
+        return nStr.toString();
+    }
 
     public static String messageJson(String message) {
         return singleEntryJson("message", message);
@@ -27,8 +37,16 @@ public class StringUtil {
     }
 
     public static String valueInJson(String json, String key) {
-        var map = new Gson().fromJson(json, HashMap.class);
+        var map = GSON.fromJson(json, HashMap.class);
         return (String) map.get(key);
+    }
+
+    public static String toJson(Object o) {
+        return GSON.toJson(o);
+    }
+
+    public static <T> T fromJson(String json, Class<T> cls) {
+        return GSON.fromJson(json, cls);
     }
 
     public static Map<String, String> splitQuery(String query) {

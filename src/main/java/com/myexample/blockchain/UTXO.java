@@ -1,9 +1,13 @@
 package com.myexample.blockchain;
 
+import java.io.Serializable;
+
 import com.myexample.common.utils.SecurityUtil;
 
-public class UTXO {
-    
+public class UTXO implements Serializable {
+
+    private static final long serialVersionUID = 4871213972945357113L;
+
     private String id;
     private String recipientAddress;    //also known as the new owner of these coins.
     private float value;                //the amount of coins they own

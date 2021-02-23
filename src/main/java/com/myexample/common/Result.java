@@ -22,7 +22,7 @@ public enum Result {
 
     // Mining message
     MINING_NOT_MINER(
-        Status.FAILED, "This wallet has no auth to mine"),
+        Status.FAILED, "This wallet has no rights to mine"),
     MINING_POOL_EMPTY(
         Status.FAILED, "Transaction pool is empty"),
     MINING_SUCCESS(
