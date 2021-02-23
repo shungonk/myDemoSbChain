@@ -1,8 +1,11 @@
 package com.myexample.common.utils;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.google.gson.Gson;
 
 public class StringUtil {
 
@@ -21,6 +24,11 @@ public class StringUtil {
 
     public static String singleEntryJson(String key, float value) {
         return String.format("{\"%s\":\"%f\"}", key, value);
+    }
+
+    public static String valueInJson(String json, String key) {
+        var map = new Gson().fromJson(json, HashMap.class);
+        return (String) map.get(key);
     }
 
     public static Map<String, String> splitQuery(String query) {
