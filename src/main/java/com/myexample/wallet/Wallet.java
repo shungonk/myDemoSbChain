@@ -2,7 +2,6 @@ package com.myexample.wallet;
 
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
-import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Base64;
@@ -27,8 +26,8 @@ public class Wallet {
 
             // store just the private part of the key since the public key can be derived from the private key.
             // The static method adjustTo64() merely pads the hex string with leading 0s so the total length is 64 characters.
-            var epvt = (ECPrivateKey) pvt;
-            var sepvt = adjustTo64(epvt.getS().toString(16)).toUpperCase();
+            // var epvt = (ECPrivateKey) pvt;
+            // var sepvt = adjustTo64(epvt.getS().toString(16)).toUpperCase();
 
             // The public part of the key generated above is encoded into a bitcoin address.
             // the ECDSA public key is represented by a point on an elliptical curve.
