@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.myexample.common.Result;
 import com.myexample.common.utils.SecurityUtil;
 
 public class Transaction {
@@ -46,7 +47,7 @@ public class Transaction {
         return gsonBuilder.toJson(this);
     }
 
-    public boolean processTransaction() {
+    public Result processTransaction() {
         var senderUTXOs = SBChain.uTXOPool
             .select(v -> v.belongsTo(senderAddress));
 
@@ -58,11 +59,11 @@ public class Transaction {
 
         if (inputsValue < value) {
             System.out.println("# Not enough balance to send transaction. Transaction discarded.");
-            return false;
+            return Result.TRANSACTION_NOTENOUGH_BALANCE;
         }
         if (inputsValue < SBChain.MINIMUM_TRANSACTION_VALUE) {
             System.out.println("# Transaction Inputs too small: " + inputsValue + ". Transaction discarded.");
-            return false;
+            return Result.TRANSACTION_TOOSMALL_INPUTS;
         }
 
         // set outputs in this transaction
@@ -74,16 +75,16 @@ public class Transaction {
         SBChain.uTXOPool.putAll(outputs);
         SBChain.uTXOPool.removeAll(inputs);
 
-        return true;
+        return Result.TRANSACTION_SUCCESS;
     }
 
-    public boolean processGenesisTransaction() {
+    public Result processGenesisTransaction() {
         // set outputs in this transaction
         outputs = List.of(new UTXO(recipientAddress, value, transactionId));
 
         // update blockchain UTXOPool
         SBChain.uTXOPool.putAll(outputs);
 
-        return true;
+        return Result.TRANSACTION_SUCCESS;
     }
 }

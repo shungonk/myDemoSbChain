@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Security;
 
 import com.myexample.blockchain.SBChain;
+import com.myexample.common.Result;
 import com.myexample.common.TransactionRequest;
 import com.myexample.common.utils.PropertyUtil;
 import com.myexample.common.utils.StringUtil;
@@ -33,7 +34,7 @@ public class ApplicationServer {
                 break;
                 
             default:
-                var response = "Method Not Allowed";
+                var response = Result.HTTP_METHOD_NOT_ALLOWED.toMessageJson();
                 t.sendResponseHeaders(405, response.length());
                 os.write(response.getBytes());
             }
@@ -52,13 +53,13 @@ public class ApplicationServer {
                 SBChain.generateTransaction(address, value);
 
                 responseHeader.set("Content-Type", "application/json");
-                var postResponse = StringUtil.messageJson("Purchase accepted!");
+                var postResponse = Result.PURCHASE_SUCCESS.toMessageJson();
                 t.sendResponseHeaders(200, postResponse.length());
                 os.write(postResponse.getBytes());
                 break;
 
             default:
-                var response = "Method Not Allowed";
+                var response = Result.HTTP_METHOD_NOT_ALLOWED.toMessageJson();
                 t.sendResponseHeaders(405, response.length());
                 os.write(response.getBytes());
             }
@@ -78,7 +79,7 @@ public class ApplicationServer {
                 break;
 
             default:
-                var response = "Method Not Allowed";
+                var response = Result.HTTP_METHOD_NOT_ALLOWED.toMessageJson();
                 t.sendResponseHeaders(405, response.length());
                 os.write(response.getBytes());
             }
@@ -99,18 +100,16 @@ public class ApplicationServer {
             case "POST":
                 var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 var transactionRequest = TransactionRequest.fromJson(json);
-                var isSuccess = SBChain.acceptTransactionRequest(transactionRequest);
+                Result result = SBChain.acceptTransactionRequest(transactionRequest);
 
                 responseHeader.set("Content-Type", "application/json");
-                var postResponse = isSuccess
-                    ? StringUtil.messageJson("Transaction accepted!")
-                    : StringUtil.messageJson("Unacceptable transaction.");
+                var postResponse = result.toMessageJson();
                 t.sendResponseHeaders(200, postResponse.length());
                 os.write(postResponse.getBytes());
                 break;
 
             default:
-                var response = "Method Not Allowed";
+                var response = Result.HTTP_METHOD_NOT_ALLOWED.toMessageJson();
                 t.sendResponseHeaders(405, response.length());
                 os.write(response.getBytes());
             }
@@ -124,23 +123,18 @@ public class ApplicationServer {
             case "POST":
                 var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
                 var address = query.get("address");
-                String postResponse;
-                if (!SBChain.MINER_ADDRESS.equals(address)) {
-                    postResponse = StringUtil.messageJson("You are not miner.");
-                } else if (SBChain.isTransactionPoolEmpty()) {
-                    postResponse = StringUtil.messageJson("TransactionPool Empty.");
-                } else {
-                    SBChain.mining();
-                    postResponse = StringUtil.messageJson("Mining Success!");
-                }
+                Result result = SBChain.MINER_ADDRESS.equals(address)
+                    ? SBChain.mining()
+                    : Result.MINING_NOT_MINER;
 
                 responseHeader.set("Content-Type", "application/json");
+                var postResponse = result.toMessageJson();
                 t.sendResponseHeaders(200, postResponse.length());
                 os.write(postResponse.getBytes());
                 break;
 
             default:
-                var response = "Method Not Allowed";
+                var response = Result.HTTP_METHOD_NOT_ALLOWED.toMessageJson();
                 t.sendResponseHeaders(405, response.length());
                 os.write(response.getBytes());
             }

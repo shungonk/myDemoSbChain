@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.myexample.common.Result;
 import com.myexample.common.TransactionRequest;
 import com.myexample.common.utils.PropertyUtil;
 
@@ -59,17 +60,18 @@ public class SBChain {
         return transactionPool.isEmpty();
     }
 
-    private static boolean addTransaction(Transaction transaction) {
-        if (!transaction.processTransaction()) {
-            return false;
+    private static Result addTransaction(Transaction transaction) {
+        Result result = transaction.processTransaction();
+        if (!result.isSuccess()) {
+            return result;
         }
         transactionPool.add(transaction);
         System.out.println("Transaction Successfully pooled.");
         System.out.println(transaction.marshalJsonPrettyPrinting());
-        return true;
+        return result;
     }
 
-    public static boolean generateTransaction(String recipientAddress, float value) {
+    public static Result generateTransaction(String recipientAddress, float value) {
         synchronized (transactionPool) {
             var transaction = new Transaction(
                 BLOCKCHAIN_NAME, 
@@ -78,23 +80,24 @@ public class SBChain {
             transaction.processGenesisTransaction();
             transactionPool.add(transaction);
             System.out.println("Genesis transaction pooled.");
-            return true;
+            System.out.println(transaction.marshalJsonPrettyPrinting());
+            return Result.TRANSACTION_SUCCESS;
         }
     }
     
-    public static boolean acceptTransactionRequest(TransactionRequest request) {
+    public static Result acceptTransactionRequest(TransactionRequest request) {
         synchronized (transactionPool) {
             System.out.println("Accepting transaction request");
             System.out.println(request.marshalJson());
 
             if (!request.validateTransactionRequest()) {
                 System.out.println("# Transaction missing field(s)");
-                return false;
+                return Result.TRANSACTION_MISSING_FIELDS;
             }
 
             if (!request.verifySignature()) {
                 System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
-                return false;
+                return Result.TRANSACTION_INVALID_SIGNATURE;
             }
             var transaction = new Transaction(
                 request.getSenderAddress(),
@@ -104,12 +107,14 @@ public class SBChain {
         }
     }
 
-    public static void mining() {
+    public static Result mining() {
+        if (transactionPool.isEmpty())
+            return Result.MINING_POOL_EMPTY;
+
         synchronized (chain) {
             // send reward to miner
             generateTransaction(MINER_ADDRESS, MINING_REWARD);
 
-            // mine block
             System.out.println("Mining...");
             var transactions = List.copyOf(transactionPool);
             var newBlock = new Block(lastBlock().getHash(), transactions);
@@ -119,6 +124,7 @@ public class SBChain {
             
 		    System.out.println("========== Block Mined!!! ==========");
             System.out.println(newBlock.marshalJsonPrettyPrinting());
+            return Result.MINING_SUCCESS;
         }
     }
 
