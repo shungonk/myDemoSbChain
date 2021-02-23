@@ -98,4 +98,15 @@ public class WalletServer {
 
 		System.out.println(isValid);
 	}
+
+	public static void testAddress() {
+		Security.addProvider(new BouncyCastleProvider());
+
+		var privateKeyString = "MD4CAQAwEAYHKoZIzj0CAQYFK4EEAAoEJzAlAgEBBCAFzE1GvP3x7LWRqjHLVrTKdhfLrHinB0a8zL0FMnRnSw==";
+		var privateKey = SecurityUtil.decodePrivateKey(privateKeyString);
+		var publicKey = SecurityUtil.getPublicKeyFromPriavateKey(privateKey);
+
+		System.out.println(SecurityUtil.encodeKeyToString(publicKey));
+		System.out.println(SecurityUtil.getAddressFromPublicKey(publicKey));
+	}
 }
