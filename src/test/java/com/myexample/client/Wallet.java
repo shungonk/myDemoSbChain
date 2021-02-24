@@ -1,4 +1,4 @@
-package com.myexample.wallet;
+package com.myexample.client;
 
 import java.security.KeyPairGenerator;
 import java.security.spec.ECGenParameterSpec;

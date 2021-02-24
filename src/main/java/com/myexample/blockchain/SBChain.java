@@ -8,11 +8,11 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.common.Result;
-import com.myexample.common.TransactionRequest;
+import com.myexample.common.constant.Result;
 import com.myexample.common.utils.FileUtil;
 import com.myexample.common.utils.PropertyUtil;
 import com.myexample.common.utils.StringUtil;
+import com.myexample.request.TransactionRequest;
 
 public class SBChain {
 
@@ -80,29 +80,15 @@ public class SBChain {
         return gsonBuilder.toJson(transactionPool);
     }
 
-    private static Result addTransaction(Transaction transaction) {
-        Result result = transaction.processTransaction();
-        if (!result.isSuccess()) {
-            return result;
-        }
-        transactionPool.add(transaction);
-        System.out.println("Transaction Successfully pooled.");
-        System.out.println(transaction.marshalJsonPrettyPrinting());
-
-        // save objects
-        saveTransactionPool();
-        return result;
-    }
-
-    public static Result generateTransaction(String recipientAddress, float value) {
+    public static Result addGenesisTransaction(String recipientAddress, float value) {
         synchronized (transactionPool) {
             var transaction = new Transaction(
                 BLOCKCHAIN_NAME, 
-                recipientAddress, 
+                recipientAddress,
                 value);
             transaction.processGenesisTransaction();
             transactionPool.add(transaction);
-            System.out.println("Genesis transaction pooled.");
+            System.out.println("Genesis transaction successfully pooled.");
             System.out.println(transaction.marshalJsonPrettyPrinting());
 
             // save objects
@@ -112,24 +98,23 @@ public class SBChain {
     }
     
     public static Result acceptTransactionRequest(TransactionRequest request) {
+        var transaction = new Transaction(
+            request.getSenderAddress(),
+            request.getRecipientAddress(),
+            request.getValue());
+            
         synchronized (transactionPool) {
-            System.out.println("Accepting transaction request");
-            System.out.println(request.marshalJson());
-
-            if (!request.validateTransactionRequest()) {
-                System.out.println("# Transaction missing field(s)");
-                return Result.TRANSACTION_MISSING_FIELDS;
+            Result result = transaction.processTransaction();
+            if (!result.isSuccess()) {
+                return result;
             }
+            transactionPool.add(transaction);
+            System.out.println("Requested transaction successfully pooled.");
+            System.out.println(transaction.marshalJsonPrettyPrinting());
 
-            if (!request.verifySignature()) {
-                System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
-                return Result.TRANSACTION_INVALID_SIGNATURE;
-            }
-            var transaction = new Transaction(
-                request.getSenderAddress(),
-                request.getRecipientAddress(),
-                request.getValue());
-            return addTransaction(transaction);
+            // save objects
+            saveTransactionPool();
+            return result;
         }
     }
 
@@ -139,7 +124,7 @@ public class SBChain {
 
         synchronized (chain) {
             // send reward to miner
-            generateTransaction(MINER_ADDRESS, MINING_REWARD);
+            addGenesisTransaction(MINER_ADDRESS, MINING_REWARD);
 
             System.out.println("Mining...");
             var transactions = List.copyOf(transactionPool);

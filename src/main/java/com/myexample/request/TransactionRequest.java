@@ -1,4 +1,4 @@
-package com.myexample.common;
+package com.myexample.request;
 
 import com.google.gson.GsonBuilder;
 import com.myexample.common.utils.SecurityUtil;

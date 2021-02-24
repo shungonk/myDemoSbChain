@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.common.Result;
+import com.myexample.common.constant.Result;
 import com.myexample.common.utils.SecurityUtil;
 import com.myexample.common.utils.StringUtil;
 
@@ -30,6 +30,16 @@ public class Transaction implements Serializable {
         this.recipientAddress = recipientAddress;
         this.value = value;
         this.transactionId = calculateHash();
+    }
+
+    public Transaction(String senderAddress, String recipientAddress, float value, List<UTXO> inputs, List<UTXO> outputs) {
+        this.timestamp = Instant.now().toEpochMilli();
+        this.senderAddress = senderAddress;
+        this.recipientAddress = recipientAddress;
+        this.value = value;
+        this.transactionId = calculateHash();
+        this.inputs = inputs;
+        this.outputs = outputs;
     }
 
     public String getTransactionId() {

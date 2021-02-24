@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.Security;
+import java.util.Objects;
 
 import com.myexample.blockchain.SBChain;
-import com.myexample.common.Result;
-import com.myexample.common.TransactionRequest;
+import com.myexample.common.constant.Result;
 import com.myexample.common.utils.PropertyUtil;
+import com.myexample.common.utils.SecurityUtil;
 import com.myexample.common.utils.StringUtil;
+import com.myexample.request.PurchaseRequest;
+import com.myexample.request.TransactionRequest;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -41,19 +44,30 @@ public class ApplicationServer {
         }
     };
     
-    ////////// for demo //////////
     public HttpHandler purchaseHandler = (HttpExchange t) -> {
         var responseHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "POST":
-                var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
-                var address = query.get("address");
-                var value = Float.parseFloat(query.get("value"));
-                SBChain.generateTransaction(address, value);
+                var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                var request = PurchaseRequest.fromJson(json);
+
+                Result result;
+                if (!request.validateTransactionRequest()) {
+                    System.out.println("# Transaction missing field(s)");
+                    result = Result.MISSING_FIELDS;
+                } else if (!request.verifySignature()) {
+                    System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
+                    result = Result.INVALID_SIGNATURE;
+                } else if (!SecurityUtil.validateAddressByPublicKey(request.getAddress(), request.getPublicKey())){
+                    System.out.println("# Sender address not consistent with public key. Transaction discarded.");
+                    result = Result.INVALID_ADDRESS;
+                } else {
+                    result = SBChain.addGenesisTransaction(request.getAddress(), request.getValue());
+                }
 
                 responseHeader.set("Content-Type", "application/json");
-                var postResponse = Result.PURCHASE_SUCCESS.toMessageJson();
+                var postResponse = result.toMessageJson();
                 t.sendResponseHeaders(200, postResponse.length());
                 os.write(postResponse.getBytes());
                 break;
@@ -65,7 +79,6 @@ public class ApplicationServer {
             }
         }
     };
-    //////////////////////////////
 
     public HttpHandler chainHandler = (HttpExchange t) -> {
         var responseHeader = t.getResponseHeaders();
@@ -99,8 +112,23 @@ public class ApplicationServer {
 
             case "POST":
                 var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                var transactionRequest = TransactionRequest.fromJson(json);
-                Result result = SBChain.acceptTransactionRequest(transactionRequest);
+                var request = TransactionRequest.fromJson(json);
+                System.out.println("Catch transaction request");
+                System.out.println(request.marshalJson());
+
+                Result result;
+                if (!request.validateTransactionRequest()) {
+                    System.out.println("# Transaction missing field(s)");
+                    result = Result.MISSING_FIELDS;
+                } else if (!request.verifySignature()) {
+                    System.out.println("# Transaction Signature failed to verify. Transaction discarded.");
+                    result = Result.INVALID_SIGNATURE;
+                } else if (!SecurityUtil.validateAddressByPublicKey(request.getSenderAddress(), request.getSenderPublicKey())){
+                    System.out.println("# Sender address not consistent with public key. Transaction discarded.");
+                    result = Result.INVALID_ADDRESS;
+                } else {
+                    result = SBChain.acceptTransactionRequest(request);
+                }
 
                 responseHeader.set("Content-Type", "application/json");
                 var postResponse = result.toMessageJson();
@@ -135,6 +163,7 @@ public class ApplicationServer {
         }
     };
 
+    ////////// for demo //////////
     public HttpHandler mineHandler = (HttpExchange t) -> {
         var responseHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
@@ -142,7 +171,7 @@ public class ApplicationServer {
             case "POST":
                 var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
                 var address = query.get("address");
-                Result result = SBChain.MINER_ADDRESS.equals(address)
+                Result result = Objects.equals(address, SBChain.MINER_ADDRESS)
                     ? SBChain.mining()
                     : Result.MINING_NOT_MINER;
 
@@ -159,6 +188,7 @@ public class ApplicationServer {
             }
         }
     };
+    //////////////////////////////
 
     public void run() {
         try {
@@ -185,7 +215,7 @@ public class ApplicationServer {
         Security.addProvider(new BouncyCastleProvider());
         // demo initialization
         if (SBChain.getChainSize() == 1 && SBChain.isTransactionPoolEmpty()) {
-            SBChain.generateTransaction(SBChain.MINER_ADDRESS, 10000f);
+            SBChain.addGenesisTransaction(SBChain.MINER_ADDRESS, 10000f);
         }
 
         new ApplicationServer().run();

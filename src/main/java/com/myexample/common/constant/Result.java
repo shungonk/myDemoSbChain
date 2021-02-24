@@ -1,4 +1,4 @@
-package com.myexample.common;
+package com.myexample.common.constant;
 
 import com.myexample.common.utils.StringUtil;
 
@@ -9,10 +9,6 @@ public enum Result {
         Status.SUCCESS, "Purchase successed!"),
 
     // Transaction message
-    TRANSACTION_MISSING_FIELDS(
-        Status.FAILED, "Transaction missing field(s)"),
-    TRANSACTION_INVALID_SIGNATURE(
-        Status.FAILED, "Signature is invalid"),
     TRANSACTION_NOTENOUGH_BALANCE(
         Status.FAILED, "Not enough balance"),
     TRANSACTION_TOOSMALL_INPUTS(
@@ -22,15 +18,23 @@ public enum Result {
 
     // Mining message
     MINING_NOT_MINER(
-        Status.FAILED, "This wallet has no rights to mine"),
+        Status.FAILED, "No rights to mine"),
     MINING_POOL_EMPTY(
         Status.FAILED, "Transaction pool is empty"),
     MINING_SUCCESS(
         Status.SUCCESS, "Mining Completed!"),
 
+    // Vlidation message
+    MISSING_FIELDS(
+        Status.FAILED, "Request missing field(s)"),
+    INVALID_SIGNATURE(
+        Status.FAILED, "Invalid signature"),
+    INVALID_ADDRESS(
+        Status.FAILED, "Sender address not consistent with public key"),
+
     // HTTP method message
     HTTP_METHOD_NOT_ALLOWED(
-        Status.ERROR, "Error: Method Not Allowed"),
+        Status.ERROR, "Method Not Allowed"),
     ;
 
     private enum Status {

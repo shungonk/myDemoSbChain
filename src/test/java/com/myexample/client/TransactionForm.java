@@ -1,4 +1,4 @@
-package com.myexample.wallet;
+package com.myexample.client;
 
 import com.myexample.common.utils.SecurityUtil;
 

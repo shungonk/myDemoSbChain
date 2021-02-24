@@ -13,6 +13,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 import org.bitcoinj.core.Base58;
 import org.bouncycastle.jce.ECNamedCurveTable;
@@ -166,4 +167,13 @@ public class SecurityUtil {
                 throw new IllegalArgumentException("not a valid key: " + s);
         }
     }
+
+	public static boolean validateAddressByPublicKey(String address, String publicKeyString) {
+		var publicKey = decodePublicKey(publicKeyString);
+		return Objects.equals(address, getAddressFromPublicKey(publicKey));
+	}
+
+	public static boolean validateAddressByPublicKey(String address, PublicKey publicKey) {
+		return Objects.equals(address, getAddressFromPublicKey(publicKey));
+	}
 }
