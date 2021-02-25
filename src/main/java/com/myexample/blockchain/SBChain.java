@@ -96,12 +96,11 @@ public class SBChain {
     }
     
     public static Result acceptTransactionRequest(TransactionRequest request) {
-        var transaction = new Transaction(
-            request.getSenderAddress(),
-            request.getRecipientAddress(),
-            request.getValue());
-            
         synchronized (transactionPool) {
+            var transaction = new Transaction(
+                request.getSenderAddress(),
+                request.getRecipientAddress(),
+                request.getValue());
             Result result = transaction.processTransaction();
             if (!result.isSuccess()) {
                 return result;
