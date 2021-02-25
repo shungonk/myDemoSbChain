@@ -4,11 +4,11 @@ import com.myexample.common.utils.StringUtil;
 
 public enum Result {
 
-    // Purchase message
+    // Purchase result
     PURCHASE_SUCCESS(
         Status.SUCCESS, "Purchase successed!"),
 
-    // Transaction message
+    // Transaction result
     TRANSACTION_NOTENOUGH_BALANCE(
         Status.FAILED, "Not enough balance"),
     TRANSACTION_TOOSMALL_INPUTS(
@@ -16,7 +16,7 @@ public enum Result {
     TRANSACTION_SUCCESS(
         Status.SUCCESS, "Transaction successfully accepted!"),
 
-    // Mining message
+    // Mining result
     MINING_NOT_MINER(
         Status.FAILED, "No rights to mine"),
     MINING_POOL_EMPTY(
@@ -24,7 +24,7 @@ public enum Result {
     MINING_SUCCESS(
         Status.SUCCESS, "Mining Completed!"),
 
-    // Vlidation message
+    // Vlidation result
     MISSING_FIELDS(
         Status.FAILED, "Request missing field(s)"),
     INVALID_SIGNATURE(
@@ -32,7 +32,7 @@ public enum Result {
     INVALID_ADDRESS(
         Status.FAILED, "Sender address not consistent with public key"),
 
-    // HTTP method message
+    // HTTP method result
     HTTP_METHOD_NOT_ALLOWED(
         Status.ERROR, "Method Not Allowed"),
     ;
