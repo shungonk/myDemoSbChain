@@ -95,13 +95,13 @@ public class Transaction implements Serializable {
             .map(UTXO::getValue)
             .reduce(0f, Float::sum);
 
+        if (value < SBChain.MINIMUM_TRANSACTION_VALUE) {
+            System.out.println("# Transaction value too small: " + value + ". Transaction discarded.");
+            return Result.TRANSACTION_TOO_SMALL_VALUE;
+        }
         if (inputsValue < value) {
             System.out.println("# Not enough balance to send transaction. Transaction discarded.");
-            return Result.TRANSACTION_NOTENOUGH_BALANCE;
-        }
-        if (inputsValue < SBChain.MINIMUM_TRANSACTION_VALUE) {
-            System.out.println("# Transaction Inputs too small: " + inputsValue + ". Transaction discarded.");
-            return Result.TRANSACTION_TOOSMALL_INPUTS;
+            return Result.TRANSACTION_NOT_ENOUGH_BALANCE;
         }
 
         // set outputs in this transaction

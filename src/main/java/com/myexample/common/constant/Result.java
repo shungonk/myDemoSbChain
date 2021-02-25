@@ -9,10 +9,10 @@ public enum Result {
         Status.SUCCESS, "Purchase successed!"),
 
     // Transaction result
-    TRANSACTION_NOTENOUGH_BALANCE(
+    TRANSACTION_NOT_ENOUGH_BALANCE(
         Status.FAILED, "Not enough balance"),
-    TRANSACTION_TOOSMALL_INPUTS(
-        Status.FAILED, "Transaction inputs too small"),
+    TRANSACTION_TOO_SMALL_VALUE(
+        Status.FAILED, "Transaction value too small"),
     TRANSACTION_SUCCESS(
         Status.SUCCESS, "Transaction successfully accepted!"),
 
