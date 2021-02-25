@@ -205,8 +205,8 @@ public class ApplicationServer {
             server.start();
             System.out.println("Server started on port " + port);
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Exception occured in Application statring");
+            System.out.println("Failed to start Application");
+            throw new RuntimeException(e);
         }
     }
 

@@ -32,8 +32,7 @@ public class SBChain {
         } catch (FileNotFoundException e) {
             System.out.println("Chain file not found");
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            // TODO: handle exception
+            throw new RuntimeException(e);
         }
 
         try {
@@ -41,8 +40,7 @@ public class SBChain {
         } catch (FileNotFoundException e) {
             System.out.println("TransactionPool file not found");
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            // TODO: handle exception
+            throw new RuntimeException(e);
         }
 
         loadUTXOPool();
@@ -119,10 +117,10 @@ public class SBChain {
     }
 
     public static Result mining() {
-        if (transactionPool.isEmpty())
-            return Result.MINING_POOL_EMPTY;
-
         synchronized (chain) {
+            if (transactionPool.isEmpty())
+                return Result.MINING_POOL_EMPTY;
+
             // send reward to miner
             addGenesisTransaction(MINER_ADDRESS, MINING_REWARD);
 
@@ -162,8 +160,8 @@ public class SBChain {
             FileUtil.serializeObject(path, chain);
             System.out.println("Blockchain is saved");
         } catch (IOException e) {
+            System.out.println("Failed to save chain");
             e.printStackTrace();
-            // TODO: handle exception
         }
     }
 
@@ -173,8 +171,8 @@ public class SBChain {
             FileUtil.serializeObject(path, transactionPool);
             System.out.println("Transaction pool is saved");
         } catch (IOException e) {
+            System.out.println("Failed to save transaction pool");
             e.printStackTrace();
-            // TODO: handle exception
         }
     }
 
