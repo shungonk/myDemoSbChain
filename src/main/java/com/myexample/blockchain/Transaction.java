@@ -99,6 +99,10 @@ public class Transaction implements Serializable {
             System.out.println("# Transaction value too small: " + value + ". Transaction discarded.");
             return Result.TRANSACTION_TOO_SMALL_VALUE;
         }
+        if (value > SBChain.MAXIMUM_TRANSACTION_VALUE) {
+            System.out.println("# Transaction value too large: " + value + ". Transaction discarded.");
+            return Result.TRANSACTION_TOO_LARGE_VALUE;
+        }
         if (inputsValue < value) {
             System.out.println("# Not enough balance to send transaction. Transaction discarded.");
             return Result.TRANSACTION_NOT_ENOUGH_BALANCE;

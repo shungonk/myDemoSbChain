@@ -18,6 +18,7 @@ public class SBChain {
 
     public static final int DIFFICULTY = 5;
     public static final float MINIMUM_TRANSACTION_VALUE = 0.00000001f;
+    public static final float MAXIMUM_TRANSACTION_VALUE = 10.0000000f;
     public static final float MINING_REWARD = 10f;
     public static final String BLOCKCHAIN_NAME = "THE SBCHAIN";
     public static final String MINER_ADDRESS = PropertyUtil.getProperty("mineraddress");

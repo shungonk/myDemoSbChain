@@ -31,7 +31,7 @@ public class ApplicationServer {
                     .select(u -> u.belongsTo(address))
                     .totalValue();
                 responseHeader.set("Content-Type", "application/json");
-                var getResponse = StringUtil.singleEntryJson("balance", balance);
+                var getResponse = StringUtil.singleEntryJson("balance", StringUtil.printSBCValue(balance));
                 t.sendResponseHeaders(200, getResponse.length());
                 os.write(getResponse.getBytes());
                 break;
@@ -221,7 +221,7 @@ public class ApplicationServer {
         Security.addProvider(new BouncyCastleProvider());
         // demo initialization
         if (SBChain.getChainSize() == 1 && SBChain.isTransactionPoolEmpty()) {
-            SBChain.addGenesisTransaction(SBChain.MINER_ADDRESS, 10000f);
+            SBChain.addGenesisTransaction(SBChain.MINER_ADDRESS, 100f);
         }
 
         new ApplicationServer().run();

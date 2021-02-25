@@ -32,10 +32,6 @@ public class StringUtil {
         return String.format("{\"%s\":\"%s\"}", key, value);
     }
 
-    public static String singleEntryJson(String key, float value) {
-        return String.format("{\"%s\":\"%f\"}", key, value);
-    }
-
     public static String valueInJson(String json, String key) {
         var map = GSON.fromJson(json, HashMap.class);
         return (String) map.get(key);
@@ -58,5 +54,10 @@ public class StringUtil {
                 s -> s.substring(s.indexOf(EQUAL) + 1),
                 (v1, v2) -> v1
             ));
+    }
+
+    public static String printSBCValue(float value) {
+        // This format is consistent with minimum transaction value
+        return String.format("%.8f", value);
     }
 }

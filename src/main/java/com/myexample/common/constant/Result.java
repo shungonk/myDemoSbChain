@@ -13,6 +13,8 @@ public enum Result {
         Status.FAILED, "Not enough balance"),
     TRANSACTION_TOO_SMALL_VALUE(
         Status.FAILED, "Transaction value too small"),
+    TRANSACTION_TOO_LARGE_VALUE(
+        Status.FAILED, "Transaction value too large"),
     TRANSACTION_SUCCESS(
         Status.SUCCESS, "Transaction successfully accepted!"),
 
