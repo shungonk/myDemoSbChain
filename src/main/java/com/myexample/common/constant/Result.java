@@ -25,6 +25,8 @@ public enum Result {
         Status.SUCCESS, "Mining Completed!"),
 
     // Vlidation result
+    NOT_POSITIVE_VALUE(
+        Status.FAILED, "Requested value is not positive"),
     MISSING_FIELDS(
         Status.FAILED, "Request missing field(s)"),
     INVALID_SIGNATURE(

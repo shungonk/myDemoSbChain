@@ -1,7 +1,7 @@
 package com.myexample.blockchain;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +29,7 @@ public class SBChain {
     static {
         try {
             loadChain();
-        } catch (FileNotFoundException e) {
+        } catch (NoSuchFileException e) {
             System.out.println("Chain file not found");
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -37,7 +37,7 @@ public class SBChain {
 
         try {
             loadTransactionPool();
-        } catch (FileNotFoundException e) {
+        } catch (NoSuchFileException e) {
             System.out.println("TransactionPool file not found");
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);

@@ -34,14 +34,17 @@ public class PurchaseRequest {
         return signature;
     }
 
-    public boolean validateTransactionRequest() {
+    public boolean validatePurchaseRequest() {
         if (publicKey == null || publicKey.isBlank() ||
             address == null || address.isBlank() ||
-            Float.compare(value, 0f) <= 0 ||
             signature == null || signature.isBlank()) {
             return false;
         }
         return true;
+    }
+
+    public boolean validateValue() {
+        return Float.compare(value, 0f) > 0;
     }
 
     public boolean verifySignature() {

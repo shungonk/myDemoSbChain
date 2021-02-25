@@ -53,7 +53,10 @@ public class ApplicationServer {
                 var request = PurchaseRequest.fromJson(json);
 
                 Result result;
-                if (!request.validateTransactionRequest()) {
+                if (!request.validateValue()) {
+                    System.out.println("# Requested value is not positive");
+                    result = Result.NOT_POSITIVE_VALUE;
+                } else if (!request.validatePurchaseRequest()) {
                     System.out.println("# Transaction missing field(s)");
                     result = Result.MISSING_FIELDS;
                 } else if (!request.verifySignature()) {
@@ -117,7 +120,10 @@ public class ApplicationServer {
                 System.out.println(request.marshalJson());
 
                 Result result;
-                if (!request.validateTransactionRequest()) {
+                if (!request.validateValue()) {
+                    System.out.println("# Requested value is not positive");
+                    result = Result.NOT_POSITIVE_VALUE;
+                } else if (!request.validateTransactionRequest()) {
                     System.out.println("# Transaction missing field(s)");
                     result = Result.MISSING_FIELDS;
                 } else if (!request.verifySignature()) {
