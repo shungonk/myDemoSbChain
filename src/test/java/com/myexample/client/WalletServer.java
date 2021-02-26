@@ -1,5 +1,6 @@
 package com.myexample.client;
 
+import java.math.BigDecimal;
 import java.security.Security;
 
 import com.myexample.common.utils.SecurityUtil;
@@ -29,7 +30,7 @@ public class WalletServer {
 			coinbase.getPublicKey(), 
 			coinbase.getAddress(),
 			walletA.getAddress(),
-			100);
+			new BigDecimal(100));
 		sendTransaction(tranForm1);
 
 		System.out.println("======== Transaction A -> B ========");
@@ -38,7 +39,7 @@ public class WalletServer {
 			walletA.getPublicKey(), 
 			walletA.getAddress(),
 			walletB.getAddress(),
-			80);
+			new BigDecimal(80));
 		sendTransaction(tranForm2);
 
 		System.out.println("======== Transaction B -> A ========");
@@ -47,7 +48,7 @@ public class WalletServer {
 			walletB.getPublicKey(), 
 			walletB.getAddress(),
 			walletA.getAddress(),
-			45);
+			new BigDecimal(45));
 		sendTransaction(tranForm3);
 
 		System.out.println("======== Transaction B -> A ========");
@@ -56,7 +57,7 @@ public class WalletServer {
 			walletB.getPublicKey(), 
 			walletB.getAddress(),
 			walletA.getAddress(),
-			90);
+			new BigDecimal(90));
 		sendTransaction(tranForm4);
 
     }
@@ -70,15 +71,12 @@ public class WalletServer {
 			form.getRecipientAddress(),
 			form.getValue(),
 			form.generateSignature());
-		var requestJson = request.marshalJson();
 
 		// debug
 		System.out.println(request.marshalJsonPrettyPrinting());
 		System.out.println("Is signature valid?: " + request.verifySignature());
 
-		// request to blockchain server and get response XXX
-		var response = "XXX";
-
+		// request to blockchain server and get response
 		// send responst to client
 	}
 

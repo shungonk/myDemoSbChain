@@ -1,6 +1,4 @@
-package com.myexample.common.constant;
-
-import com.myexample.common.utils.StringUtil;
+package com.myexample.blockchain;
 
 public enum Result {
 
@@ -9,14 +7,8 @@ public enum Result {
         Status.SUCCESS, "Purchase successed!"),
 
     // Transaction result
-    TRANSACTION_NOT_ENOUGH_BALANCE(
-        Status.FAILED, "Not enough balance"),
-    TRANSACTION_TOO_SMALL_VALUE(
-        Status.FAILED, "Transaction value too small"),
-    TRANSACTION_TOO_LARGE_VALUE(
-        Status.FAILED, "Transaction value too large"),
     TRANSACTION_SUCCESS(
-        Status.SUCCESS, "Transaction successfully accepted!"),
+        Status.SUCCESS, "Transaction accepted!"),
 
     // Mining result
     MINING_NOT_MINER(
@@ -24,21 +16,23 @@ public enum Result {
     MINING_POOL_EMPTY(
         Status.FAILED, "Transaction pool is empty"),
     MINING_SUCCESS(
-        Status.SUCCESS, "Mining Completed!"),
+        Status.SUCCESS, "Mining completed!"),
 
-    // Vlidation result
+    // Request Vlidation result
     NOT_POSITIVE_VALUE(
-        Status.FAILED, "Requested value is not positive"),
+        Status.FAILED, "Requested value should be positive"),
     MISSING_FIELDS(
         Status.FAILED, "Request missing field(s)"),
     INVALID_SIGNATURE(
         Status.FAILED, "Invalid signature"),
-    INVALID_ADDRESS(
-        Status.FAILED, "Sender address not consistent with public key"),
-
-    // HTTP method result
-    HTTP_METHOD_NOT_ALLOWED(
-        Status.ERROR, "Method Not Allowed"),
+    INCONSISTENT_ADDRESS(
+        Status.FAILED, "Sender address should be consistent with sender public key"),
+    SCALE_OVERFLOW(
+        Status.FAILED, "Scale overflow (value := unscaledValue × 10-'scale')"),
+    TOO_LARGE_VALUE(
+        Status.FAILED, "Requested value too large"),
+    NOT_ENOUGH_BALANCE(
+        Status.FAILED, "Not enough balance"),
     ;
 
     private enum Status {
@@ -59,9 +53,5 @@ public enum Result {
 
     public String getMessage() {
         return status + ": " + message;
-    }
-
-    public String toMessageJson() {
-        return StringUtil.singleEntryJson("message", getMessage());
     }
 }

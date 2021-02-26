@@ -1,5 +1,7 @@
 package com.myexample.request;
 
+import java.math.BigDecimal;
+
 import com.google.gson.GsonBuilder;
 import com.myexample.common.utils.SecurityUtil;
 import com.myexample.common.utils.StringUtil;
@@ -9,10 +11,10 @@ public class TransactionRequest {
     private String senderPublicKey;
     private String senderAddress;
     private String recipientAddress;
-    private float value;
+    private BigDecimal value;
     private String signature;
 
-    public TransactionRequest(String senderPublicKey, String senderAddress, String recipientAddress, float value, String signature) {
+    public TransactionRequest(String senderPublicKey, String senderAddress, String recipientAddress, BigDecimal value, String signature) {
         this.senderPublicKey = senderPublicKey;
         this.senderAddress = senderAddress;
         this.recipientAddress = recipientAddress;
@@ -32,7 +34,7 @@ public class TransactionRequest {
         return recipientAddress;
     }
 
-    public float getValue() {
+    public BigDecimal getValue() {
         return value;
     }
 
@@ -44,6 +46,7 @@ public class TransactionRequest {
         if (senderPublicKey == null || senderPublicKey.isBlank() ||
             senderAddress == null || senderAddress.isBlank() ||
             recipientAddress == null || recipientAddress.isBlank() ||
+            value == null || value.equals(BigDecimal.ZERO) ||
             signature == null || signature.isBlank()) {
             return false;
         }
@@ -51,15 +54,19 @@ public class TransactionRequest {
     }
 
     public boolean validateValue() {
-        return Float.compare(value, 0f) > 0;
+        return value.compareTo(BigDecimal.ZERO) > 0;
     }
 
     public boolean verifySignature() {
         return SecurityUtil.verifyEcdsaSign(
             senderPublicKey,
-            senderAddress + recipientAddress + Float.toString(value),
+            senderAddress + recipientAddress + value.toPlainString(),
             signature
             );
+    }
+
+    public boolean veritfyAddress() {
+        return SecurityUtil.validateAddressByPublicKey(senderAddress, senderPublicKey);
     }
 
     public String marshalJson() {

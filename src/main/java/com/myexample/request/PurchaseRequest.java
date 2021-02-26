@@ -1,17 +1,19 @@
 package com.myexample.request;
 
+import java.math.BigDecimal;
+
 import com.google.gson.GsonBuilder;
 import com.myexample.common.utils.SecurityUtil;
 import com.myexample.common.utils.StringUtil;
 
 public class PurchaseRequest {
 
-    private String publicKey;
-    private String address;
-    private float value;
+    private String publicKey; // recipient
+    private String address;   // recipient
+    private BigDecimal value;
     private String signature;
 
-    public PurchaseRequest(String publicKey, String address, float value, String signature) {
+    public PurchaseRequest(String publicKey, String address, BigDecimal value, String signature) {
         this.publicKey = publicKey;
         this.address = address;
         this.value = value;
@@ -26,7 +28,7 @@ public class PurchaseRequest {
         return address;
     }
 
-    public float getValue() {
+    public BigDecimal getValue() {
         return value;
     }
 
@@ -37,6 +39,7 @@ public class PurchaseRequest {
     public boolean validatePurchaseRequest() {
         if (publicKey == null || publicKey.isBlank() ||
             address == null || address.isBlank() ||
+            value == null || value.equals(BigDecimal.ZERO) ||
             signature == null || signature.isBlank()) {
             return false;
         }
@@ -44,15 +47,19 @@ public class PurchaseRequest {
     }
 
     public boolean validateValue() {
-        return Float.compare(value, 0f) > 0;
+        return value.compareTo(BigDecimal.ZERO) > 0;
     }
 
     public boolean verifySignature() {
         return SecurityUtil.verifyEcdsaSign(
             publicKey,
-            address + Float.toString(value),
+            address + value.toPlainString(),
             signature
             );
+    }
+
+    public boolean veritfyAddress() {
+        return SecurityUtil.validateAddressByPublicKey(address, publicKey);
     }
 
     public String marshalJson() {

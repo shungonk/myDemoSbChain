@@ -1,5 +1,7 @@
 package com.myexample.client;
 
+import java.math.BigDecimal;
+
 import com.myexample.common.utils.SecurityUtil;
 
 public class TransactionForm {
@@ -8,10 +10,10 @@ public class TransactionForm {
     private String senderPublicKey;
     private String senderAddress;
     private String recipientAddress;
-    private float value;
+    private BigDecimal value;
 
     public TransactionForm(String senderPrivateKey, String senderPublicKey, String senderAddress,
-            String recipientAddress, float value) {
+            String recipientAddress, BigDecimal value) {
         this.senderPrivateKey = senderPrivateKey;
         this.senderPublicKey = senderPublicKey;
         this.senderAddress = senderAddress;
@@ -35,14 +37,14 @@ public class TransactionForm {
         return recipientAddress;
     }
 
-    public float getValue() {
+    public BigDecimal getValue() {
         return value;
     }
 
     public String generateSignature() {
         return SecurityUtil.createEcdsaSign(
             senderPrivateKey,
-            senderAddress + recipientAddress + Float.toString(value)
+            senderAddress + recipientAddress + value.toPlainString()
             );
     }
     

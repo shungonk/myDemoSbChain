@@ -2,6 +2,7 @@ package com.myexample;
 
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.security.Security;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,7 +34,7 @@ public class AppTest {
         var request4 = "{\"senderPublicKey\":\"MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEx/4qh5VHgEpCiuVEpTWNVFB3Y/+IQUk2q4kjgpMDYWEvy2W/Iq9POMIv/Fk4SZPSD8807SZD6bNx8ZPkpk0ZCQ\u003d\u003d\",\"senderAddress\":\"1MU4DNa19NyWBLgBmEEraySiKSk8u4Zhbw\",\"recipientAddress\":\"1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p\",\"value\":90.0,\"signature\":\"MEYCIQCgzsRhLFgpFMAaBso8D3QF3NSotI1vV2IQS6PMGqHTaQIhALLw5LXKYzqHqvCs3vIQcbD/PNWTwEN+dcXjM1Fy77ji\"}";
         
         try {
-            executor.execute(() -> SBChain.addGenesisTransaction(SBChain.MINER_ADDRESS, 100f));
+            executor.execute(() -> SBChain.addTransaction(SBChain.BLOCKCHAIN_NAME, SBChain.MINER_ADDRESS, new BigDecimal(100)));
             executor.execute(() -> transactionResponse(request2));
     
             Thread.sleep(3000);

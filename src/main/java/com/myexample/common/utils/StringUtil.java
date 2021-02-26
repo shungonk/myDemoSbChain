@@ -1,5 +1,6 @@
 package com.myexample.common.utils;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,8 +57,7 @@ public class StringUtil {
             ));
     }
 
-    public static String printSBCValue(float value) {
-        // This format is consistent with minimum transaction value
-        return String.format("%.8f", value);
+    public static String formatDecimal(BigDecimal value) {
+        return String.format("%,.6f", value);
     }
 }
