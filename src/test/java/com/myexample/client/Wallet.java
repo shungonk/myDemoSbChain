@@ -3,7 +3,7 @@ package com.myexample.client;
 import java.security.KeyPairGenerator;
 import java.security.spec.ECGenParameterSpec;
 
-import com.myexample.common.utils.SecurityUtil;
+import com.myexample.utils.SecurityUtil;
 
 public class Wallet {
 

@@ -5,8 +5,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.common.utils.SecurityUtil;
-import com.myexample.common.utils.StringUtil;
+import com.myexample.utils.SecurityUtil;
+import com.myexample.utils.StringUtil;
 
 public class Transaction implements Serializable {
 

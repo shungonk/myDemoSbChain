@@ -8,10 +8,10 @@ import java.util.Objects;
 
 import com.myexample.blockchain.Result;
 import com.myexample.blockchain.SBChain;
-import com.myexample.common.utils.PropertyUtil;
-import com.myexample.common.utils.StringUtil;
 import com.myexample.request.PurchaseRequest;
 import com.myexample.request.TransactionRequest;
+import com.myexample.utils.PropertyUtil;
+import com.myexample.utils.StringUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;

@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.common.utils.FileUtil;
-import com.myexample.common.utils.PropertyUtil;
-import com.myexample.common.utils.StringUtil;
 import com.myexample.request.TransactionRequest;
+import com.myexample.utils.FileUtil;
+import com.myexample.utils.PropertyUtil;
+import com.myexample.utils.StringUtil;
 
 public class SBChain {
 

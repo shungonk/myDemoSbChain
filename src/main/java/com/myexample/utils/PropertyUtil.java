@@ -1,4 +1,4 @@
-package com.myexample.common.utils;
+package com.myexample.utils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

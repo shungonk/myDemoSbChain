@@ -3,8 +3,8 @@ package com.myexample.request;
 import java.math.BigDecimal;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.common.utils.SecurityUtil;
-import com.myexample.common.utils.StringUtil;
+import com.myexample.utils.SecurityUtil;
+import com.myexample.utils.StringUtil;
 
 public class PurchaseRequest {
 

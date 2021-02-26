@@ -2,7 +2,7 @@ package com.myexample.client;
 
 import java.math.BigDecimal;
 
-import com.myexample.common.utils.SecurityUtil;
+import com.myexample.utils.SecurityUtil;
 
 public class TransactionForm {
 

@@ -1,4 +1,4 @@
-package com.myexample.common.utils;
+package com.myexample.utils;
 
 import java.math.BigInteger;
 import java.security.Key;

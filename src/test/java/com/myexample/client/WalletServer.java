@@ -3,8 +3,8 @@ package com.myexample.client;
 import java.math.BigDecimal;
 import java.security.Security;
 
-import com.myexample.common.utils.SecurityUtil;
 import com.myexample.request.TransactionRequest;
+import com.myexample.utils.SecurityUtil;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
