@@ -2,6 +2,7 @@ package com.myexample.client;
 
 import java.math.BigDecimal;
 import java.security.Security;
+import java.time.Instant;
 
 import com.myexample.request.TransactionRequest;
 import com.myexample.utils.SecurityUtil;
@@ -65,16 +66,20 @@ public class WalletServer {
 	public static void sendTransaction(TransactionForm form) {
 
 		// create request to blockchain server
-		var request = new TransactionRequest(
-			form.getSenderPublicKey(), 
-			form.getSenderAddress(),
-			form.getRecipientAddress(),
-			form.getValue(),
-			form.generateSignature());
+		var senderPvt = form.getSenderPrivateKey();
+        var timestamp = Instant.now().toEpochMilli();
+        var data = form.getSenderAddress() + form.getRecipientAddress() + form.getValue().toPlainString() + Long.toString(timestamp);
+        var transactionReq = new TransactionRequest(
+            form.getSenderPublicKey(), 
+            form.getSenderAddress(), 
+            form.getRecipientAddress(), 
+            form.getValue(),
+            timestamp,
+            SecurityUtil.createEcdsaSign(senderPvt, data));
 
 		// debug
-		System.out.println(request.marshalJsonPrettyPrinting());
-		System.out.println("Is signature valid?: " + request.verifySignature());
+		System.out.println(transactionReq.marshalJsonPrettyPrinting());
+		System.out.println("Is signature valid?: " + transactionReq.verifySignature());
 
 		// request to blockchain server and get response
 		// send responst to client

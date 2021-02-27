@@ -1,7 +1,6 @@
 package com.myexample.request;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 
 import com.google.gson.GsonBuilder;
 import com.myexample.utils.SecurityUtil;
@@ -15,12 +14,12 @@ public class PurchaseRequest {
     private String signature;
     private long timestamp;
 
-    public PurchaseRequest(String publicKey, String address, BigDecimal value, String signature) {
+    public PurchaseRequest(String publicKey, String address, BigDecimal value, long timestamp, String signature) {
         this.publicKey = publicKey;
         this.address = address;
         this.value = value;
         this.signature = signature;
-        this.timestamp = Instant.now().toEpochMilli();
+        this.timestamp = timestamp;
     }
 
     public String getPublicKey() {

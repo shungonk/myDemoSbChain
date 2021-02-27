@@ -2,8 +2,6 @@ package com.myexample.client;
 
 import java.math.BigDecimal;
 
-import com.myexample.utils.SecurityUtil;
-
 public class TransactionForm {
 
     private String senderPrivateKey;
@@ -40,12 +38,4 @@ public class TransactionForm {
     public BigDecimal getValue() {
         return value;
     }
-
-    public String generateSignature() {
-        return SecurityUtil.createEcdsaSign(
-            senderPrivateKey,
-            senderAddress + recipientAddress + value.toPlainString()
-            );
-    }
-    
 }
