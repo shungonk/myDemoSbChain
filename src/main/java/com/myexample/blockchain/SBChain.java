@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.request.TransactionRequest;
 import com.myexample.utils.FileUtil;
 import com.myexample.utils.PropertyUtil;
 import com.myexample.utils.StringUtil;
@@ -31,10 +30,6 @@ public class SBChain {
 
     private static Block lastBlock() {
         return chain.get(chain.size() - 1);
-    }
-
-    public static int getChainSize() {
-        return chain.size();
     }
 
     public static boolean isTransactionPoolEmpty() {
@@ -59,32 +54,46 @@ public class SBChain {
         return gsonBuilder.toJson(transactionPool);
     }
 
-    public static Result addTransaction(String senderAddress, String recipientAddress, BigDecimal value) {
+    public static Result addTransaction(String recipientAdr, BigDecimal val) {
         synchronized (transactionPool) {
-            transactionPool.add(new Transaction(senderAddress, recipientAddress, value));
+            if (val.stripTrailingZeros().scale() > VALUE_SCALE)
+                return Result.SCALE_OVERFLOW;
+            else if (val.compareTo(MAX_VALUE) > 0)
+                return Result.TOO_LARGE_VALUE;
+
+            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, recipientAdr, val));
             // save objects
             saveTransactionPool();
             return Result.TRANSACTION_SUCCESS;
         }
     }
     
-    public static Result acceptTransactionRequest(TransactionRequest request) {
+    public static Result addTransaction(String recipientAdr, BigDecimal val, String sign) {
         synchronized (transactionPool) {
-            String senderAdd = request.getSenderAddress();
-            String recipientAdd = request.getRecipientAddress();
-            BigDecimal value = request.getValue();
-            String Signature = request.getSignature();
-
-            if (value.stripTrailingZeros().scale() > VALUE_SCALE)
+            if (val.stripTrailingZeros().scale() > VALUE_SCALE)
                 return Result.SCALE_OVERFLOW;
-            else if (value.compareTo(MAX_VALUE) > 0)
+            else if (val.compareTo(MAX_VALUE) > 0)
                 return Result.TOO_LARGE_VALUE;
-            else if (value.compareTo(calculateTotalValue(senderAdd)) > 0)
+            // TODO: check duplicate sign
+
+            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, recipientAdr, val));
+            // save objects
+            saveTransactionPool();
+            return Result.TRANSACTION_SUCCESS;
+        }
+    }
+    
+    public static Result addTransaction(String senderAdr, String recipientAdr, BigDecimal val, String sign) {
+        synchronized (transactionPool) {
+            if (val.stripTrailingZeros().scale() > VALUE_SCALE)
+                return Result.SCALE_OVERFLOW;
+            else if (val.compareTo(MAX_VALUE) > 0)
+                return Result.TOO_LARGE_VALUE;
+            else if (val.compareTo(calculateTotalValue(senderAdr)) > 0)
                 return Result.NOT_ENOUGH_BALANCE;
-            // Validation Complete!
+            // TODO: check duplicate sign
 
-            transactionPool.add(new Transaction(senderAdd, recipientAdd, value));
-
+            transactionPool.add(new Transaction(senderAdr, recipientAdr, val));
             // save objects
             saveTransactionPool();
             return Result.TRANSACTION_SUCCESS;
@@ -97,7 +106,7 @@ public class SBChain {
                 return Result.MINING_POOL_EMPTY;
 
             // send reward to miner
-            addTransaction(BLOCKCHAIN_NAME, MINER_ADDRESS, MINING_REWARD);
+            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, MINER_ADDRESS, MINING_REWARD));
 
             System.out.println("Mining...");
             var transactions = List.copyOf(transactionPool);

@@ -47,21 +47,21 @@ public class ApplicationServer {
             switch (t.getRequestMethod()) {
             case "POST":
                 var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                var request = PurchaseRequest.fromJson(json);
+                var req = PurchaseRequest.fromJson(json);
                 System.out.println("Catch purchase request");
-                System.out.println(request.marshalJsonPrettyPrinting());
+                System.out.println(req.marshalJsonPrettyPrinting());
 
                 Result result = Result.PURCHASE_SUCCESS;
-                if (!request.validateValue())
+                if (!req.validateValue())
                     result = Result.NOT_POSITIVE_VALUE;
-                else if (!request.validatePurchaseRequest())
+                else if (!req.validatePurchaseRequest())
                     result = Result.MISSING_FIELDS;
-                else if (!request.verifySignature())
+                else if (!req.verifySignature())
                     result = Result.INVALID_SIGNATURE;
-                else if (!request.veritfyAddress())
+                else if (!req.veritfyAddress())
                     result = Result.INCONSISTENT_ADDRESS;
                 else
-                    SBChain.addTransaction(SBChain.BLOCKCHAIN_NAME, request.getAddress(), request.getValue());
+                    SBChain.addTransaction(req.getAddress(), req.getValue(), req.getSignature());
 
                 System.out.println(result.getMessage());
                 responseHeader.set("Content-Type", "application/json");
@@ -110,21 +110,22 @@ public class ApplicationServer {
 
             case "POST":
                 var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                var request = TransactionRequest.fromJson(json);
+                var req = TransactionRequest.fromJson(json);
                 System.out.println("Catch transaction request");
-                System.out.println(request.marshalJsonPrettyPrinting());
+                System.out.println(req.marshalJsonPrettyPrinting());
 
                 Result result;
-                if (!request.validateValue())
+                if (!req.validateValue())
                     result = Result.NOT_POSITIVE_VALUE;
-                else if (!request.validateTransactionRequest())
+                else if (!req.validateTransactionRequest())
                     result = Result.MISSING_FIELDS;
-                else if (!request.verifySignature())
+                else if (!req.verifySignature())
                     result = Result.INVALID_SIGNATURE;
-                else if (!request.veritfyAddress())
+                else if (!req.veritfyAddress())
                     result = Result.INCONSISTENT_ADDRESS;
                 else
-                    result = SBChain.acceptTransactionRequest(request);
+                    result = SBChain.addTransaction(
+                        req.getSenderAddress(), req.getRecipientAddress(), req.getValue(), req.getSignature());
 
                 System.out.println(result.getMessage());
                 responseHeader.set("Content-Type", "application/json");

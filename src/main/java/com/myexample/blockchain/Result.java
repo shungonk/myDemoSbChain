@@ -28,7 +28,7 @@ public enum Result {
     INCONSISTENT_ADDRESS(
         Status.FAILED, "Sender address should be consistent with sender public key"),
     SCALE_OVERFLOW(
-        Status.FAILED, "Scale overflow (value := unscaledValue × 10-'scale')"),
+        Status.FAILED, "Float scale overflow"),
     TOO_LARGE_VALUE(
         Status.FAILED, "Requested value too large"),
     NOT_ENOUGH_BALANCE(
