@@ -28,7 +28,7 @@ public class ApplicationServer {
                 var address = query.get("address");
                 var balance = SBChain.calculateTotalValue(address);
                 responseHeader.set("Content-Type", "application/json");
-                var getResponse = StringUtil.singleEntryJson("balance", StringUtil.formatDecimal(balance)); // e.g. "12,345.678901"
+                var getResponse = StringUtil.singleEntryJson("balance", StringUtil.formatDecimal(balance)); // e.g. "1,234.567890"
                 t.sendResponseHeaders(200, getResponse.length());
                 os.write(getResponse.getBytes());
                 break;
