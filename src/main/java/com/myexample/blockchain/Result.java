@@ -43,7 +43,7 @@ public enum Result {
     INCORRECT_JSON_CONTENT(
         Status.FAILED, "Incorrect json content"),
     INCORRECT_QUERY_PARAMETER(
-        Status.FAILED, "Incorrect  query parameters"),
+        Status.FAILED, "Incorrect query parameters"),
     ;
 
     private enum Status {
