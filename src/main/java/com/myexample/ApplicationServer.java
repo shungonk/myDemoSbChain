@@ -41,8 +41,8 @@ public class ApplicationServer {
                 System.out.println(result.getMessage());
                 resHeader.set("Content-Type", "application/json");
                 var resGet = StringUtil.doubleEntryJson(
-                    "balance", StringUtil.formatDecimal(balance, SBChain.VALUE_SCALE), // e.g. "1,234.567890"
-                    "message", result.getMessage());
+                    "message", result.getMessage(),
+                    "balance", StringUtil.formatDecimal(balance, SBChain.VALUE_SCALE)); // e.g. "1,234.567890"
                 t.sendResponseHeaders(result.getStatusCodeValue(), resGet.length());
                 os.write(resGet.getBytes());
                 break;
