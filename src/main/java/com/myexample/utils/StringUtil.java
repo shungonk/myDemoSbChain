@@ -25,12 +25,12 @@ public class StringUtil {
         return nStr.toString();
     }
 
-    public static String messageJson(String message) {
-        return singleEntryJson("message", message);
-    }
-
     public static String singleEntryJson(String key, String value) {
         return String.format("{\"%s\":\"%s\"}", key, value);
+    }
+
+    public static String doubleEntryJson(String key1, String value1, String key2, String value2) {
+        return String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", key1, value1, key2, value2);
     }
 
     public static String valueInJson(String json, String key) {
@@ -57,7 +57,8 @@ public class StringUtil {
             ));
     }
 
-    public static String formatDecimal(BigDecimal value) {
-        return String.format("%,.6f", value);
+    public static String formatDecimal(BigDecimal value, int scale) {
+        String format = "%,." + Integer.toString(scale) + "f";
+        return String.format(format, value);
     }
 }

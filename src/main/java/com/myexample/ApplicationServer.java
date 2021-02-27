@@ -1,11 +1,12 @@
 package com.myexample;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.Security;
-import java.util.Objects;
 
+import com.google.gson.JsonSyntaxException;
 import com.myexample.blockchain.Result;
 import com.myexample.blockchain.SBChain;
 import com.myexample.request.PurchaseRequest;
@@ -20,150 +21,176 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class ApplicationServer {
 
     public HttpHandler balanceHandler = (HttpExchange t) -> {
-        var responseHeader = t.getResponseHeaders();
-        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+        try (var os = t.getResponseBody()) {
+            var resHeader = t.getResponseHeaders();
             switch (t.getRequestMethod()) {
             case "GET":
+                System.out.println("# Request get balance");
                 var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
                 var address = query.get("address");
-                var balance = SBChain.calculateTotalValue(address);
-                responseHeader.set("Content-Type", "application/json");
-                var getResponse = StringUtil.singleEntryJson("balance", StringUtil.formatDecimal(balance)); // e.g. "1,234.567890"
-                t.sendResponseHeaders(200, getResponse.length());
-                os.write(getResponse.getBytes());
+                Result result;
+                BigDecimal balance;
+                if (address == null) {
+                    balance = new BigDecimal("0").setScale(SBChain.VALUE_SCALE);
+                    result = Result.QUERY_PARAMETER_MISMATCHED;
+                } else {
+                    balance = SBChain.calculateTotalValue(address);
+                    result = Result.GET_BARANCE_SUCCESS;
+                }
+                
+                System.out.println(result.getMessage());
+                resHeader.set("Content-Type", "application/json");
+                var resGet = StringUtil.doubleEntryJson(
+                    "balance", StringUtil.formatDecimal(balance, SBChain.VALUE_SCALE), // e.g. "1,234.567890"
+                    "message", result.getMessage());
+                t.sendResponseHeaders(result.getStatusCodeValue(), resGet.length());
+                os.write(resGet.getBytes());
                 break;
 
             default:
-                var response = StringUtil.messageJson("Method Not Allowed");
-                t.sendResponseHeaders(405, response.length());
-                os.write(response.getBytes());
+                System.out.println("# Invalid HTTP Method");
+                t.sendResponseHeaders(405, -1);
             }
         }
     };
     
     public HttpHandler purchaseHandler = (HttpExchange t) -> {
-        var responseHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+            var resHeader = t.getResponseHeaders();
             switch (t.getRequestMethod()) {
             case "POST":
+                System.out.println("# Request purchase");
                 var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                var req = PurchaseRequest.fromJson(json);
-                System.out.println("Catch purchase request");
-                System.out.println(req.marshalJsonPrettyPrinting());
-
                 Result result;
-                if (!req.validatePurchaseRequest())
-                    result = Result.MISSING_FIELDS;
-                else if (!req.verifySignature())
-                    result = Result.INVALID_SIGNATURE;
-                else if (!req.validateValue())
-                    result = Result.NOT_POSITIVE_VALUE;
-                else if (!req.veritfyAddress())
-                    result = Result.INCONSISTENT_ADDRESS;
-                else
-                    result = SBChain.addTransaction(req.getAddress(), req.getValue(), req.getSignature());
+                try {
+                    var req = PurchaseRequest.fromJson(json);
+                    System.out.println(req.marshalJsonPrettyPrinting());
+
+                    if (!req.validatePurchaseRequest())
+                        result = Result.MISSING_FIELDS;
+                    else if (!req.verifySignature())
+                        result = Result.INVALID_SIGNATURE;
+                    else if (!req.validateValue())
+                        result = Result.NOT_POSITIVE_VALUE;
+                    else if (!req.veritfyAddress())
+                        result = Result.INCONSISTENT_ADDRESS;
+                    else
+                        result = SBChain.addTransaction(req.getAddress(), req.getValue(), req.getSignature());
+                } catch (JsonSyntaxException e) {
+                    result = Result.JSON_CONTENT_MISMATCHED;
+                }
 
                 System.out.println(result.getMessage());
-                responseHeader.set("Content-Type", "application/json");
-                var postResponse = StringUtil.messageJson(result.getMessage());
-                t.sendResponseHeaders(201, postResponse.length());
-                os.write(postResponse.getBytes());
+                resHeader.set("Content-Type", "application/json");
+                var reqPost = StringUtil.singleEntryJson("message", result.getMessage());
+                t.sendResponseHeaders(result.getStatusCodeValue(), reqPost.length());
+                os.write(reqPost.getBytes());
                 break;
 
             default:
-                var response = StringUtil.messageJson("Method Not Allowed");
-                t.sendResponseHeaders(405, response.length());
-                os.write(response.getBytes());
+                System.out.println("# Invalid HTTP Method");
+                t.sendResponseHeaders(405, -1);
             }
         }
     };
 
     public HttpHandler chainHandler = (HttpExchange t) -> {
-        var responseHeader = t.getResponseHeaders();
+        var resHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "GET":
-                responseHeader.set("Content-Type", "application/json");
-                var getResponse = SBChain.marshalJson();
-                t.sendResponseHeaders(200, getResponse.length());
-                os.write(getResponse.getBytes());
+                System.out.println("# Request get chain");
+                resHeader.set("Content-Type", "application/json");
+                var resGet = SBChain.marshalJson();
+                t.sendResponseHeaders(200, resGet.length());
+                os.write(resGet.getBytes());
                 break;
 
             default:
-                var response = StringUtil.messageJson("Method Not Allowed");
-                t.sendResponseHeaders(405, response.length());
-                os.write(response.getBytes());
+                System.out.println("# Invalid HTTP Method");
+                t.sendResponseHeaders(405, -1);
             }
         }
     };
 
     public HttpHandler transactionHandler = (HttpExchange t) -> {
-        var responseHeader = t.getResponseHeaders();
+        var resHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "GET":
-                responseHeader.set("Content-Type", "application/json");
-                var getResponse = SBChain.transactionPoolJson();
-                t.sendResponseHeaders(200, getResponse.length());
-                os.write(getResponse.getBytes());
+                System.out.println("# Request get transaction pool");
+                resHeader.set("Content-Type", "application/json");
+                var resGet = SBChain.transactionPoolJson();
+                t.sendResponseHeaders(200, resGet.length());
+                os.write(resGet.getBytes());
                 break;
 
             case "POST":
+                System.out.println("# Request register transaction");
                 var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                var req = TransactionRequest.fromJson(json);
-                System.out.println("Catch transaction request");
-                System.out.println(req.marshalJsonPrettyPrinting());
-
                 Result result;
-                if (!req.validateTransactionRequest())
-                    result = Result.MISSING_FIELDS;
-                else if (!req.verifySignature())
-                    result = Result.INVALID_SIGNATURE;
-                else if (!req.validateValue())
-                    result = Result.NOT_POSITIVE_VALUE;
-                else if (!req.veritfyAddress())
-                    result = Result.INCONSISTENT_ADDRESS;
-                else
-                    result = SBChain.addTransaction(
-                        req.getSenderAddress(), req.getRecipientAddress(), req.getValue(), req.getSignature());
+                try {
+                    var req = TransactionRequest.fromJson(json);
+                    System.out.println("Catch transaction request");
+                    System.out.println(req.marshalJsonPrettyPrinting());
+    
+                    if (!req.validateTransactionRequest())
+                        result = Result.MISSING_FIELDS;
+                    else if (!req.verifySignature())
+                        result = Result.INVALID_SIGNATURE;
+                    else if (!req.validateValue())
+                        result = Result.NOT_POSITIVE_VALUE;
+                    else if (!req.veritfyAddress())
+                        result = Result.INCONSISTENT_ADDRESS;
+                    else
+                        result = SBChain.addTransaction(
+                            req.getSenderAddress(), req.getRecipientAddress(), req.getValue(), req.getSignature());
+                } catch (JsonSyntaxException e) {
+                    result = Result.JSON_CONTENT_MISMATCHED;
+                }
 
                 System.out.println(result.getMessage());
-                responseHeader.set("Content-Type", "application/json");
-                var postResponse = StringUtil.messageJson(result.getMessage());
-                t.sendResponseHeaders(201, postResponse.length());
-                os.write(postResponse.getBytes());
+                resHeader.set("Content-Type", "application/json");
+                var reqPost = StringUtil.singleEntryJson("message", result.getMessage());
+                t.sendResponseHeaders(result.getStatusCodeValue(), reqPost.length());
+                os.write(reqPost.getBytes());
                 break;
 
             default:
-                var response = StringUtil.messageJson("Method Not Allowed");
-                t.sendResponseHeaders(405, response.length());
-                os.write(response.getBytes());
+                System.out.println("# Invalid HTTP Method");
+                t.sendResponseHeaders(405, -1);
             }
         }
     };
 
     ////////// for demo //////////
     public HttpHandler mineHandler = (HttpExchange t) -> {
-        var responseHeader = t.getResponseHeaders();
+        var resHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "POST":
+                System.out.println("# Request mining");
                 var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
                 var address = query.get("address");
-                Result result = Objects.equals(address, SBChain.MINER_ADDRESS)
-                    ? SBChain.mining()
-                    : Result.MINING_NOT_MINER;
+                Result result;
+                if (address == null) {
+                    result = Result.QUERY_PARAMETER_MISMATCHED;
+                } else if (!address.equals(SBChain.MINER_ADDRESS)) {
+                    result = Result.MINING_NOT_MINER;
+                } else {
+                    result = SBChain.mining();
+                }
 
-                responseHeader.set("Content-Type", "application/json");
-                var postResponse = StringUtil.messageJson(result.getMessage());
-                t.sendResponseHeaders(201, postResponse.length());
-                os.write(postResponse.getBytes());
+                System.out.println(result.getMessage());
+                resHeader.set("Content-Type", "application/json");
+                var reqPost = StringUtil.singleEntryJson("message", result.getMessage());
+                t.sendResponseHeaders(result.getStatusCodeValue(), reqPost.length());
+                os.write(reqPost.getBytes());
                 break;
 
             default:
-                var response = StringUtil.messageJson("Method Not Allowed");
-                t.sendResponseHeaders(405, response.length());
-                os.write(response.getBytes());
+                System.out.println("# Invalid HTTP Method");
+                t.sendResponseHeaders(405, -1);
             }
         }
     };

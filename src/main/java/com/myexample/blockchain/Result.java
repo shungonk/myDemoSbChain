@@ -1,14 +1,17 @@
 package com.myexample.blockchain;
 
 public enum Result {
+    // Get balance message
+    GET_BARANCE_SUCCESS(
+        Status.SUCCESS, "Get balance!"),
 
     // Purchase result
     PURCHASE_SUCCESS(
-        Status.SUCCESS, "Purchase successed!"),
+        Status.CREATED, "Purchase successed!"),
 
     // Transaction result
     TRANSACTION_SUCCESS(
-        Status.SUCCESS, "Transaction accepted!"),
+        Status.CREATED, "Transaction accepted!"),
 
     // Mining result
     MINING_NOT_MINER(
@@ -16,7 +19,7 @@ public enum Result {
     MINING_POOL_EMPTY(
         Status.FAILED, "Transaction pool is empty"),
     MINING_SUCCESS(
-        Status.SUCCESS, "Mining completed!"),
+        Status.CREATED, "Mining completed!"),
 
     // Request Vlidation result
     NOT_POSITIVE_VALUE(
@@ -35,10 +38,23 @@ public enum Result {
         Status.FAILED, "Not enough balance"),
     SIGNATURE_ALREADY_CONSUMED(
         Status.FAILED, "This signature is already consumed"),
+    
+    // HTTP Hundle message
+    JSON_CONTENT_MISMATCHED(
+        Status.FAILED, "Json content mismatched"),
+    QUERY_PARAMETER_MISMATCHED(
+        Status.FAILED, "Query parameters mismatched"),
     ;
 
     private enum Status {
-        SUCCESS, FAILED, ERROR;
+        SUCCESS(200), CREATED(201), FAILED(400), ;
+        private int statusCode; // http status code
+        private Status(int statusCode) {
+            this.statusCode = statusCode;
+        }
+        private int getValue() {
+            return statusCode;
+        }
     }
 
     private Status status;
@@ -51,6 +67,18 @@ public enum Result {
 
     public boolean isSuccess() {
         return status == Status.SUCCESS;
+    }
+
+    public boolean isCreated() {
+        return status == Status.CREATED;
+    }
+
+    public boolean isFailed() {
+        return status == Status.FAILED;
+    }
+
+    public int getStatusCodeValue() {
+        return status.getValue();
     }
 
     public String getMessage() {
