@@ -14,7 +14,6 @@ public class Wallet {
     public Wallet() {
         try {
             // create the KeyPair, from which you can obtain the public and private keys.
-            //TODO: what the difference between getInstance("EC") and getInstance("ECDSA", "BC")?
             var keyGenerator = KeyPairGenerator.getInstance("EC"); 
             var ecGenSpec = new ECGenParameterSpec("secp256k1");
             keyGenerator.initialize(ecGenSpec);

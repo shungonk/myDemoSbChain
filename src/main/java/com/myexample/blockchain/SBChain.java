@@ -16,6 +16,7 @@ import com.myexample.utils.PropertyUtil;
 import com.myexample.utils.StringUtil;
 
 public class SBChain {
+    // TODO: Synchronize widh Nodes
 
     public static final int DIFFICULTY = 5;
     public static final int VALUE_SCALE = 6;
