@@ -115,12 +115,12 @@ public class ApplicationServer {
                 System.out.println(req.marshalJsonPrettyPrinting());
 
                 Result result;
-                if (!req.validateValue())
-                    result = Result.NOT_POSITIVE_VALUE;
-                else if (!req.validateTransactionRequest())
+                if (!req.validateTransactionRequest())
                     result = Result.MISSING_FIELDS;
                 else if (!req.verifySignature())
                     result = Result.INVALID_SIGNATURE;
+                else if (!req.validateValue())
+                    result = Result.NOT_POSITIVE_VALUE;
                 else if (!req.veritfyAddress())
                     result = Result.INCONSISTENT_ADDRESS;
                 else
