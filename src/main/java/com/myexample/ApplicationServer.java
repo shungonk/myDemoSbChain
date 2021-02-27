@@ -32,7 +32,7 @@ public class ApplicationServer {
                 BigDecimal balance;
                 if (address == null) {
                     balance = new BigDecimal("0").setScale(SBChain.VALUE_SCALE);
-                    result = Result.QUERY_PARAMETER_MISMATCHED;
+                    result = Result.INCORRECT_QUERY_PARAMETER;
                 } else {
                     balance = SBChain.calculateTotalValue(address);
                     result = Result.GET_BARANCE_SUCCESS;
@@ -77,7 +77,7 @@ public class ApplicationServer {
                     else
                         result = SBChain.addTransaction(req.getAddress(), req.getValue(), req.getSignature());
                 } catch (JsonSyntaxException e) {
-                    result = Result.JSON_CONTENT_MISMATCHED;
+                    result = Result.INCORRECT_JSON_CONTENT;
                 }
 
                 System.out.println(result.getMessage());
@@ -146,7 +146,7 @@ public class ApplicationServer {
                         result = SBChain.addTransaction(
                             req.getSenderAddress(), req.getRecipientAddress(), req.getValue(), req.getSignature());
                 } catch (JsonSyntaxException e) {
-                    result = Result.JSON_CONTENT_MISMATCHED;
+                    result = Result.INCORRECT_JSON_CONTENT;
                 }
 
                 System.out.println(result.getMessage());
@@ -174,7 +174,7 @@ public class ApplicationServer {
                 var address = query.get("address");
                 Result result;
                 if (address == null) {
-                    result = Result.QUERY_PARAMETER_MISMATCHED;
+                    result = Result.INCORRECT_QUERY_PARAMETER;
                 } else if (!address.equals(SBChain.MINER_ADDRESS)) {
                     result = Result.MINING_NOT_MINER;
                 } else {

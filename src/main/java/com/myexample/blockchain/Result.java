@@ -40,10 +40,10 @@ public enum Result {
         Status.FAILED, "This signature is already consumed"),
     
     // HTTP Hundle message
-    JSON_CONTENT_MISMATCHED(
-        Status.FAILED, "Json content mismatched"),
-    QUERY_PARAMETER_MISMATCHED(
-        Status.FAILED, "Query parameters mismatched"),
+    INCORRECT_JSON_CONTENT(
+        Status.FAILED, "Incorrect json content"),
+    INCORRECT_QUERY_PARAMETER(
+        Status.FAILED, "Incorrect  query parameters"),
     ;
 
     private enum Status {
