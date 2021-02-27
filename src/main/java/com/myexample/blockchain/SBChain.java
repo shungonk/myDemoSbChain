@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
@@ -30,10 +31,6 @@ public class SBChain {
 
     private static Block lastBlock() {
         return chain.get(chain.size() - 1);
-    }
-
-    public static boolean isTransactionPoolEmpty() {
-        return transactionPool.isEmpty();
     }
 
     public static String marshalJson() {
@@ -61,7 +58,7 @@ public class SBChain {
             else if (val.compareTo(MAX_VALUE) > 0)
                 return Result.TOO_LARGE_VALUE;
 
-            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, recipientAdr, val));
+            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, recipientAdr, val, null));
             // save objects
             saveTransactionPool();
             return Result.TRANSACTION_SUCCESS;
@@ -74,9 +71,10 @@ public class SBChain {
                 return Result.SCALE_OVERFLOW;
             else if (val.compareTo(MAX_VALUE) > 0)
                 return Result.TOO_LARGE_VALUE;
-            // TODO: check duplicate sign
+            else if (duplicateSignature(sign))
+                return Result.SIGNATURE_ALREADY_CONSUMED;
 
-            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, recipientAdr, val));
+            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, recipientAdr, val, sign));
             // save objects
             saveTransactionPool();
             return Result.TRANSACTION_SUCCESS;
@@ -91,9 +89,10 @@ public class SBChain {
                 return Result.TOO_LARGE_VALUE;
             else if (val.compareTo(calculateTotalValue(senderAdr)) > 0)
                 return Result.NOT_ENOUGH_BALANCE;
-            // TODO: check duplicate sign
+            else if (duplicateSignature(sign))
+                return Result.SIGNATURE_ALREADY_CONSUMED;
 
-            transactionPool.add(new Transaction(senderAdr, recipientAdr, val));
+            transactionPool.add(new Transaction(senderAdr, recipientAdr, val, sign));
             // save objects
             saveTransactionPool();
             return Result.TRANSACTION_SUCCESS;
@@ -106,7 +105,7 @@ public class SBChain {
                 return Result.MINING_POOL_EMPTY;
 
             // send reward to miner
-            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, MINER_ADDRESS, MINING_REWARD));
+            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, MINER_ADDRESS, MINING_REWARD, null));
 
             System.out.println("Mining...");
             var transactions = List.copyOf(transactionPool);
@@ -139,12 +138,7 @@ public class SBChain {
     }
 
     public static BigDecimal calculateTotalValue(String address) {
-        var transactions = chain
-            .stream()
-            .map(Block::getTransactions)
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
-        transactions.addAll(transactionPool);
+        var transactions = getAllTransactions();
         
         var total = BigDecimal.ZERO.setScale(VALUE_SCALE);
         for (var t: transactions) {
@@ -154,6 +148,22 @@ public class SBChain {
                 total = total.subtract(t.getValue());
         }
         return total;
+    }
+
+    public static boolean duplicateSignature(String signature) {
+        var transactions = getAllTransactions();
+        return transactions.stream()
+            .anyMatch(t -> Objects.equals(signature, t.getSignature()));
+    }
+
+    private static List<Transaction> getAllTransactions() {
+        var transactions = chain
+            .stream()
+            .map(Block::getTransactions)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+        transactions.addAll(transactionPool);
+        return transactions;
     }
 
     private static void saveChain() {
@@ -184,7 +194,7 @@ public class SBChain {
         try {
             chain = FileUtil.deserializeObject(path, chain.getClass());
         } catch (NoSuchFileException e) {
-            System.out.println("Chain file not found: " + e.getMessage());
+            System.out.println("Blockchain file not found: " + e.getMessage());
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

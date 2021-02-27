@@ -1,6 +1,7 @@
 package com.myexample.request;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import com.google.gson.GsonBuilder;
 import com.myexample.utils.SecurityUtil;
@@ -13,6 +14,7 @@ public class TransactionRequest {
     private String recipientAddress;
     private BigDecimal value;
     private String signature;
+    private long timestamp;
 
     public TransactionRequest(String senderPublicKey, String senderAddress, String recipientAddress, BigDecimal value, String signature) {
         this.senderPublicKey = senderPublicKey;
@@ -20,6 +22,7 @@ public class TransactionRequest {
         this.recipientAddress = recipientAddress;
         this.value = value;
         this.signature = signature;
+        this.timestamp = Instant.now().toEpochMilli();
     }
 
     public String getSenderPublicKey() {
@@ -42,12 +45,17 @@ public class TransactionRequest {
         return signature;
     }
 
+    public long getTimestamp() {
+        return timestamp;
+    }
+
     public boolean validateTransactionRequest() {
         if (senderPublicKey == null || senderPublicKey.isBlank() ||
             senderAddress == null || senderAddress.isBlank() ||
             recipientAddress == null || recipientAddress.isBlank() ||
             value == null || value.equals(BigDecimal.ZERO) ||
-            signature == null || signature.isBlank()) {
+            signature == null || signature.isBlank() ||
+            timestamp == 0) {
             return false;
         }
         return true;
@@ -60,7 +68,7 @@ public class TransactionRequest {
     public boolean verifySignature() {
         return SecurityUtil.verifyEcdsaSign(
             senderPublicKey,
-            senderAddress + recipientAddress + value.toPlainString(),
+            senderAddress + recipientAddress + value.toPlainString() + Long.toString(timestamp),
             signature
             );
     }

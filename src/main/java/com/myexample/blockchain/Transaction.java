@@ -17,12 +17,14 @@ public class Transaction implements Serializable {
     private String senderAddress;
     private String recipientAddress;
     private BigDecimal value;
+    private String signature;
 
-    public Transaction(String senderAddress, String recipientAddress, BigDecimal value) {
+    public Transaction(String senderAddress, String recipientAddress, BigDecimal value, String signature) {
         this.timestamp = Instant.now().toEpochMilli();
         this.senderAddress = senderAddress;
         this.recipientAddress = recipientAddress;
         this.value = value.setScale(SBChain.VALUE_SCALE);
+        this.signature = signature;
         this.transactionId = calculateHash();
     }
 
@@ -46,9 +48,13 @@ public class Transaction implements Serializable {
         return value;
     }
 
+    public String getSignature() {
+        return signature;
+    }
+
     public String calculateHash() {
         return SecurityUtil.sha256(
-            Long.toString(timestamp) + senderAddress + recipientAddress + value.toPlainString()
+            Long.toString(timestamp) + senderAddress + recipientAddress + value.toPlainString() + signature
             );
     }
     

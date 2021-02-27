@@ -51,7 +51,7 @@ public class ApplicationServer {
                 System.out.println("Catch purchase request");
                 System.out.println(req.marshalJsonPrettyPrinting());
 
-                Result result = Result.PURCHASE_SUCCESS;
+                Result result;
                 if (!req.validateValue())
                     result = Result.NOT_POSITIVE_VALUE;
                 else if (!req.validatePurchaseRequest())
@@ -61,7 +61,7 @@ public class ApplicationServer {
                 else if (!req.veritfyAddress())
                     result = Result.INCONSISTENT_ADDRESS;
                 else
-                    SBChain.addTransaction(req.getAddress(), req.getValue(), req.getSignature());
+                    result = SBChain.addTransaction(req.getAddress(), req.getValue(), req.getSignature());
 
                 System.out.println(result.getMessage());
                 responseHeader.set("Content-Type", "application/json");
@@ -193,9 +193,6 @@ public class ApplicationServer {
         Security.addProvider(new BouncyCastleProvider());
         SBChain.loadChain();
         SBChain.loadTransactionPool();
-
-        // demo
-        // SBChain.addTransaction(SBChain.BLOCKCHAIN_NAME, SBChain.MINER_ADDRESS, new BigDecimal("10000"));
 
         new ApplicationServer().run();
     }

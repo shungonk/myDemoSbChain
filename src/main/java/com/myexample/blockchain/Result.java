@@ -33,6 +33,8 @@ public enum Result {
         Status.FAILED, "Requested value too large"),
     NOT_ENOUGH_BALANCE(
         Status.FAILED, "Not enough balance"),
+    SIGNATURE_ALREADY_CONSUMED(
+        Status.FAILED, "This signature is already consumed"),
     ;
 
     private enum Status {
