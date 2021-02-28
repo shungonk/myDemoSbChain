@@ -66,16 +66,12 @@ public class WalletServer {
 	public static void sendTransaction(TransactionForm form) {
 
 		// create request to blockchain server
-		var senderPvt = form.getSenderPrivateKey();
-        var timestamp = Instant.now().toEpochMilli();
-        var data = form.getSenderAddress() + form.getRecipientAddress() + form.getValue().toPlainString() + Long.toString(timestamp);
-        var transactionReq = new TransactionRequest(
-            form.getSenderPublicKey(), 
-            form.getSenderAddress(), 
-            form.getRecipientAddress(), 
-            form.getValue(),
-            timestamp,
-            SecurityUtil.createEcdsaSign(senderPvt, data));
+		var transactionReq = new TransactionRequest(
+			form.getSenderAddress(),
+			form.getRecipientAddress(),
+			form.getValue(),
+			Instant.now().toEpochMilli());
+		transactionReq.signate(form.getSenderPrivateKey(), form.getSenderPublicKey());
 
 		// debug
 		System.out.println(transactionReq.marshalJsonPrettyPrinting());
@@ -94,9 +90,8 @@ public class WalletServer {
 
 		boolean isValid = SecurityUtil.verifyEcdsaSign(
 			senderPublicKey,
-			senderAddress + recipirntAddress + Float.toString(value),
+			(senderAddress + recipirntAddress + Float.toString(value)).getBytes(),
 			signature);
-
 		System.out.println(isValid);
 	}
 

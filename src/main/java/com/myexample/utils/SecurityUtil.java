@@ -60,11 +60,11 @@ public class SecurityUtil {
 		}
 	}
 
-	public static String createEcdsaSign(String privateKeyString, String data) {
+	public static String createEcdsaSign(String privateKeyString, byte[] data) {
 		try {
 			var dsa = Signature.getInstance("ECDSA", "BC");
 			dsa.initSign(decodePrivateKey(privateKeyString));
-			dsa.update(data.getBytes("UTF-8"));
+			dsa.update(data);
 			var sign = dsa.sign();
 			return Base64.getEncoder().encodeToString(sign);
 		} catch (Exception e) {
@@ -72,11 +72,11 @@ public class SecurityUtil {
 		}	
 	}
 
-	public static boolean verifyEcdsaSign(String publicKeyString, String data, String signature) {
+	public static boolean verifyEcdsaSign(String publicKeyString, byte[] data, String signature) {
 		try {
 			var dsa = Signature.getInstance("ECDSA", "BC");
 			dsa.initVerify(decodePublicKey(publicKeyString));
-			dsa.update(data.getBytes("UTF-8"));
+			dsa.update(data);
 			var sign = Base64.getDecoder().decode(signature);
 			return dsa.verify(sign);
 		} catch (Exception e) {

@@ -61,16 +61,16 @@ public class ApplicationServer {
                 var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 Result result;
                 try {
-                    var req = PurchaseRequest.fromJson(json);
+                    var req = StringUtil.fromJson(json, PurchaseRequest.class);
                     System.out.println(req.marshalJsonPrettyPrinting());
 
-                    if (!req.validatePurchaseRequest())
+                    if (!req.validateFields())
                         result = Result.MISSING_FIELDS;
                     else if (!req.verifySignature())
                         result = Result.INVALID_SIGNATURE;
                     else if (!req.validateValue())
                         result = Result.NOT_POSITIVE_VALUE;
-                    else if (!req.veritfyAddress())
+                    else if (!req.verifyAddress())
                         result = Result.INCONSISTENT_ADDRESS;
                     else
                         result = SBChain.addTransaction(req.getAddress(), req.getValue(), req.getSignature());
@@ -126,17 +126,17 @@ public class ApplicationServer {
                 var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 Result result;
                 try {
-                    var req = TransactionRequest.fromJson(json);
+                    var req = StringUtil.fromJson(json, TransactionRequest.class);
                     System.out.println("Catch transaction request");
                     System.out.println(req.marshalJsonPrettyPrinting());
     
-                    if (!req.validateTransactionRequest())
+                    if (!req.validateFields())
                         result = Result.MISSING_FIELDS;
                     else if (!req.verifySignature())
                         result = Result.INVALID_SIGNATURE;
                     else if (!req.validateValue())
                         result = Result.NOT_POSITIVE_VALUE;
-                    else if (!req.veritfyAddress())
+                    else if (!req.verifyAddress())
                         result = Result.INCONSISTENT_ADDRESS;
                     else
                         result = SBChain.addTransaction(

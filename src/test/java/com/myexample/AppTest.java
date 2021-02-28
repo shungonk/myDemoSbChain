@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 
 import com.myexample.blockchain.SBChain;
 import com.myexample.request.TransactionRequest;
+import com.myexample.utils.StringUtil;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
@@ -56,7 +57,7 @@ public class AppTest {
 
     public void transactionResponse(String json) {
         // receive request from wallet server
-        var request = TransactionRequest.fromJson(json);
+        var request = StringUtil.fromJson(json, TransactionRequest.class);
         var senderAdr = request.getSenderAddress();
         var recipientAdr = request.getRecipientAddress();
         var val = request.getValue();

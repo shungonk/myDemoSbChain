@@ -2,28 +2,18 @@ package com.myexample.request;
 
 import java.math.BigDecimal;
 
-import com.google.gson.GsonBuilder;
 import com.myexample.utils.SecurityUtil;
-import com.myexample.utils.StringUtil;
 
-public class PurchaseRequest {
+public class PurchaseRequest extends SignatureRequest {
 
-    private String publicKey; // recipient
-    private String address;   // recipient
+    private String address;
     private BigDecimal value;
-    private String signature;
     private long timestamp;
 
-    public PurchaseRequest(String publicKey, String address, BigDecimal value, long timestamp, String signature) {
-        this.publicKey = publicKey;
+    public PurchaseRequest(String address, BigDecimal value, long timestamp) {
         this.address = address;
         this.value = value;
-        this.signature = signature;
         this.timestamp = timestamp;
-    }
-
-    public String getPublicKey() {
-        return publicKey;
     }
 
     public String getAddress() {
@@ -34,15 +24,19 @@ public class PurchaseRequest {
         return value;
     }
 
-    public String getSignature() {
-        return signature;
-    }
-
     public long getTimestamp() {
         return timestamp;
     }
 
-    public boolean validatePurchaseRequest() {
+    @Override
+    public byte[] getData() {
+        // signature will be unique because data contain timestamp
+        String data = address + value.toPlainString() + Long.toString(timestamp);
+        return data.getBytes();
+    }
+
+    @Override
+    public boolean validateFields() {
         if (publicKey == null || publicKey.isBlank() ||
             address == null || address.isBlank() ||
             value == null || value.equals(BigDecimal.ZERO) ||
@@ -56,30 +50,8 @@ public class PurchaseRequest {
     public boolean validateValue() {
         return value.compareTo(BigDecimal.ZERO) > 0;
     }
-
-    public boolean verifySignature() {
-        return SecurityUtil.verifyEcdsaSign(
-            publicKey,
-            address + value.toPlainString() + Long.toString(timestamp),
-            signature
-            );
-    }
-
-    public boolean veritfyAddress() {
+    
+    public final boolean verifyAddress() {
         return SecurityUtil.validateAddressByPublicKey(address, publicKey);
     }
-
-    public String marshalJson() {
-        return StringUtil.toJson(this);
-    }
-
-    public String marshalJsonPrettyPrinting() {
-        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
-        return gsonBuilder.toJson(this);
-    }
-
-    public static PurchaseRequest fromJson(String json) {
-        return StringUtil.fromJson(json, PurchaseRequest.class);
-    }
-    
 }

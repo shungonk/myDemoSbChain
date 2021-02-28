@@ -2,30 +2,20 @@ package com.myexample.request;
 
 import java.math.BigDecimal;
 
-import com.google.gson.GsonBuilder;
 import com.myexample.utils.SecurityUtil;
-import com.myexample.utils.StringUtil;
 
-public class TransactionRequest {
+public class TransactionRequest extends SignatureRequest {
 
-    private String senderPublicKey;
     private String senderAddress;
     private String recipientAddress;
     private BigDecimal value;
-    private String signature;
     private long timestamp;
 
-    public TransactionRequest(String senderPublicKey, String senderAddress, String recipientAddress, BigDecimal value, long timestamp, String signature) {
-        this.senderPublicKey = senderPublicKey;
+    public TransactionRequest(String senderAddress, String recipientAddress, BigDecimal value, long timestamp) {
         this.senderAddress = senderAddress;
         this.recipientAddress = recipientAddress;
         this.value = value;
         this.timestamp = timestamp;
-        this.signature = signature;
-    }
-
-    public String getSenderPublicKey() {
-        return senderPublicKey;
     }
 
     public String getSenderAddress() {
@@ -40,16 +30,20 @@ public class TransactionRequest {
         return value;
     }
 
-    public String getSignature() {
-        return signature;
-    }
-
     public long getTimestamp() {
         return timestamp;
     }
 
-    public boolean validateTransactionRequest() {
-        if (senderPublicKey == null || senderPublicKey.isBlank() ||
+    @Override
+    public byte[] getData() {
+        // signature will be unique because data contain timestamp
+        String data = senderAddress + recipientAddress + value.toPlainString() + Long.toString(timestamp);
+        return data.getBytes();
+    }
+
+    @Override
+    public boolean validateFields() {
+        if (publicKey == null || publicKey.isBlank() ||
             senderAddress == null || senderAddress.isBlank() ||
             recipientAddress == null || recipientAddress.isBlank() ||
             value == null || value.equals(BigDecimal.ZERO) ||
@@ -63,30 +57,8 @@ public class TransactionRequest {
     public boolean validateValue() {
         return value.compareTo(BigDecimal.ZERO) > 0;
     }
-
-    public boolean verifySignature() {
-        return SecurityUtil.verifyEcdsaSign(
-            senderPublicKey,
-            senderAddress + recipientAddress + value.toPlainString() + Long.toString(timestamp),
-            signature
-            );
-    }
-
-    public boolean veritfyAddress() {
-        return SecurityUtil.validateAddressByPublicKey(senderAddress, senderPublicKey);
-    }
-
-    public String marshalJson() {
-        return StringUtil.toJson(this);
-    }
-
-    public String marshalJsonPrettyPrinting() {
-        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
-        return gsonBuilder.toJson(this);
-    }
-
-    public static TransactionRequest fromJson(String json) {
-        return StringUtil.fromJson(json, TransactionRequest.class);
-    }
     
+    public final boolean verifyAddress() {
+        return SecurityUtil.validateAddressByPublicKey(senderAddress, publicKey);
+    }
 }
