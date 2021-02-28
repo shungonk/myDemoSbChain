@@ -96,7 +96,7 @@ public class ApplicationServer {
 
     public HttpHandler chainHandler = (HttpExchange t) -> {
         var resHeader = t.getResponseHeaders();
-        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+        try (var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "GET":
                 System.out.println("# Request get chain");
@@ -165,7 +165,7 @@ public class ApplicationServer {
 
     public HttpHandler mineHandler = (HttpExchange t) -> {
         var resHeader = t.getResponseHeaders();
-        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+        try (var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "POST":
                 System.out.println("# Request mining");
