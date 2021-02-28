@@ -4,11 +4,14 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECGenParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
@@ -31,6 +34,13 @@ public class SecurityUtil {
 			sb.append(String.format("%02x", b));
 		}
 		return sb.toString();
+	}
+
+	public static KeyPair generateKeyPair() throws GeneralSecurityException {
+		var keyGenerator = KeyPairGenerator.getInstance("EC"); 
+		var ecGenSpec = new ECGenParameterSpec("secp256k1");
+		keyGenerator.initialize(ecGenSpec);
+		return keyGenerator.genKeyPair();
 	}
 
 	public static String encodeKeyToString(Key key) {
@@ -77,12 +87,7 @@ public class SecurityUtil {
 	}
 
 	public static String getAddressFromPublicKey(PublicKey publicKey) throws GeneralSecurityException {
-		// store just the private part of the key since the public key can be derived from the private key.
-		// The static method adjustTo64() merely pads the hex string with leading 0s so the total length is 64 characters.
-		// var epvt = (ECPrivateKey) pvt;
-		// var sepvt = adjustTo64(epvt.getS().toString(16)).toUpperCase();
 
-		// The public part of the key generated above is encoded into a bitcoin address.
 		// the ECDSA public key is represented by a point on an elliptical curve.
 		// They are concatenated together with “04” at the beginning to represent the public key.
 		var epub = (ECPublicKey)publicKey;

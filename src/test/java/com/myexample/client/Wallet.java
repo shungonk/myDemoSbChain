@@ -1,8 +1,5 @@
 package com.myexample.client;
 
-import java.security.KeyPairGenerator;
-import java.security.spec.ECGenParameterSpec;
-
 import com.myexample.utils.SecurityUtil;
 
 public class Wallet {
@@ -13,11 +10,7 @@ public class Wallet {
 
     public Wallet() {
         try {
-            // create the KeyPair, from which you can obtain the public and private keys.
-            var keyGenerator = KeyPairGenerator.getInstance("EC"); 
-            var ecGenSpec = new ECGenParameterSpec("secp256k1");
-            keyGenerator.initialize(ecGenSpec);
-            var keyPair = keyGenerator.genKeyPair();
+            var keyPair = SecurityUtil.generateKeyPair();            
             var pvt = keyPair.getPrivate();
             var pub = keyPair.getPublic();
 
