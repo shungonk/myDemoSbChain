@@ -19,11 +19,13 @@ public class SBChain {
     // TODO: Synchronize widh Nodes
 
     public static final int MINING_DIFFICULTY = 5;
-    public static final int TRANSACTION_VALUE_SCALE = 6;
     public static final BigDecimal MINING_REWARD = new BigDecimal("2");
-    public static final BigDecimal TRANSACTION_MAX_VALUE = new BigDecimal("30");
-    public static final String BLOCKCHAIN_NAME = "THE SBCHAIN";
     public static final String MINER_ADDRESS = PropertyUtil.getProperty("mineraddress");
+
+    public static final int TRANSACTION_VALUE_SCALE = 6;
+    public static final BigDecimal TRANSACTION_MAX_VALUE = new BigDecimal("30");
+    
+    public static final String BLOCKCHAIN_NAME = "THE SBCHAIN";
 
     private static List<Block> chain = new ArrayList<>(Arrays.asList(Block.INITIAL));
 	private static List<Transaction> transactionPool = Collections.synchronizedList(new ArrayList<>());
