@@ -192,7 +192,8 @@ public class ApplicationServer {
         try {
             var host = PropertyUtil.getProperty("host", "localhost");
             var port = Integer.parseInt(PropertyUtil.getProperty("port", "8080"));
-            var server = HttpServer.create(new InetSocketAddress(host, port), 0);
+            var socketAddress = new InetSocketAddress(host, port);
+            var server = HttpServer.create(socketAddress, 0);
             server.createContext("/balance", balanceHandler);
             server.createContext("/purchase", purchaseHandler);
             server.createContext("/chain", chainHandler);
@@ -200,7 +201,7 @@ public class ApplicationServer {
             server.createContext("/mine", mineHandler); ///// for demo /////
             server.setExecutor(null);
             server.start();
-            System.out.println("Server started on port " + port);
+            System.out.println("Server started on " + socketAddress.toString());
         } catch (IOException e) {
             System.out.println("Failed to start Application");
             throw new RuntimeException(e);

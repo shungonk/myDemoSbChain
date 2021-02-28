@@ -199,6 +199,7 @@ public class SBChain {
             if (!isChainValid()) {
                 throw new RuntimeException("Loaded chain invalid");
             }
+            System.out.println("Blockchain file loaded");
         } catch (NoSuchFileException e) {
             System.out.println("Blockchain file not found: " + e.getMessage());
         } catch (IOException | ClassNotFoundException e) {
@@ -211,6 +212,7 @@ public class SBChain {
         var path = PropertyUtil.getProperty("transactionsfile");
         try {
             transactionPool = FileUtil.deserializeObject(path, transactionPool.getClass());
+            System.out.println("TransactionPool file loaded");
         } catch (NoSuchFileException e) {
             System.out.println("TransactionPool file not found: " + e.getMessage());
         } catch (IOException | ClassNotFoundException e) {
