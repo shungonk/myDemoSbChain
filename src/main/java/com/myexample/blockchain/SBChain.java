@@ -37,7 +37,8 @@ public class SBChain {
     }
 
     public static void setMinerAddress(String address) {
-        minerAddress = address;
+        if (minerAddress == null)
+            minerAddress = address;
     }
 
     private static Block lastBlock() {
