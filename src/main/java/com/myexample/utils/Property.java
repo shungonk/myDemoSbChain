@@ -8,7 +8,7 @@ import java.util.Properties;
 
 public class Property {
 
-    private static final String APPLICATION_PROP_PATH = "application.properties";
+    private static final String APPLICATION_PROP_PATH = "resources/application.properties";
     private static final Properties properties;
 
     private Property() {}

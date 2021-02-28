@@ -2,16 +2,12 @@ package com.myexample.blockchain;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
@@ -23,37 +19,26 @@ import com.myexample.utils.StringUtil;
 public class SBChain {
     // TODO: Synchronize widh Nodes
 
-    public static final int MINING_DIFFICULTY;
-    public static final BigDecimal MINING_REWARD;
-    public static final String MINER_ADDRESS;
+    public static final int        MINING_DIFFICULTY = 5;
+    public static final BigDecimal MINING_REWARD = new BigDecimal("2");
+    public static final int        TRANSACTION_AMOUNT_SCALE = 6;
+    public static final BigDecimal TRANSACTION_MAX_AMOUNT = new BigDecimal("30");
+    public static final String     BLOCKCHAIN_NAME = "THE SBCHAIN";
 
-    public static final int TRANSACTION_AMOUNT_SCALE;
-    public static final BigDecimal TRANSACTION_MAX_AMOUNT;
-    
-    public static final String BLOCKCHAIN_NAME;
+    private static String  minerAddress;
 
     private static List<Block> chain = new ArrayList<>(Arrays.asList(Block.INITIAL));
 	private static List<Transaction> transactionPool = Collections.synchronizedList(new ArrayList<>());
 
-    static {
-        Properties properties = new Properties();
-        try {
-            Path filepath = Path.of("chain.properties");
-            properties.load(Files.newBufferedReader(filepath, StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to initialize SBChain class", e);
-        }
-        
-        MINING_DIFFICULTY       = Integer.parseInt(properties.getProperty("difficulty"));
-        MINING_REWARD           = new BigDecimal(properties.getProperty("reward"));
-        MINER_ADDRESS           = properties.getProperty("mineraddress");
-        TRANSACTION_AMOUNT_SCALE = Integer.parseInt(properties.getProperty("amountscale"));
-        TRANSACTION_MAX_AMOUNT   = new BigDecimal(properties.getProperty("maxamount"));
-        BLOCKCHAIN_NAME         = properties.getProperty("blockchainname");
+    private SBChain() {}
+
+    public static String getMinerAddress() {
+        return minerAddress;
     }
 
-    private SBChain() {}
+    public static void setMinerAddress(String address) {
+        minerAddress = address;
+    }
 
     private static Block lastBlock() {
         return chain.get(chain.size() - 1);
@@ -131,7 +116,7 @@ public class SBChain {
                 return Result.MINING_POOL_EMPTY;
 
             // send reward to miner
-            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, MINER_ADDRESS, MINING_REWARD, null));
+            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, minerAddress, MINING_REWARD, null));
 
             LogWriter.info("Mining...");
             var transactions = List.copyOf(transactionPool);

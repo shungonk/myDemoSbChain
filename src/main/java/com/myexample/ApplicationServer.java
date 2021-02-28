@@ -169,7 +169,7 @@ public class ApplicationServer {
                 Result result;
                 if (address == null)
                     result = Result.INCORRECT_QUERY_PARAMETER;
-                else if (!address.equals(SBChain.MINER_ADDRESS))
+                else if (!address.equals(SBChain.getMinerAddress()))
                     result = Result.MINING_NOT_MINER;
                 else
                     result = SBChain.mining();
@@ -212,6 +212,7 @@ public class ApplicationServer {
         Security.addProvider(new BouncyCastleProvider());
         SBChain.loadChain();
         SBChain.loadTransactionPool();
+        SBChain.setMinerAddress(Property.getProperty("mineraddress"));
 
         new ApplicationServer().run();
 

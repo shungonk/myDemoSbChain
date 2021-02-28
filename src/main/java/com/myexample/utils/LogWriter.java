@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 public class LogWriter {
 
-    private static final String LOGGING_PROP_PATH = "logging.properties";
+    private static final String LOGGING_PROP_PATH = "resources/logging.properties";
     private static final Logger logger;
 
     static {
