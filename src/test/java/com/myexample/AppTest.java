@@ -60,7 +60,7 @@ public class AppTest {
         var request = StringUtil.fromJson(json, TransactionRequest.class);
         var senderAdr = request.getSenderAddress();
         var recipientAdr = request.getRecipientAddress();
-        var val = request.getValue();
+        var val = request.getAmount();
         var sign = request.getSignature();
         // accept transaction
         SBChain.addTransaction(senderAdr, recipientAdr, val, sign);

@@ -1,0 +1,48 @@
+Feb 28, 2021 8:58:10 PM com.myexample.utils.LogWriter info
+INFO: Blockchain successfully loaded
+Feb 28, 2021 8:58:10 PM com.myexample.utils.LogWriter info
+INFO: TransactionPool successfully loaded
+Feb 28, 2021 8:58:10 PM com.myexample.utils.LogWriter info
+INFO: Server running on localhost/127.0.0.1:5000
+Feb 28, 2021 8:58:23 PM com.myexample.utils.LogWriter info
+INFO: # Request get balance
+Feb 28, 2021 8:58:23 PM com.myexample.utils.LogWriter info
+INFO: # Request get balance
+Feb 28, 2021 8:59:10 PM com.myexample.utils.LogWriter info
+INFO: # Request get balance
+Feb 28, 2021 8:59:17 PM com.myexample.utils.LogWriter info
+INFO: # Request get balance
+Feb 28, 2021 8:59:25 PM com.myexample.utils.LogWriter info
+INFO: # Request post transaction
+Feb 28, 2021 8:59:25 PM com.myexample.utils.LogWriter info
+INFO: 
+{
+  "senderAddress": "1815YjaciqFyhrAKZkyRXADrniAZH9dEof",
+  "recipientAddress": "1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p",
+  "value": 5,
+  "timestamp": 1614513565700,
+  "publicKey": "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEl9JQqaDJbIbNlxetjZQMa6k0bEPbo4dTPyK/2JBDt2M3Oleg/J6P8XdWHodivvxtW2dXOJGlLBaPJLvh2Vd3jA\u003d\u003d",
+  "signature": "MEUCIQDI8WrCYK+H/ZcZIeo06kLOjHgjKBfi8g3oxD97XPNHeAIgVLLFckVWhrrAO02IZ4xIHS2voQN566CeLSwS34eL9XI\u003d"
+}
+Feb 28, 2021 8:59:26 PM com.myexample.utils.LogWriter info
+INFO: Transaction pool is saved
+Feb 28, 2021 8:59:26 PM com.myexample.utils.LogWriter info
+INFO: Transaction accepted!
+Feb 28, 2021 8:59:34 PM com.myexample.utils.LogWriter info
+INFO: # Request get balance
+Feb 28, 2021 9:00:04 PM com.myexample.utils.LogWriter info
+INFO: # Request get balance
+Feb 28, 2021 9:00:20 PM com.myexample.utils.LogWriter info
+INFO: # Request post transaction
+Feb 28, 2021 9:00:20 PM com.myexample.utils.LogWriter info
+INFO: 
+{
+  "senderAddress": "1815YjaciqFyhrAKZkyRXADrniAZH9dEof",
+  "recipientAddress": "1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p",
+  "value": 40,
+  "timestamp": 1614513620142,
+  "publicKey": "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEl9JQqaDJbIbNlxetjZQMa6k0bEPbo4dTPyK/2JBDt2M3Oleg/J6P8XdWHodivvxtW2dXOJGlLBaPJLvh2Vd3jA\u003d\u003d",
+  "signature": "MEYCIQDqPGQ85M6Gk/Xdn/XDsn7zCqLReyCbvpzwQIxosgJptwIhAIBi1AxFW5kwo/Tj32K27XAYMj/5Vctkof4+dZ/Mscf5"
+}
+Feb 28, 2021 9:00:20 PM com.myexample.utils.LogWriter info
+INFO: Requested value too large

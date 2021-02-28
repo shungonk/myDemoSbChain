@@ -8,15 +8,15 @@ public class TransactionForm {
     private String senderPublicKey;
     private String senderAddress;
     private String recipientAddress;
-    private BigDecimal value;
+    private BigDecimal amount;
 
     public TransactionForm(String senderPrivateKey, String senderPublicKey, String senderAddress,
-            String recipientAddress, BigDecimal value) {
+            String recipientAddress, BigDecimal amount) {
         this.senderPrivateKey = senderPrivateKey;
         this.senderPublicKey = senderPublicKey;
         this.senderAddress = senderAddress;
         this.recipientAddress = recipientAddress;
-        this.value = value;
+        this.amount = amount;
     }
 
     public String getSenderPrivateKey() {
@@ -35,7 +35,7 @@ public class TransactionForm {
         return recipientAddress;
     }
 
-    public BigDecimal getValue() {
-        return value;
+    public BigDecimal getAmount() {
+        return amount;
     }
 }

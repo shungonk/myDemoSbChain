@@ -2,9 +2,11 @@ package com.myexample.blockchain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.security.GeneralSecurityException;
 import java.time.Instant;
 
 import com.google.gson.GsonBuilder;
+import com.myexample.utils.LogWriter;
 import com.myexample.utils.SecurityUtil;
 import com.myexample.utils.StringUtil;
 
@@ -16,14 +18,14 @@ public class Transaction implements Serializable {
     private long timestamp;
     private String senderAddress;
     private String recipientAddress;
-    private BigDecimal value;
+    private BigDecimal amount;
     private String signature;
 
-    public Transaction(String senderAddress, String recipientAddress, BigDecimal value, String signature) {
+    public Transaction(String senderAddress, String recipientAddress, BigDecimal amount, String signature) {
         this.timestamp = Instant.now().toEpochMilli();
         this.senderAddress = senderAddress;
         this.recipientAddress = recipientAddress;
-        this.value = value.setScale(SBChain.TRANSACTION_VALUE_SCALE);
+        this.amount = amount.setScale(SBChain.TRANSACTION_AMOUNT_SCALE);
         this.signature = signature;
         this.transactionId = calculateHash();
     }
@@ -44,8 +46,8 @@ public class Transaction implements Serializable {
         return recipientAddress;
     }
 
-    public BigDecimal getValue() {
-        return value;
+    public BigDecimal getAmount() {
+        return amount;
     }
 
     public String getSignature() {
@@ -53,9 +55,13 @@ public class Transaction implements Serializable {
     }
 
     public String calculateHash() {
-        return SecurityUtil.sha256(
-            Long.toString(timestamp) + senderAddress + recipientAddress + value.toPlainString() + signature
-            );
+        try {
+            return SecurityUtil.sha256(
+                Long.toString(timestamp) + senderAddress + recipientAddress + amount.toPlainString() + signature);
+        } catch (GeneralSecurityException e) {
+            LogWriter.severe("Falied to apply hash Algorithm");
+            throw new RuntimeException(e);
+        }
     }
     
     public String marshalJson() {

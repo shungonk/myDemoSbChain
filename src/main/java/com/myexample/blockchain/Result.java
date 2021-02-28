@@ -22,8 +22,8 @@ public enum Result {
         Status.CREATED, "Mining completed!"),
 
     // Request Vlidation result
-    NOT_POSITIVE_VALUE(
-        Status.FAILED, "Requested value should be positive"),
+    NOT_POSITIVE_AMOUNT(
+        Status.FAILED, "Requested amountshould be positive"),
     MISSING_FIELDS(
         Status.FAILED, "Request missing field(s)"),
     INVALID_SIGNATURE(
@@ -32,8 +32,8 @@ public enum Result {
         Status.FAILED, "Sender address should be consistent with sender public key"),
     SCALE_OVERFLOW(
         Status.FAILED, "Float scale overflow"),
-    TOO_LARGE_VALUE(
-        Status.FAILED, "Requested value too large"),
+    TOO_LARGE_AMOUNT(
+        Status.FAILED, "Requested amounttoo large"),
     NOT_ENOUGH_BALANCE(
         Status.FAILED, "Not enough balance"),
     SIGNATURE_ALREADY_CONSUMED(
@@ -52,7 +52,7 @@ public enum Result {
         private Status(int statusCode) {
             this.statusCode = statusCode;
         }
-        private int getValue() {
+        private int getStatusCode() {
             return statusCode;
         }
     }
@@ -77,11 +77,15 @@ public enum Result {
         return status == Status.FAILED;
     }
 
-    public int getStatusCodeValue() {
-        return status.getValue();
+    public int getStatusCode() {
+        return status.getStatusCode();
     }
 
     public String getMessage() {
+        return message;
+    }
+
+    public String getStatusAndMessage() {
         if (isFailed())
             return "FAILED: " + message;
         else

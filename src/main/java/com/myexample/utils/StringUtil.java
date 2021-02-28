@@ -57,8 +57,8 @@ public class StringUtil {
             ));
     }
 
-    public static String formatDecimal(BigDecimal value, int scale) {
+    public static String formatDecimal(BigDecimal amount, int scale) {
         String format = "%,." + Integer.toString(scale) + "f";
-        return String.format(format, value);
+        return String.format(format, amount);
     }
 }

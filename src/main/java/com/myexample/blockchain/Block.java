@@ -1,6 +1,7 @@
 package com.myexample.blockchain;
 
 import java.io.Serializable;
+import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
+import com.myexample.utils.LogWriter;
 import com.myexample.utils.SecurityUtil;
 import com.myexample.utils.StringUtil;
 
@@ -70,16 +72,32 @@ public class Block implements Serializable {
 
 
     public String calculateHash() {
-        return SecurityUtil.sha256(
-            previousHash + Long.toString(timestamp) + Integer.toString(nonce) + merkleRoot
-            );
+        try {
+            return SecurityUtil.sha256(
+                previousHash + Long.toString(timestamp) + Integer.toString(nonce) + merkleRoot);
+        } catch (GeneralSecurityException e) {
+            LogWriter.severe("Falied to apply hash Algorithm");
+            throw new RuntimeException(e);
+        }
     }
 
     private String calculateMerkleTree() {
-        var idList = transactions.stream()
+        var treeLayer = transactions.stream()
             .map(Transaction::getTransactionId)
             .collect(Collectors.toList());
-        return SecurityUtil.calculateMerkleRoot(idList);
+        try {
+            while (treeLayer.size() > 1) {
+                var nextTreeLayer = new ArrayList<String>(); 
+                for (int i = 1; i < treeLayer.size(); i++) {
+                    nextTreeLayer.add(SecurityUtil.sha256(treeLayer.get(i - 1) + treeLayer.get(i)));
+                }
+                treeLayer = nextTreeLayer;
+            }
+            return treeLayer.size() == 1 ? treeLayer.get(0) : ""; 
+        } catch (GeneralSecurityException e) {
+            LogWriter.severe("Falied to apply hash Algorithm");
+            throw new RuntimeException(e);
+        }
     }
 
     public void proofOfWork(int difficulty) {

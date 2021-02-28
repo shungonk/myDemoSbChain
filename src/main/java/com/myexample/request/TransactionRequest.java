@@ -1,20 +1,22 @@
 package com.myexample.request;
 
 import java.math.BigDecimal;
+import java.security.GeneralSecurityException;
 
+import com.myexample.utils.LogWriter;
 import com.myexample.utils.SecurityUtil;
 
 public class TransactionRequest extends SignatureRequest {
 
     private String senderAddress;
     private String recipientAddress;
-    private BigDecimal value;
+    private BigDecimal amount;
     private long timestamp;
 
-    public TransactionRequest(String senderAddress, String recipientAddress, BigDecimal value, long timestamp) {
+    public TransactionRequest(String senderAddress, String recipientAddress, BigDecimal amount, long timestamp) {
         this.senderAddress = senderAddress;
         this.recipientAddress = recipientAddress;
-        this.value = value;
+        this.amount = amount;
         this.timestamp = timestamp;
     }
 
@@ -26,8 +28,8 @@ public class TransactionRequest extends SignatureRequest {
         return recipientAddress;
     }
 
-    public BigDecimal getValue() {
-        return value;
+    public BigDecimal getAmount() {
+        return amount;
     }
 
     public long getTimestamp() {
@@ -37,7 +39,7 @@ public class TransactionRequest extends SignatureRequest {
     @Override
     public byte[] getData() {
         // signature will be unique because data contain timestamp
-        String data = senderAddress + recipientAddress + value.toPlainString() + Long.toString(timestamp);
+        String data = senderAddress + recipientAddress + amount.toPlainString() + Long.toString(timestamp);
         return data.getBytes();
     }
 
@@ -46,7 +48,7 @@ public class TransactionRequest extends SignatureRequest {
         if (publicKey == null || publicKey.isBlank() ||
             senderAddress == null || senderAddress.isBlank() ||
             recipientAddress == null || recipientAddress.isBlank() ||
-            value == null || value.equals(BigDecimal.ZERO) ||
+            amount == null || amount.equals(BigDecimal.ZERO) ||
             signature == null || signature.isBlank() ||
             timestamp == 0) {
             return false;
@@ -54,11 +56,16 @@ public class TransactionRequest extends SignatureRequest {
         return true;
     }
 
-    public boolean validateValue() {
-        return value.compareTo(BigDecimal.ZERO) > 0;
+    public boolean validateAmount() {
+        return amount.compareTo(BigDecimal.ZERO) > 0;
     }
     
     public final boolean verifyAddress() {
-        return SecurityUtil.validateAddressByPublicKey(senderAddress, publicKey);
+        try {
+            return SecurityUtil.verifyAddressByPublicKey(senderAddress, publicKey);
+        } catch (GeneralSecurityException e) {
+            LogWriter.warning("Falied to verify address by public key");
+            return false;
+        }
     }
 }

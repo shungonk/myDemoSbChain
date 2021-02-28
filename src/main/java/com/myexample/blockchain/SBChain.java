@@ -2,33 +2,56 @@ package com.myexample.blockchain;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
 import com.myexample.utils.FileUtil;
-import com.myexample.utils.PropertyUtil;
+import com.myexample.utils.LogWriter;
+import com.myexample.utils.Property;
 import com.myexample.utils.StringUtil;
 
 public class SBChain {
     // TODO: Synchronize widh Nodes
 
-    public static final int MINING_DIFFICULTY = 5;
-    public static final BigDecimal MINING_REWARD = new BigDecimal("2");
-    public static final String MINER_ADDRESS = PropertyUtil.getProperty("mineraddress");
+    public static final int MINING_DIFFICULTY;
+    public static final BigDecimal MINING_REWARD;
+    public static final String MINER_ADDRESS;
 
-    public static final int TRANSACTION_VALUE_SCALE = 6;
-    public static final BigDecimal TRANSACTION_MAX_VALUE = new BigDecimal("30");
+    public static final int TRANSACTION_AMOUNT_SCALE;
+    public static final BigDecimal TRANSACTION_MAX_AMOUNT;
     
-    public static final String BLOCKCHAIN_NAME = "THE SBCHAIN";
+    public static final String BLOCKCHAIN_NAME;
 
     private static List<Block> chain = new ArrayList<>(Arrays.asList(Block.INITIAL));
 	private static List<Transaction> transactionPool = Collections.synchronizedList(new ArrayList<>());
+
+    static {
+        Properties properties = new Properties();
+        try {
+            Path filepath = Path.of("chain.properties");
+            properties.load(Files.newBufferedReader(filepath, StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to initialize SBChain class", e);
+        }
+        
+        MINING_DIFFICULTY       = Integer.parseInt(properties.getProperty("difficulty"));
+        MINING_REWARD           = new BigDecimal(properties.getProperty("reward"));
+        MINER_ADDRESS           = properties.getProperty("mineraddress");
+        TRANSACTION_AMOUNT_SCALE = Integer.parseInt(properties.getProperty("amountscale"));
+        TRANSACTION_MAX_AMOUNT   = new BigDecimal(properties.getProperty("maxamount"));
+        BLOCKCHAIN_NAME         = properties.getProperty("blockchainname");
+    }
 
     private SBChain() {}
 
@@ -56,10 +79,10 @@ public class SBChain {
 
     public static Result addTransaction(String recipientAdr, BigDecimal val) {
         synchronized (transactionPool) {
-            if (val.stripTrailingZeros().scale() > TRANSACTION_VALUE_SCALE)
+            if (val.stripTrailingZeros().scale() > TRANSACTION_AMOUNT_SCALE)
                 return Result.SCALE_OVERFLOW;
-            if (val.compareTo(TRANSACTION_MAX_VALUE) > 0)
-                return Result.TOO_LARGE_VALUE;
+            if (val.compareTo(TRANSACTION_MAX_AMOUNT) > 0)
+                return Result.TOO_LARGE_AMOUNT;
 
             transactionPool.add(new Transaction(BLOCKCHAIN_NAME, recipientAdr, val, null));
             // save objects
@@ -70,10 +93,10 @@ public class SBChain {
     
     public static Result addTransaction(String recipientAdr, BigDecimal val, String sign) {
         synchronized (transactionPool) {
-            if (val.stripTrailingZeros().scale() > TRANSACTION_VALUE_SCALE)
+            if (val.stripTrailingZeros().scale() > TRANSACTION_AMOUNT_SCALE)
                 return Result.SCALE_OVERFLOW;
-            if (val.compareTo(TRANSACTION_MAX_VALUE) > 0)
-                return Result.TOO_LARGE_VALUE;
+            if (val.compareTo(TRANSACTION_MAX_AMOUNT) > 0)
+                return Result.TOO_LARGE_AMOUNT;
             if (duplicateSignature(sign))
                 return Result.SIGNATURE_ALREADY_CONSUMED;
 
@@ -86,11 +109,11 @@ public class SBChain {
     
     public static Result addTransaction(String senderAdr, String recipientAdr, BigDecimal val, String sign) {
         synchronized (transactionPool) {
-            if (val.stripTrailingZeros().scale() > TRANSACTION_VALUE_SCALE)
+            if (val.stripTrailingZeros().scale() > TRANSACTION_AMOUNT_SCALE)
                 return Result.SCALE_OVERFLOW;
-            if (val.compareTo(TRANSACTION_MAX_VALUE) > 0)
-                return Result.TOO_LARGE_VALUE;
-            if (val.compareTo(calculateTotalValue(senderAdr)) > 0)
+            if (val.compareTo(TRANSACTION_MAX_AMOUNT) > 0)
+                return Result.TOO_LARGE_AMOUNT;
+            if (val.compareTo(calculateTotalAmount(senderAdr)) > 0)
                 return Result.NOT_ENOUGH_BALANCE;
             if (duplicateSignature(sign))
                 return Result.SIGNATURE_ALREADY_CONSUMED;
@@ -110,15 +133,14 @@ public class SBChain {
             // send reward to miner
             transactionPool.add(new Transaction(BLOCKCHAIN_NAME, MINER_ADDRESS, MINING_REWARD, null));
 
-            System.out.println("Mining...");
+            LogWriter.info("Mining...");
             var transactions = List.copyOf(transactionPool);
             var newBlock = new Block(lastBlock().getHash(), transactions);
             newBlock.proofOfWork(MINING_DIFFICULTY);
             chain.add(newBlock);
             transactionPool.removeAll(transactions);
             
-		    System.out.println("========== Block Mined!!! ==========");
-            System.out.println(newBlock.marshalJsonPrettyPrinting());
+		    LogWriter.info("========== Block Mined!!! ==========\n" + newBlock.marshalJsonPrettyPrinting());
 
             // save objects
             saveChain();
@@ -142,15 +164,15 @@ public class SBChain {
         return true;
     }
 
-    public static BigDecimal calculateTotalValue(String address) {
+    public static BigDecimal calculateTotalAmount(String address) {
         var transactions = getAllTransactions();
         
-        var total = BigDecimal.ZERO.setScale(TRANSACTION_VALUE_SCALE);
+        var total = BigDecimal.ZERO.setScale(TRANSACTION_AMOUNT_SCALE);
         for (var t: transactions) {
             if (address.equals(t.getRecipientAddress()))
-                total = total.add(t.getValue());
+                total = total.add(t.getAmount());
             if (address.equals(t.getSenderAddress()))
-                total = total.subtract(t.getValue());
+                total = total.subtract(t.getAmount());
         }
         return total;
     }
@@ -173,52 +195,52 @@ public class SBChain {
 
     private static void saveChain() {
         try {
-            var path = PropertyUtil.getProperty("chainfile");
+            var path = Property.getProperty("chainfile");
             FileUtil.serializeObject(path, chain);
-            System.out.println("Blockchain is saved");
+            LogWriter.info("Blockchain is saved");
         } catch (IOException e) {
-            System.out.println("Failed to save chain");
+            LogWriter.warning("Failed to save chain");
             e.printStackTrace();
         }
     }
 
     private static void saveTransactionPool() {
         try {
-            var path = PropertyUtil.getProperty("transactionsfile");
+            var path = Property.getProperty("transactionsfile");
             FileUtil.serializeObject(path, transactionPool);
-            System.out.println("Transaction pool is saved");
+            LogWriter.info("Transaction pool is saved");
         } catch (IOException e) {
-            System.out.println("Failed to save transaction pool");
+            LogWriter.warning("Failed to save transaction pool");
             e.printStackTrace();
         }
     }
 
     @SuppressWarnings("unchecked")
     public static void loadChain() {
-        var path = PropertyUtil.getProperty("chainfile");
+        var path = Property.getProperty("chainfile");
         try {
             chain = FileUtil.deserializeObject(path, chain.getClass());
             if (!isChainValid()) {
-                throw new RuntimeException("Loaded chain invalid");
+                LogWriter.severe("Loaded Blockchain is inivalid", new RuntimeException());
             }
-            System.out.println("Blockchain file loaded");
+            LogWriter.info("Blockchain successfully loaded");
         } catch (NoSuchFileException e) {
-            System.out.println("Blockchain file not found: " + e.getMessage());
+            LogWriter.warning("Blockchain file not found: " + e.getMessage());
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            LogWriter.severe("Failed to load blockchain file", new RuntimeException(e));
         }
     }
 
     @SuppressWarnings("unchecked")
     public static void loadTransactionPool() {
-        var path = PropertyUtil.getProperty("transactionsfile");
+        var path = Property.getProperty("transactionsfile");
         try {
             transactionPool = FileUtil.deserializeObject(path, transactionPool.getClass());
-            System.out.println("TransactionPool file loaded");
+            LogWriter.info("TransactionPool successfully loaded");
         } catch (NoSuchFileException e) {
-            System.out.println("TransactionPool file not found: " + e.getMessage());
+            LogWriter.warning("TransactionPool file not found: " + e.getMessage());
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            LogWriter.severe("Failed to load transaction pool file", new RuntimeException(e));
         }
     }
 }

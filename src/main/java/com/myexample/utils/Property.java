@@ -3,23 +3,23 @@ package com.myexample.utils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Properties;
 
-public class PropertyUtil {
+public class Property {
 
-    private static final String INIT_FILE_PATH = "src/main/java/com/myexample/resource/application.properties";
+    private static final String APPLICATION_PROP_PATH = "application.properties";
     private static final Properties properties;
 
-    private PropertyUtil() {}
+    private Property() {}
 
     static {
         properties = new Properties();
         try {
-            properties.load(Files.newBufferedReader(Paths.get(INIT_FILE_PATH), StandardCharsets.UTF_8));
+            Path filepath = Path.of(APPLICATION_PROP_PATH);
+            properties.load(Files.newBufferedReader(filepath, StandardCharsets.UTF_8));
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to initialize Property class", e);
         }
     }
 

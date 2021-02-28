@@ -1,18 +1,20 @@
 package com.myexample.request;
 
 import java.math.BigDecimal;
+import java.security.GeneralSecurityException;
 
+import com.myexample.utils.LogWriter;
 import com.myexample.utils.SecurityUtil;
 
 public class PurchaseRequest extends SignatureRequest {
 
     private String address;
-    private BigDecimal value;
+    private BigDecimal amount;
     private long timestamp;
 
-    public PurchaseRequest(String address, BigDecimal value, long timestamp) {
+    public PurchaseRequest(String address, BigDecimal amount, long timestamp) {
         this.address = address;
-        this.value = value;
+        this.amount = amount;
         this.timestamp = timestamp;
     }
 
@@ -20,8 +22,8 @@ public class PurchaseRequest extends SignatureRequest {
         return address;
     }
 
-    public BigDecimal getValue() {
-        return value;
+    public BigDecimal getAmount() {
+        return amount;
     }
 
     public long getTimestamp() {
@@ -31,7 +33,7 @@ public class PurchaseRequest extends SignatureRequest {
     @Override
     public byte[] getData() {
         // signature will be unique because data contain timestamp
-        String data = address + value.toPlainString() + Long.toString(timestamp);
+        String data = address + amount.toPlainString() + Long.toString(timestamp);
         return data.getBytes();
     }
 
@@ -39,7 +41,7 @@ public class PurchaseRequest extends SignatureRequest {
     public boolean validateFields() {
         if (publicKey == null || publicKey.isBlank() ||
             address == null || address.isBlank() ||
-            value == null || value.equals(BigDecimal.ZERO) ||
+            amount == null || amount.equals(BigDecimal.ZERO) ||
             signature == null || signature.isBlank() ||
             timestamp == 0) {
             return false;
@@ -47,11 +49,16 @@ public class PurchaseRequest extends SignatureRequest {
         return true;
     }
 
-    public boolean validateValue() {
-        return value.compareTo(BigDecimal.ZERO) > 0;
+    public boolean validateAmount() {
+        return amount.compareTo(BigDecimal.ZERO) > 0;
     }
     
     public final boolean verifyAddress() {
-        return SecurityUtil.validateAddressByPublicKey(address, publicKey);
+        try {
+            return SecurityUtil.verifyAddressByPublicKey(address, publicKey);
+        } catch (GeneralSecurityException e) {
+            LogWriter.warning("Falied to verify address by public key");
+            return false;
+        }
     }
 }
