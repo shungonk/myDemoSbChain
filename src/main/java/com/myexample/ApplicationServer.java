@@ -22,7 +22,6 @@ public class ApplicationServer {
 
     public HttpHandler balanceHandler = (HttpExchange t) -> {
         try (var os = t.getResponseBody()) {
-            var resHeader = t.getResponseHeaders();
             switch (t.getRequestMethod()) {
             case "GET":
                 System.out.println("# Request get balance");
@@ -39,10 +38,10 @@ public class ApplicationServer {
                 }
                 
                 System.out.println(result.getMessage());
-                resHeader.set("Content-Type", "application/json");
                 var resGet = StringUtil.doubleEntryJson(
                     "message", result.getMessage(),
                     "balance", StringUtil.formatDecimal(balance, SBChain.TRANSACTION_VALUE_SCALE)); // e.g. "1,234.567890"
+                t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(result.getStatusCodeValue(), resGet.length());
                 os.write(resGet.getBytes());
                 break;
@@ -56,7 +55,6 @@ public class ApplicationServer {
     
     public HttpHandler purchaseHandler = (HttpExchange t) -> {
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
-            var resHeader = t.getResponseHeaders();
             switch (t.getRequestMethod()) {
             case "POST":
                 System.out.println("# Request purchase");
@@ -81,8 +79,8 @@ public class ApplicationServer {
                 }
 
                 System.out.println(result.getMessage());
-                resHeader.set("Content-Type", "application/json");
                 var resPost = StringUtil.singleEntryJson("message", result.getMessage());
+                t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(result.getStatusCodeValue(), resPost.length());
                 os.write(resPost.getBytes());
                 break;
@@ -95,13 +93,12 @@ public class ApplicationServer {
     };
 
     public HttpHandler chainHandler = (HttpExchange t) -> {
-        var resHeader = t.getResponseHeaders();
         try (var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "GET":
                 System.out.println("# Request get chain");
-                resHeader.set("Content-Type", "application/json");
                 var resGet = SBChain.marshalJson();
+                t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(200, resGet.length());
                 os.write(resGet.getBytes());
                 break;
@@ -114,13 +111,12 @@ public class ApplicationServer {
     };
 
     public HttpHandler transactionHandler = (HttpExchange t) -> {
-        var resHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "GET":
                 System.out.println("# Request get transaction pool");
-                resHeader.set("Content-Type", "application/json");
                 var resGet = SBChain.transactionPoolJson();
+                t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(200, resGet.length());
                 os.write(resGet.getBytes());
                 break;
@@ -150,8 +146,8 @@ public class ApplicationServer {
                 }
 
                 System.out.println(result.getMessage());
-                resHeader.set("Content-Type", "application/json");
                 var resPost = StringUtil.singleEntryJson("message", result.getMessage());
+                t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(result.getStatusCodeValue(), resPost.length());
                 os.write(resPost.getBytes());
                 break;
@@ -164,7 +160,6 @@ public class ApplicationServer {
     };
 
     public HttpHandler mineHandler = (HttpExchange t) -> {
-        var resHeader = t.getResponseHeaders();
         try (var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "POST":
@@ -180,8 +175,8 @@ public class ApplicationServer {
                     result = SBChain.mining();
 
                 System.out.println(result.getMessage());
-                resHeader.set("Content-Type", "application/json");
                 var resPost = StringUtil.singleEntryJson("message", result.getMessage());
+                t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(result.getStatusCodeValue(), resPost.length());
                 os.write(resPost.getBytes());
                 break;
