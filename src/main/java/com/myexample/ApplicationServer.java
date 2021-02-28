@@ -38,6 +38,7 @@ public class ApplicationServer {
                     result = Result.GET_BARANCE_SUCCESS;
                 }
                 
+                LogWriter.info(result.getMessage());
                 var resGet = StringUtil.doubleEntryJson(
                     "message", result.getStatusAndMessage(),
                     "balance", StringUtil.formatDecimal(balance, SBChain.TRANSACTION_AMOUNT_SCALE)); // e.g. "1,234.567890"

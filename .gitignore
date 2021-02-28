@@ -34,3 +34,7 @@ build/
 
 ### Serialized Object ###
 *.ser
+
+### Log file ###
+*.log
+*.lck
