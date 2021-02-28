@@ -17,18 +17,14 @@ public class Block implements Serializable {
 
     private static final long serialVersionUID = 5762484348074109752L;
 
-    private String hash;                     // determined in proofOfWork method
+    private String hash;
     private String previousHash;              
 	private List<Transaction> transactions;
     private String merkleRoot;
     private long timestamp;
-    private int nonce;                       // determined in proofOfWork method
+    private int nonce;
 
-    public static final Block INITIAL;
-    static {
-        INITIAL = new Block("0", new ArrayList<>());
-        // write initialiation if necessarry.
-    }
+    public static final Block INITIAL = new Block("0", new ArrayList<>());
 
     public Block(String previousHash, List<Transaction> transactions) {
         this.previousHash = previousHash;

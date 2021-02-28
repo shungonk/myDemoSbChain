@@ -25,45 +25,44 @@ public class SBChain {
     public static final BigDecimal TRANSACTION_MAX_AMOUNT = new BigDecimal("30");
     public static final String     BLOCKCHAIN_NAME = "THE SBCHAIN";
 
-    private static String  minerAddress;
+    private final String minerAddress;
 
-    private static List<Block> chain = new ArrayList<>(Arrays.asList(Block.INITIAL));
-	private static List<Transaction> transactionPool = Collections.synchronizedList(new ArrayList<>());
+    private final List<Block> chain;
+	private final List<Transaction> transactionPool;
 
-    private SBChain() {}
+    public SBChain(String minerAddress) {
+        this.minerAddress = minerAddress;
+        this.chain = loadChain();
+        this.transactionPool = loadTransactionPool();
+    }
 
-    public static String getMinerAddress() {
+    public String getMinerAddress() {
         return minerAddress;
     }
 
-    public static void setMinerAddress(String address) {
-        if (minerAddress == null)
-            minerAddress = address;
-    }
-
-    private static Block lastBlock() {
+    private Block lastBlock() {
         return chain.get(chain.size() - 1);
     }
 
-    public static String marshalJson() {
+    public String marshalJson() {
         return StringUtil.toJson(chain);
     }
 
-    public static String marshalJsonPrettyPrinting() {
+    public String marshalJsonPrettyPrinting() {
         var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
         return gsonBuilder.toJson(chain);
     }
 
-    public static String transactionPoolJson() {
+    public String transactionPoolJson() {
         return StringUtil.toJson(transactionPool);
     }
 
-    public static String transactionPoolJsonPrettyPrinting() {
+    public String transactionPoolJsonPrettyPrinting() {
         var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
         return gsonBuilder.toJson(transactionPool);
     }
 
-    public static Result addTransaction(String recipientAdr, BigDecimal val) {
+    public Result addTransaction(String recipientAdr, BigDecimal val) {
         synchronized (transactionPool) {
             if (val.stripTrailingZeros().scale() > TRANSACTION_AMOUNT_SCALE)
                 return Result.SCALE_OVERFLOW;
@@ -77,7 +76,7 @@ public class SBChain {
         }
     }
     
-    public static Result addTransaction(String recipientAdr, BigDecimal val, String sign) {
+    public Result addTransaction(String recipientAdr, BigDecimal val, String sign) {
         synchronized (transactionPool) {
             if (val.stripTrailingZeros().scale() > TRANSACTION_AMOUNT_SCALE)
                 return Result.SCALE_OVERFLOW;
@@ -93,7 +92,7 @@ public class SBChain {
         }
     }
     
-    public static Result addTransaction(String senderAdr, String recipientAdr, BigDecimal val, String sign) {
+    public Result addTransaction(String senderAdr, String recipientAdr, BigDecimal val, String sign) {
         synchronized (transactionPool) {
             if (val.stripTrailingZeros().scale() > TRANSACTION_AMOUNT_SCALE)
                 return Result.SCALE_OVERFLOW;
@@ -111,7 +110,7 @@ public class SBChain {
         }
     }
 
-    public static Result mining() {
+    public Result mining() {
         synchronized (chain) {
             if (transactionPool.isEmpty())
                 return Result.MINING_POOL_EMPTY;
@@ -135,7 +134,7 @@ public class SBChain {
         }
     }
 
-    public static boolean isChainValid() {
+    public boolean isChainValid() {
         Block previousBlock, currentBlock;
         for (int i = 1; i < chain.size(); i++) {
             previousBlock = chain.get(i - 1);
@@ -150,7 +149,7 @@ public class SBChain {
         return true;
     }
 
-    public static BigDecimal calculateTotalAmount(String address) {
+    public BigDecimal calculateTotalAmount(String address) {
         var transactions = getAllTransactions();
         
         var total = BigDecimal.ZERO.setScale(TRANSACTION_AMOUNT_SCALE);
@@ -163,13 +162,13 @@ public class SBChain {
         return total;
     }
 
-    public static boolean duplicateSignature(String signature) {
+    public boolean duplicateSignature(String signature) {
         var transactions = getAllTransactions();
         return transactions.stream()
             .anyMatch(t -> Objects.equals(signature, t.getSignature()));
     }
 
-    private static List<Transaction> getAllTransactions() {
+    private List<Transaction> getAllTransactions() {
         var transactions = chain
             .stream()
             .map(Block::getTransactions)
@@ -179,7 +178,7 @@ public class SBChain {
         return transactions;
     }
 
-    private static void saveChain() {
+    private void saveChain() {
         try {
             var path = Property.getProperty("chainfile");
             FileUtil.serializeObject(path, chain);
@@ -190,7 +189,7 @@ public class SBChain {
         }
     }
 
-    private static void saveTransactionPool() {
+    private void saveTransactionPool() {
         try {
             var path = Property.getProperty("transactionsfile");
             FileUtil.serializeObject(path, transactionPool);
@@ -202,31 +201,34 @@ public class SBChain {
     }
 
     @SuppressWarnings("unchecked")
-    public static void loadChain() {
-        var path = Property.getProperty("chainfile");
+    public List<Block> loadChain() {
         try {
-            chain = FileUtil.deserializeObject(path, chain.getClass());
-            if (!isChainValid()) {
-                LogWriter.severe("Loaded Blockchain is inivalid", new RuntimeException());
-            }
+            var file = Property.getProperty("chainfile");
+            var obj = (List<Block>) FileUtil.deserializeObject(file);
             LogWriter.info("Blockchain successfully loaded");
+            return obj;
         } catch (NoSuchFileException e) {
             LogWriter.warning("Blockchain file not found: " + e.getMessage());
+            return new ArrayList<>(Arrays.asList(Block.INITIAL));
         } catch (IOException | ClassNotFoundException e) {
-            LogWriter.severe("Failed to load blockchain file", new RuntimeException(e));
+            LogWriter.severe("Failed to load blockchain file");
+            throw new RuntimeException(e);
         }
     }
 
     @SuppressWarnings("unchecked")
-    public static void loadTransactionPool() {
-        var path = Property.getProperty("transactionsfile");
+    public List<Transaction> loadTransactionPool() {
         try {
-            transactionPool = FileUtil.deserializeObject(path, transactionPool.getClass());
+            var file = Property.getProperty("transactionsfile");
+            var obj = (List<Transaction>) FileUtil.deserializeObject(file);
             LogWriter.info("TransactionPool successfully loaded");
+            return obj;
         } catch (NoSuchFileException e) {
             LogWriter.warning("TransactionPool file not found: " + e.getMessage());
-        } catch (IOException | ClassNotFoundException e) {
-            LogWriter.severe("Failed to load transaction pool file", new RuntimeException(e));
+            return Collections.synchronizedList(new ArrayList<>());
+        } catch (IOException | ClassNotFoundException | ClassCastException e) {
+            LogWriter.severe("Failed to load transaction pool file");
+            throw new RuntimeException(e);
         }
     }
 }

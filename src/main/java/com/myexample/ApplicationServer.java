@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.Security;
+import java.util.concurrent.Executors;
 
 import com.google.gson.JsonSyntaxException;
 import com.myexample.blockchain.Result;
@@ -34,7 +35,7 @@ public class ApplicationServer {
                     balance = new BigDecimal("0").setScale(SBChain.TRANSACTION_AMOUNT_SCALE);
                     result = Result.INCORRECT_QUERY_PARAMETER;
                 } else {
-                    balance = SBChain.calculateTotalAmount(address);
+                    balance = SBC.calculateTotalAmount(address);
                     result = Result.GET_BARANCE_SUCCESS;
                 }
                 
@@ -74,7 +75,7 @@ public class ApplicationServer {
                     else if (!req.verifyAddress())
                         result = Result.INCONSISTENT_ADDRESS;
                     else
-                        result = SBChain.addTransaction(req.getAddress(), req.getAmount(), req.getSignature());
+                        result = SBC.addTransaction(req.getAddress(), req.getAmount(), req.getSignature());
                 } catch (JsonSyntaxException e) {
                     result = Result.INCORRECT_JSON_CONTENT;
                 }
@@ -98,7 +99,7 @@ public class ApplicationServer {
             switch (t.getRequestMethod()) {
             case "GET":
                 LogWriter.info("# Request get chain");
-                var resGet = SBChain.marshalJson();
+                var resGet = SBC.marshalJson();
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(200, resGet.length());
                 os.write(resGet.getBytes());
@@ -116,7 +117,7 @@ public class ApplicationServer {
             switch (t.getRequestMethod()) {
             case "GET":
                 LogWriter.info("# Request get transaction pool");
-                var resGet = SBChain.transactionPoolJson();
+                var resGet = SBC.transactionPoolJson();
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(200, resGet.length());
                 os.write(resGet.getBytes());
@@ -139,7 +140,7 @@ public class ApplicationServer {
                     else if (!req.verifyAddress())
                         result = Result.INCONSISTENT_ADDRESS;
                     else
-                        result = SBChain.addTransaction(
+                        result = SBC.addTransaction(
                             req.getSenderAddress(), req.getRecipientAddress(), req.getAmount(), req.getSignature());
                 } catch (JsonSyntaxException e) {
                     result = Result.INCORRECT_JSON_CONTENT;
@@ -169,10 +170,10 @@ public class ApplicationServer {
                 Result result;
                 if (address == null)
                     result = Result.INCORRECT_QUERY_PARAMETER;
-                else if (!address.equals(SBChain.getMinerAddress()))
+                else if (!address.equals(SBC.getMinerAddress()))
                     result = Result.MINING_NOT_MINER;
                 else
-                    result = SBChain.mining();
+                    result = SBC.mining();
 
                 LogWriter.info(result.getMessage());
                 var resPost = StringUtil.singleEntryJson("message", result.getStatusAndMessage());
@@ -199,7 +200,7 @@ public class ApplicationServer {
             server.createContext("/chain", chainHandler);
             server.createContext("/transaction", transactionHandler);
             server.createContext("/mine", mineHandler); ///// for demo /////
-            server.setExecutor(null);
+            server.setExecutor(Executors.newCachedThreadPool());
             server.start();
             LogWriter.info("Server running on " + socketAddress);
         } catch (IOException e) {
@@ -207,17 +208,16 @@ public class ApplicationServer {
         }
     }
 
+    public static final SBChain SBC = new SBChain(Property.getProperty("mineraddress"));
+
     public static void main(String[] args) {
         // add provider for security
         Security.addProvider(new BouncyCastleProvider());
-        SBChain.loadChain();
-        SBChain.loadTransactionPool();
-        SBChain.setMinerAddress(Property.getProperty("mineraddress"));
 
         new ApplicationServer().run();
 
-        // set mining schedule
+        // // set mining schedule
         // ScheduledExecutorService miningExecutor = Executors.newScheduledThreadPool(1);
-        // miningExecutor.scheduleWithFixedDelay(() -> SBChain.mining(), 0, 1, TimeUnit.DAYS);
+        // miningExecutor.scheduleWithFixedDelay(() -> SBC.mining(), 0, 1, TimeUnit.DAYS);
     }
 }

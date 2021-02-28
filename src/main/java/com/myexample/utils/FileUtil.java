@@ -19,11 +19,11 @@ public class FileUtil {
         }
     }
 
-    public static <T> T deserializeObject(String path, Class<T> cls) throws IOException, ClassNotFoundException {
+    public static Object deserializeObject(String path) throws IOException, ClassNotFoundException {
         Path filepath = Path.of(path);
         try (var is = Files.newInputStream(filepath);
             var ois = new ObjectInputStream(is)) {
-            return cls.cast(ois.readObject());
+            return ois.readObject();
         }
     }
 }
