@@ -82,6 +82,9 @@ public enum Result {
     }
 
     public String getMessage() {
-        return status + ": " + message;
+        if (isFailed())
+            return "FAILED: " + message;
+        else
+            return "SUCCESS: " + message;
     }
 }

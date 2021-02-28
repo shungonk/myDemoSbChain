@@ -18,10 +18,10 @@ import com.myexample.utils.StringUtil;
 public class SBChain {
     // TODO: Synchronize widh Nodes
 
-    public static final int DIFFICULTY = 5;
-    public static final int VALUE_SCALE = 6;
-    public static final BigDecimal MAX_VALUE = new BigDecimal("30");
+    public static final int MINING_DIFFICULTY = 5;
+    public static final int TRANSACTION_VALUE_SCALE = 6;
     public static final BigDecimal MINING_REWARD = new BigDecimal("2");
+    public static final BigDecimal TRANSACTION_MAX_VALUE = new BigDecimal("30");
     public static final String BLOCKCHAIN_NAME = "THE SBCHAIN";
     public static final String MINER_ADDRESS = PropertyUtil.getProperty("mineraddress");
 
@@ -54,9 +54,9 @@ public class SBChain {
 
     public static Result addTransaction(String recipientAdr, BigDecimal val) {
         synchronized (transactionPool) {
-            if (val.stripTrailingZeros().scale() > VALUE_SCALE)
+            if (val.stripTrailingZeros().scale() > TRANSACTION_VALUE_SCALE)
                 return Result.SCALE_OVERFLOW;
-            else if (val.compareTo(MAX_VALUE) > 0)
+            if (val.compareTo(TRANSACTION_MAX_VALUE) > 0)
                 return Result.TOO_LARGE_VALUE;
 
             transactionPool.add(new Transaction(BLOCKCHAIN_NAME, recipientAdr, val, null));
@@ -68,11 +68,11 @@ public class SBChain {
     
     public static Result addTransaction(String recipientAdr, BigDecimal val, String sign) {
         synchronized (transactionPool) {
-            if (val.stripTrailingZeros().scale() > VALUE_SCALE)
+            if (val.stripTrailingZeros().scale() > TRANSACTION_VALUE_SCALE)
                 return Result.SCALE_OVERFLOW;
-            else if (val.compareTo(MAX_VALUE) > 0)
+            if (val.compareTo(TRANSACTION_MAX_VALUE) > 0)
                 return Result.TOO_LARGE_VALUE;
-            else if (duplicateSignature(sign))
+            if (duplicateSignature(sign))
                 return Result.SIGNATURE_ALREADY_CONSUMED;
 
             transactionPool.add(new Transaction(BLOCKCHAIN_NAME, recipientAdr, val, sign));
@@ -84,13 +84,13 @@ public class SBChain {
     
     public static Result addTransaction(String senderAdr, String recipientAdr, BigDecimal val, String sign) {
         synchronized (transactionPool) {
-            if (val.stripTrailingZeros().scale() > VALUE_SCALE)
+            if (val.stripTrailingZeros().scale() > TRANSACTION_VALUE_SCALE)
                 return Result.SCALE_OVERFLOW;
-            else if (val.compareTo(MAX_VALUE) > 0)
+            if (val.compareTo(TRANSACTION_MAX_VALUE) > 0)
                 return Result.TOO_LARGE_VALUE;
-            else if (val.compareTo(calculateTotalValue(senderAdr)) > 0)
+            if (val.compareTo(calculateTotalValue(senderAdr)) > 0)
                 return Result.NOT_ENOUGH_BALANCE;
-            else if (duplicateSignature(sign))
+            if (duplicateSignature(sign))
                 return Result.SIGNATURE_ALREADY_CONSUMED;
 
             transactionPool.add(new Transaction(senderAdr, recipientAdr, val, sign));
@@ -111,7 +111,7 @@ public class SBChain {
             System.out.println("Mining...");
             var transactions = List.copyOf(transactionPool);
             var newBlock = new Block(lastBlock().getHash(), transactions);
-            newBlock.proofOfWork(DIFFICULTY);
+            newBlock.proofOfWork(MINING_DIFFICULTY);
             chain.add(newBlock);
             transactionPool.removeAll(transactions);
             
@@ -130,10 +130,12 @@ public class SBChain {
         for (int i = 1; i < chain.size(); i++) {
             previousBlock = chain.get(i - 1);
             currentBlock = chain.get(i);
-            if (!previousBlock.getHash().equals(currentBlock.getPreviousHash())
-                || !currentBlock.getHash().equals(currentBlock.calculateHash())) {
+            if (!previousBlock.getHash().equals(currentBlock.getPreviousHash()))
                 return false;
-            }
+            if (!currentBlock.getHash().equals(currentBlock.calculateHash()))
+                return false;
+            if (!currentBlock.getHash().startsWith(StringUtil.repeat("0", MINING_DIFFICULTY)))
+                return false;
         }
         return true;
     }
@@ -141,7 +143,7 @@ public class SBChain {
     public static BigDecimal calculateTotalValue(String address) {
         var transactions = getAllTransactions();
         
-        var total = BigDecimal.ZERO.setScale(VALUE_SCALE);
+        var total = BigDecimal.ZERO.setScale(TRANSACTION_VALUE_SCALE);
         for (var t: transactions) {
             if (address.equals(t.getRecipientAddress()))
                 total = total.add(t.getValue());
@@ -194,6 +196,9 @@ public class SBChain {
         var path = PropertyUtil.getProperty("chainfile");
         try {
             chain = FileUtil.deserializeObject(path, chain.getClass());
+            if (!isChainValid()) {
+                throw new RuntimeException("Loaded chain invalid");
+            }
         } catch (NoSuchFileException e) {
             System.out.println("Blockchain file not found: " + e.getMessage());
         } catch (IOException | ClassNotFoundException e) {

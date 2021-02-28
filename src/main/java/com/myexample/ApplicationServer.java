@@ -31,7 +31,7 @@ public class ApplicationServer {
                 Result result;
                 BigDecimal balance;
                 if (address == null) {
-                    balance = new BigDecimal("0").setScale(SBChain.VALUE_SCALE);
+                    balance = new BigDecimal("0").setScale(SBChain.TRANSACTION_VALUE_SCALE);
                     result = Result.INCORRECT_QUERY_PARAMETER;
                 } else {
                     balance = SBChain.calculateTotalValue(address);
@@ -42,7 +42,7 @@ public class ApplicationServer {
                 resHeader.set("Content-Type", "application/json");
                 var resGet = StringUtil.doubleEntryJson(
                     "message", result.getMessage(),
-                    "balance", StringUtil.formatDecimal(balance, SBChain.VALUE_SCALE)); // e.g. "1,234.567890"
+                    "balance", StringUtil.formatDecimal(balance, SBChain.TRANSACTION_VALUE_SCALE)); // e.g. "1,234.567890"
                 t.sendResponseHeaders(result.getStatusCodeValue(), resGet.length());
                 os.write(resGet.getBytes());
                 break;
@@ -82,9 +82,9 @@ public class ApplicationServer {
 
                 System.out.println(result.getMessage());
                 resHeader.set("Content-Type", "application/json");
-                var reqPost = StringUtil.singleEntryJson("message", result.getMessage());
-                t.sendResponseHeaders(result.getStatusCodeValue(), reqPost.length());
-                os.write(reqPost.getBytes());
+                var resPost = StringUtil.singleEntryJson("message", result.getMessage());
+                t.sendResponseHeaders(result.getStatusCodeValue(), resPost.length());
+                os.write(resPost.getBytes());
                 break;
 
             default:
@@ -151,9 +151,9 @@ public class ApplicationServer {
 
                 System.out.println(result.getMessage());
                 resHeader.set("Content-Type", "application/json");
-                var reqPost = StringUtil.singleEntryJson("message", result.getMessage());
-                t.sendResponseHeaders(result.getStatusCodeValue(), reqPost.length());
-                os.write(reqPost.getBytes());
+                var resPost = StringUtil.singleEntryJson("message", result.getMessage());
+                t.sendResponseHeaders(result.getStatusCodeValue(), resPost.length());
+                os.write(resPost.getBytes());
                 break;
 
             default:
@@ -163,7 +163,6 @@ public class ApplicationServer {
         }
     };
 
-    ////////// for demo //////////
     public HttpHandler mineHandler = (HttpExchange t) -> {
         var resHeader = t.getResponseHeaders();
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
@@ -173,19 +172,18 @@ public class ApplicationServer {
                 var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
                 var address = query.get("address");
                 Result result;
-                if (address == null) {
+                if (address == null)
                     result = Result.INCORRECT_QUERY_PARAMETER;
-                } else if (!address.equals(SBChain.MINER_ADDRESS)) {
+                else if (!address.equals(SBChain.MINER_ADDRESS))
                     result = Result.MINING_NOT_MINER;
-                } else {
+                else
                     result = SBChain.mining();
-                }
 
                 System.out.println(result.getMessage());
                 resHeader.set("Content-Type", "application/json");
-                var reqPost = StringUtil.singleEntryJson("message", result.getMessage());
-                t.sendResponseHeaders(result.getStatusCodeValue(), reqPost.length());
-                os.write(reqPost.getBytes());
+                var resPost = StringUtil.singleEntryJson("message", result.getMessage());
+                t.sendResponseHeaders(result.getStatusCodeValue(), resPost.length());
+                os.write(resPost.getBytes());
                 break;
 
             default:
@@ -194,7 +192,6 @@ public class ApplicationServer {
             }
         }
     };
-    //////////////////////////////
 
     public void run() {
         try {
@@ -205,7 +202,7 @@ public class ApplicationServer {
             server.createContext("/purchase", purchaseHandler);
             server.createContext("/chain", chainHandler);
             server.createContext("/transaction", transactionHandler);
-            server.createContext("/mine", mineHandler);
+            server.createContext("/mine", mineHandler); ///// for demo /////
             server.setExecutor(null);
             server.start();
             System.out.println("Server started on port " + port);
@@ -222,5 +219,9 @@ public class ApplicationServer {
         SBChain.loadTransactionPool();
 
         new ApplicationServer().run();
+
+        // set mining schedule
+        // ScheduledExecutorService miningExecutor = Executors.newScheduledThreadPool(1);
+        // miningExecutor.scheduleWithFixedDelay(() -> SBChain.mining(), 0, 1, TimeUnit.DAYS);
     }
 }

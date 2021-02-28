@@ -23,7 +23,7 @@ public class Transaction implements Serializable {
         this.timestamp = Instant.now().toEpochMilli();
         this.senderAddress = senderAddress;
         this.recipientAddress = recipientAddress;
-        this.value = value.setScale(SBChain.VALUE_SCALE);
+        this.value = value.setScale(SBChain.TRANSACTION_VALUE_SCALE);
         this.signature = signature;
         this.transactionId = calculateHash();
     }
