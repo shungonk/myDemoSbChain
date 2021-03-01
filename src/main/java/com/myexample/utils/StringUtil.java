@@ -47,6 +47,12 @@ public class StringUtil {
         return (String) map.get(key);
     }
 
+    public static String formatJson(String json) {
+        return json
+            .replace(",", "\n")
+            .replaceAll("[\"\\{\\}]", "");
+    }
+
     public static String toJson(Object o) {
         return GSON.toJson(o);
     }
