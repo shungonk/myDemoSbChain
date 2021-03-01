@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
@@ -132,6 +135,11 @@ public class SBChain {
             saveTransactionPool();
             return Result.MINING_SUCCESS;
         }
+    }
+
+    public void scheduleAutoMining(long delay, TimeUnit unit) {
+        ScheduledExecutorService miningExecutor = Executors.newScheduledThreadPool(1);
+        miningExecutor.scheduleWithFixedDelay(() -> mining(), 0, delay, unit);
     }
 
     public boolean isChainValid() {

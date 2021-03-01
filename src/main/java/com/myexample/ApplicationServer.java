@@ -5,7 +5,9 @@ import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.Security;
+import java.util.LinkedHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.google.gson.JsonSyntaxException;
 import com.myexample.blockchain.Result;
@@ -22,13 +24,37 @@ import com.sun.net.httpserver.HttpServer;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class ApplicationServer {
 
+    public HttpHandler infoHandler = (HttpExchange t) -> {
+        try (var os = t.getResponseBody()) {
+            switch (t.getRequestMethod()) {
+            case "GET":
+                LogWriter.info("Request get info");
+                var infoMap = new LinkedHashMap<String, String>();
+                infoMap.put("Blockchain Name", SBChain.BLOCKCHAIN_NAME);
+                infoMap.put("Minimum Unit of Transaction Amount", 
+                    BigDecimal.ONE.scaleByPowerOfTen(-SBChain.TRANSACTION_AMOUNT_SCALE).toPlainString());
+                infoMap.put("Maximum of Transaction Amount", 
+                    SBChain.TRANSACTION_MAX_AMOUNT.setScale(SBChain.TRANSACTION_AMOUNT_SCALE).toPlainString());
+                var resGet = StringUtil.multipleEntryJson(infoMap);
+                t.getResponseHeaders().set("Content-Type", "application/json");
+                t.sendResponseHeaders(200, resGet.length());
+                os.write(resGet.getBytes());
+                break;
+
+            default:
+                LogWriter.info("Invalid HTTP Method Requested");
+                t.sendResponseHeaders(405, -1);
+            }
+        }
+    };
+
     public HttpHandler balanceHandler = (HttpExchange t) -> {
         try (var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "GET":
-                LogWriter.info("# Request get balance");
                 var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
                 var address = query.get("address");
+                LogWriter.info("Request get balance - " + address);
                 Result result;
                 BigDecimal balance;
                 if (address == null) {
@@ -39,7 +65,6 @@ public class ApplicationServer {
                     result = Result.GET_BARANCE_SUCCESS;
                 }
                 
-                LogWriter.info(result.getMessage());
                 var resGet = StringUtil.doubleEntryJson(
                     "message", result.getStatusAndMessage(),
                     "balance", StringUtil.formatDecimal(balance, SBChain.TRANSACTION_AMOUNT_SCALE)); // e.g. "1,234.567890"
@@ -49,7 +74,7 @@ public class ApplicationServer {
                 break;
 
             default:
-                LogWriter.info("# Invalid HTTP Method Requested");
+                LogWriter.info("Invalid HTTP Method Requested");
                 t.sendResponseHeaders(405, -1);
             }
         }
@@ -59,12 +84,11 @@ public class ApplicationServer {
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "POST":
-                LogWriter.info("# Request post purchase");
                 var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                LogWriter.info("Request post purchase - " + json);
                 Result result;
                 try {
                     var req = StringUtil.fromJson(json, PurchaseRequest.class);
-                    LogWriter.info("\n" + req.marshalJsonPrettyPrinting());
 
                     if (!req.validateFields())
                         result = Result.MISSING_FIELDS;
@@ -88,7 +112,7 @@ public class ApplicationServer {
                 break;
 
             default:
-                LogWriter.info("# Invalid HTTP Method Requested");
+                LogWriter.info("Invalid HTTP Method Requested");
                 t.sendResponseHeaders(405, -1);
             }
         }
@@ -98,7 +122,7 @@ public class ApplicationServer {
         try (var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "GET":
-                LogWriter.info("# Request get chain");
+                LogWriter.info("Request get chain");
                 var resGet = SBC.marshalJson();
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(200, resGet.length());
@@ -106,7 +130,7 @@ public class ApplicationServer {
                 break;
 
             default:
-                LogWriter.info("# Invalid HTTP Method Requested");
+                LogWriter.info("Invalid HTTP Method Requested");
                 t.sendResponseHeaders(405, -1);
             }
         }
@@ -116,7 +140,7 @@ public class ApplicationServer {
         try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "GET":
-                LogWriter.info("# Request get transaction pool");
+                LogWriter.info("Request get transaction pool");
                 var resGet = SBC.transactionPoolJson();
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(200, resGet.length());
@@ -124,12 +148,11 @@ public class ApplicationServer {
                 break;
 
             case "POST":
-                LogWriter.info("# Request post transaction");
                 var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                LogWriter.info("Request post transaction - " + json);
                 Result result;
                 try {
                     var req = StringUtil.fromJson(json, TransactionRequest.class);
-                    LogWriter.info("\n" + req.marshalJsonPrettyPrinting());
     
                     if (!req.validateFields())
                         result = Result.MISSING_FIELDS;
@@ -154,7 +177,7 @@ public class ApplicationServer {
                 break;
 
             default:
-                LogWriter.info("# Invalid HTTP Method Requested");
+                LogWriter.info("Invalid HTTP Method Requested");
                 t.sendResponseHeaders(405, -1);
             }
         }
@@ -164,7 +187,7 @@ public class ApplicationServer {
         try (var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {
             case "POST":
-                LogWriter.info("# Request post mining");
+                LogWriter.info("Request post mining");
                 var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
                 var address = query.get("address");
                 Result result;
@@ -183,7 +206,7 @@ public class ApplicationServer {
                 break;
 
             default:
-                LogWriter.info("# Invalid HTTP Method Requested");
+                LogWriter.info("Invalid HTTP Method Requested");
                 t.sendResponseHeaders(405, -1);
             }
         }
@@ -195,6 +218,7 @@ public class ApplicationServer {
             var port = Integer.parseInt(Property.getProperty("port"));
             var socketAddress = new InetSocketAddress(host, port);
             var server = HttpServer.create(socketAddress, 0);
+            server.createContext("/info", infoHandler);
             server.createContext("/balance", balanceHandler);
             server.createContext("/purchase", purchaseHandler);
             server.createContext("/chain", chainHandler);
@@ -213,11 +237,10 @@ public class ApplicationServer {
     public static void main(String[] args) {
         // add provider for security
         Security.addProvider(new BouncyCastleProvider());
+        if (!SBC.isChainValid())
+            LogWriter.severe("Blockchain is invalid.", new RuntimeException());
+        SBC.scheduleAutoMining(5, TimeUnit.MINUTES);
 
         new ApplicationServer().run();
-
-        // // set mining schedule
-        // ScheduledExecutorService miningExecutor = Executors.newScheduledThreadPool(1);
-        // miningExecutor.scheduleWithFixedDelay(() -> SBC.mining(), 0, 1, TimeUnit.DAYS);
     }
 }

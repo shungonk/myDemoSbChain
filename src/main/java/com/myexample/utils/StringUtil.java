@@ -3,6 +3,7 @@ package com.myexample.utils;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ public class StringUtil {
 
     public static final String AMPERSAND = "&";
     public static final String EQUAL = "=";
+    public static final String JSON_ENTRY_FORMAT = "\"%s\":\"%s\"";
 
     private static final Gson GSON = new Gson();
 
@@ -31,6 +33,13 @@ public class StringUtil {
 
     public static String doubleEntryJson(String key1, String value1, String key2, String value2) {
         return String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", key1, value1, key2, value2);
+    }
+
+    public static String multipleEntryJson(LinkedHashMap<String, String> map) {
+        return map.entrySet()
+            .stream()
+            .map(e -> String.format(JSON_ENTRY_FORMAT, e.getKey(), e.getValue()))
+            .collect(Collectors.joining(",", "{", "}"));
     }
 
     public static String valueInJson(String json, String key) {
