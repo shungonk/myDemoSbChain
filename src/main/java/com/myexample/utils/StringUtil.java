@@ -27,15 +27,15 @@ public class StringUtil {
         return nStr.toString();
     }
 
-    public static String singleEntryJson(String key, String value) {
+    public static String makeJson(String key, String value) {
         return String.format("{\"%s\":\"%s\"}", key, value);
     }
 
-    public static String doubleEntryJson(String key1, String value1, String key2, String value2) {
+    public static String makeJson(String key1, String value1, String key2, String value2) {
         return String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", key1, value1, key2, value2);
     }
 
-    public static String multipleEntryJson(LinkedHashMap<String, String> map) {
+    public static String makeJson(LinkedHashMap<String, String> map) {
         return map.entrySet()
             .stream()
             .map(e -> String.format(JSON_ENTRY_FORMAT, e.getKey(), e.getValue()))

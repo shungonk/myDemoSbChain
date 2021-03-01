@@ -47,11 +47,11 @@ public class SBChain {
         return chain.get(chain.size() - 1);
     }
 
-    public String marshalJson() {
+    public String chainJson() {
         return StringUtil.toJson(chain);
     }
 
-    public String marshalJsonPrettyPrinting() {
+    public String chainJsonPrettyPrinting() {
         var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
         return gsonBuilder.toJson(chain);
     }
@@ -128,7 +128,7 @@ public class SBChain {
             chain.add(newBlock);
             transactionPool.removeAll(transactions);
             
-		    LogWriter.info("========== Block Mined!!! ==========\n" + newBlock.marshalJsonPrettyPrinting());
+		    LogWriter.info("========== Block Mined!!! ==========\n" + newBlock.toJsonPrettyPrinting());
 
             // save objects
             saveChain();

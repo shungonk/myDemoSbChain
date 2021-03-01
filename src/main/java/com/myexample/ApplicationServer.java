@@ -35,7 +35,7 @@ public class ApplicationServer {
                     BigDecimal.ONE.scaleByPowerOfTen(-SBChain.TRANSACTION_AMOUNT_SCALE).toPlainString());
                 infoMap.put("Maximum of Transaction Amount", 
                     SBChain.TRANSACTION_MAX_AMOUNT.setScale(SBChain.TRANSACTION_AMOUNT_SCALE).toPlainString());
-                var resGet = StringUtil.multipleEntryJson(infoMap);
+                var resGet = StringUtil.makeJson(infoMap);
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(200, resGet.length());
                 os.write(resGet.getBytes());
@@ -65,7 +65,7 @@ public class ApplicationServer {
                     result = Result.GET_BARANCE_SUCCESS;
                 }
                 
-                var resGet = StringUtil.doubleEntryJson(
+                var resGet = StringUtil.makeJson(
                     "message", result.getStatusAndMessage(),
                     "balance", StringUtil.formatDecimal(balance, SBChain.TRANSACTION_AMOUNT_SCALE)); // e.g. "1,234.567890"
                 t.getResponseHeaders().set("Content-Type", "application/json");
@@ -105,7 +105,7 @@ public class ApplicationServer {
                 }
 
                 LogWriter.info(result.getMessage());
-                var resPost = StringUtil.singleEntryJson("message", result.getStatusAndMessage());
+                var resPost = StringUtil.makeJson("message", result.getStatusAndMessage());
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(result.getStatusCode(), resPost.length());
                 os.write(resPost.getBytes());
@@ -123,7 +123,7 @@ public class ApplicationServer {
             switch (t.getRequestMethod()) {
             case "GET":
                 LogWriter.info("Request get chain");
-                var resGet = SBC.marshalJson();
+                var resGet = SBC.chainJson();
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(200, resGet.length());
                 os.write(resGet.getBytes());
@@ -170,7 +170,7 @@ public class ApplicationServer {
                 }
 
                 LogWriter.info(result.getMessage());
-                var resPost = StringUtil.singleEntryJson("message", result.getStatusAndMessage());
+                var resPost = StringUtil.makeJson("message", result.getStatusAndMessage());
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(result.getStatusCode(), resPost.length());
                 os.write(resPost.getBytes());
@@ -199,7 +199,7 @@ public class ApplicationServer {
                     result = SBC.mining();
 
                 LogWriter.info(result.getMessage());
-                var resPost = StringUtil.singleEntryJson("message", result.getStatusAndMessage());
+                var resPost = StringUtil.makeJson("message", result.getStatusAndMessage());
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(result.getStatusCode(), resPost.length());
                 os.write(resPost.getBytes());
