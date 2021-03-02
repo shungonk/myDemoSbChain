@@ -197,9 +197,11 @@ public class SBChain {
         if (!Files.exists(dataDir, LinkOption.NOFOLLOW_LINKS)) {
             try {
                 Files.createDirectories(dataDir);
-                LogWriter.info("Success to create directory for saving serialized objects");
+                LogWriter.info("Success to create directory for saving serialized objects - " 
+                    + dataDir.toAbsolutePath());
             } catch (IOException e) {
-                LogWriter.severe("Failed to create directory for saving serialized objects", new RuntimeException(e));
+                LogWriter.severe("Failed to create directory for saving serialized objects - " 
+                    + dataDir.toAbsolutePath(), new RuntimeException(e));
             }
         }
     }
