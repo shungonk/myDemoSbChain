@@ -1,1 +1,1 @@
-web: -jar target/java sbchain-1.0-SNAPSHOT.jar
+web: java $JAVA_OPTS -cp target/classes:target/dependency/* com.myexample.ApplicationServer
