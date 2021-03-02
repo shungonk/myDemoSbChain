@@ -31,10 +31,10 @@ public class ApplicationServer {
                 LogWriter.info("Request get info");
                 var infoMap = new LinkedHashMap<String, String>();
                 infoMap.put("Blockchain Name", SBChain.BLOCKCHAIN_NAME);
+                infoMap.put("Maximum Transaction Amount", 
+                    SBChain.TRANSACTION_MAX_AMOUNT.setScale(SBChain.TRANSACTION_AMOUNT_SCALE).toPlainString() + " SBC");
                 infoMap.put("Minimum Unit of Transaction Amount", 
-                    BigDecimal.ONE.scaleByPowerOfTen(-SBChain.TRANSACTION_AMOUNT_SCALE).toPlainString());
-                infoMap.put("Maximum of Transaction Amount", 
-                    SBChain.TRANSACTION_MAX_AMOUNT.setScale(SBChain.TRANSACTION_AMOUNT_SCALE).toPlainString());
+                    BigDecimal.ONE.scaleByPowerOfTen(-SBChain.TRANSACTION_AMOUNT_SCALE).toPlainString() + " SBC");
                 var resGet = StringUtil.makeJson(infoMap);
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(200, resGet.length());
@@ -215,7 +215,8 @@ public class ApplicationServer {
     public void run() {
         try {
             var host = Property.getProperty("host");
-            var port = System.getenv("PORT");;
+            var port = Property.getProperty("port");
+            // var port = System.getenv("PORT");;
             var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
             var server = HttpServer.create(socketAddress, 0);
             server.createContext("/info", infoHandler);
