@@ -47,7 +47,9 @@ public enum Result {
     ;
 
     private enum Status {
-        SUCCESS(200), CREATED(201), FAILED(400), ;
+        SUCCESS(200),
+        CREATED(201),
+        FAILED(400), ;
         private int statusCode; // http status code
         private Status(int statusCode) {
             this.statusCode = statusCode;
