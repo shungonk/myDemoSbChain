@@ -30,14 +30,14 @@ public enum Result {
         Status.FAILED, "Invalid signature"),
     INCONSISTENT_ADDRESS(
         Status.FAILED, "Sender address should be consistent with sender public key"),
-    SCALE_OVERFLOW(
-        Status.FAILED, "Float scale overflow"),
+    AMOUNT_SCALE_OVERFLOW(
+        Status.FAILED, "Amount scale overflow"),
     TOO_LARGE_AMOUNT(
-        Status.FAILED, "Requested amounttoo large"),
+        Status.FAILED, "Requested amount too large"),
     NOT_ENOUGH_BALANCE(
         Status.FAILED, "Not enough balance"),
     SIGNATURE_ALREADY_CONSUMED(
-        Status.FAILED, "This signature is already consumed"),
+        Status.FAILED, "Signature is already consumed"),
     
     // HTTP Hundle message
     INCORRECT_JSON_CONTENT(

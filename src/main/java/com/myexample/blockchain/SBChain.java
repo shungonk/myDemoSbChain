@@ -76,7 +76,7 @@ public class SBChain {
     public Result addTransaction(String recipientAdr, BigDecimal val) {
         synchronized (transactionPool) {
             if (val.stripTrailingZeros().scale() > TRANSACTION_AMOUNT_SCALE)
-                return Result.SCALE_OVERFLOW;
+                return Result.AMOUNT_SCALE_OVERFLOW;
             if (val.compareTo(TRANSACTION_MAX_AMOUNT) > 0)
                 return Result.TOO_LARGE_AMOUNT;
 
@@ -90,7 +90,7 @@ public class SBChain {
     public Result addTransaction(String recipientAdr, BigDecimal val, String sign) {
         synchronized (transactionPool) {
             if (val.stripTrailingZeros().scale() > TRANSACTION_AMOUNT_SCALE)
-                return Result.SCALE_OVERFLOW;
+                return Result.AMOUNT_SCALE_OVERFLOW;
             if (val.compareTo(TRANSACTION_MAX_AMOUNT) > 0)
                 return Result.TOO_LARGE_AMOUNT;
             if (isDuplicatedSignature(sign))
@@ -106,7 +106,7 @@ public class SBChain {
     public Result addTransaction(String senderAdr, String recipientAdr, BigDecimal val, String sign) {
         synchronized (transactionPool) {
             if (val.stripTrailingZeros().scale() > TRANSACTION_AMOUNT_SCALE)
-                return Result.SCALE_OVERFLOW;
+                return Result.AMOUNT_SCALE_OVERFLOW;
             if (val.compareTo(TRANSACTION_MAX_AMOUNT) > 0)
                 return Result.TOO_LARGE_AMOUNT;
             if (val.compareTo(calculateTotalAmount(senderAdr)) > 0)
