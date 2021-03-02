@@ -216,7 +216,7 @@ public class ApplicationServer {
         try {
             var host = Property.getProperty("host");
             // var port = Property.getProperty("port");
-            var port = System.getenv("server.port");;
+            var port = Property.getProperty("server.port");
             var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
             var server = HttpServer.create(socketAddress, 0);
             server.createContext("/info", infoHandler);
