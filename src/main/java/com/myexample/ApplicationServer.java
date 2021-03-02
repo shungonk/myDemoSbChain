@@ -232,7 +232,7 @@ public class ApplicationServer {
         }
     }
 
-    public static final SBChain SBC = new SBChain(Property.getProperty("mineraddress"));
+    public static final SBChain SBC = new SBChain();
 
     public static void main(String[] args) {
         // add provider for security

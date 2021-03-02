@@ -2,7 +2,10 @@ package com.myexample.blockchain;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,21 +25,26 @@ import com.myexample.utils.StringUtil;
 public class SBChain {
     // TODO: Synchronize widh Nodes
 
-    public static final int        MINING_DIFFICULTY = 5;
-    public static final BigDecimal MINING_REWARD = new BigDecimal("2");
+    public static final int        MINING_DIFFICULTY        = 5;
+    public static final BigDecimal MINING_REWARD            = new BigDecimal("2");
     public static final int        TRANSACTION_AMOUNT_SCALE = 6;
-    public static final BigDecimal TRANSACTION_MAX_AMOUNT = new BigDecimal("30");
-    public static final String     BLOCKCHAIN_NAME = "THE SBCHAIN";
+    public static final BigDecimal TRANSACTION_MAX_AMOUNT   = new BigDecimal("30");
+    public static final String     BLOCKCHAIN_NAME          = "THE SBCHAIN";
 
-    private final String minerAddress;
+    private final String minerAddress = Property.getProperty("mineraddress");
+    private final Path dataDir = Path.of(Property.getProperty("datadir"));
 
-    private final List<Block> chain;
-	private final List<Transaction> transactionPool;
+    private List<Block> chain = new ArrayList<>(Arrays.asList(Block.INITIAL));
+	private List<Transaction> transactionPool = Collections.synchronizedList(new ArrayList<>());
 
-    public SBChain(String minerAddress) {
-        this.minerAddress = minerAddress;
-        this.chain = loadChain();
-        this.transactionPool = loadTransactionPool();
+    public SBChain() {
+        createDataDirIfAbsent();
+        if ((this.chain = loadChain()) == null) {
+            this.chain = new ArrayList<>(Arrays.asList(Block.INITIAL));
+        }
+        if ((this.transactionPool = loadTransactionPool()) == null) {
+            this.transactionPool = Collections.synchronizedList(new ArrayList<>());
+        }
     }
 
     public String getMinerAddress() {
@@ -85,7 +93,7 @@ public class SBChain {
                 return Result.SCALE_OVERFLOW;
             if (val.compareTo(TRANSACTION_MAX_AMOUNT) > 0)
                 return Result.TOO_LARGE_AMOUNT;
-            if (duplicateSignature(sign))
+            if (isDuplicatedSignature(sign))
                 return Result.SIGNATURE_ALREADY_CONSUMED;
 
             transactionPool.add(new Transaction(BLOCKCHAIN_NAME, recipientAdr, val, sign));
@@ -103,7 +111,7 @@ public class SBChain {
                 return Result.TOO_LARGE_AMOUNT;
             if (val.compareTo(calculateTotalAmount(senderAdr)) > 0)
                 return Result.NOT_ENOUGH_BALANCE;
-            if (duplicateSignature(sign))
+            if (isDuplicatedSignature(sign))
                 return Result.SIGNATURE_ALREADY_CONSUMED;
 
             transactionPool.add(new Transaction(senderAdr, recipientAdr, val, sign));
@@ -159,7 +167,6 @@ public class SBChain {
 
     public BigDecimal calculateTotalAmount(String address) {
         var transactions = getAllTransactions();
-        
         var total = BigDecimal.ZERO.setScale(TRANSACTION_AMOUNT_SCALE);
         for (var t: transactions) {
             if (address.equals(t.getRecipientAddress()))
@@ -170,7 +177,7 @@ public class SBChain {
         return total;
     }
 
-    public boolean duplicateSignature(String signature) {
+    public boolean isDuplicatedSignature(String signature) {
         var transactions = getAllTransactions();
         return transactions.stream()
             .anyMatch(t -> Objects.equals(signature, t.getSignature()));
@@ -186,9 +193,20 @@ public class SBChain {
         return transactions;
     }
 
+    public void createDataDirIfAbsent() {
+        if (!Files.exists(dataDir, LinkOption.NOFOLLOW_LINKS)) {
+            try {
+                Files.createDirectories(dataDir);
+                LogWriter.info("Success to create directory for serialized files");
+            } catch (IOException e) {
+                LogWriter.severe("Failed to create directory for serialized files", new RuntimeException(e));
+            }
+        }
+    }
+
     private void saveChain() {
         try {
-            var path = Property.getProperty("chainfile");
+            var path = dataDir.resolve(Property.getProperty("chainfile"));
             FileUtil.serializeObject(path, chain);
             LogWriter.info("Blockchain is saved");
         } catch (IOException e) {
@@ -199,7 +217,7 @@ public class SBChain {
 
     private void saveTransactionPool() {
         try {
-            var path = Property.getProperty("transactionsfile");
+            var path = dataDir.resolve(Property.getProperty("transactionsfile"));
             FileUtil.serializeObject(path, transactionPool);
             LogWriter.info("Transaction pool is saved");
         } catch (IOException e) {
@@ -211,13 +229,13 @@ public class SBChain {
     @SuppressWarnings("unchecked")
     public List<Block> loadChain() {
         try {
-            var file = Property.getProperty("chainfile");
-            var obj = (List<Block>) FileUtil.deserializeObject(file);
+            var path = dataDir.resolve(Property.getProperty("chainfile"));
+            var obj = (List<Block>) FileUtil.deserializeObject(path);
             LogWriter.info("Blockchain successfully loaded");
             return obj;
         } catch (NoSuchFileException e) {
             LogWriter.warning("Blockchain file not found: " + e.getMessage());
-            return new ArrayList<>(Arrays.asList(Block.INITIAL));
+            return null;
         } catch (IOException | ClassNotFoundException e) {
             LogWriter.severe("Failed to load blockchain file");
             throw new RuntimeException(e);
@@ -227,13 +245,13 @@ public class SBChain {
     @SuppressWarnings("unchecked")
     public List<Transaction> loadTransactionPool() {
         try {
-            var file = Property.getProperty("transactionsfile");
-            var obj = (List<Transaction>) FileUtil.deserializeObject(file);
+            var path = dataDir.resolve(Property.getProperty("transactionsfile"));
+            var obj = (List<Transaction>) FileUtil.deserializeObject(path);
             LogWriter.info("TransactionPool successfully loaded");
             return obj;
         } catch (NoSuchFileException e) {
             LogWriter.warning("TransactionPool file not found: " + e.getMessage());
-            return Collections.synchronizedList(new ArrayList<>());
+            return null;
         } catch (IOException | ClassNotFoundException | ClassCastException e) {
             LogWriter.severe("Failed to load transaction pool file");
             throw new RuntimeException(e);
