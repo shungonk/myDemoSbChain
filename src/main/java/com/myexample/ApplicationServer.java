@@ -214,7 +214,8 @@ public class ApplicationServer {
 
     public void run() {
         try {
-            var host = Property.getProperty("host");
+            // var host = Property.getProperty("host");
+            var host = Property.getProperty("0.0.0.0");
             // var port = Property.getProperty("port");
             var port = System.getenv("PORT");
             var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
