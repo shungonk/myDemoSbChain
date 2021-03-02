@@ -34,8 +34,8 @@ public class SBChain {
     private final String minerAddress = Property.getProperty("mineraddress");
     private final Path dataDir = Path.of(Property.getProperty("datadir"));
 
-    private List<Block> chain = new ArrayList<>(Arrays.asList(Block.INITIAL));
-	private List<Transaction> transactionPool = Collections.synchronizedList(new ArrayList<>());
+    private List<Block> chain;
+	private List<Transaction> transactionPool;
 
     public SBChain() {
         createDataDirIfAbsent();
