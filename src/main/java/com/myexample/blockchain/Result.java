@@ -23,7 +23,7 @@ public enum Result {
 
     // Request Vlidation result
     NOT_POSITIVE_AMOUNT(
-        Status.FAILED, "Requested amountshould be positive"),
+        Status.FAILED, "Requested amount should be positive"),
     MISSING_FIELDS(
         Status.FAILED, "Request missing field(s)"),
     INVALID_SIGNATURE(
