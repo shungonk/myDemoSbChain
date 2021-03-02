@@ -215,8 +215,8 @@ public class ApplicationServer {
     public void run() {
         try {
             var host = Property.getProperty("host");
-            var port = Integer.parseInt(Property.getProperty("port"));
-            var socketAddress = new InetSocketAddress(host, port);
+            var port = System.getenv("PORT");;
+            var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
             var server = HttpServer.create(socketAddress, 0);
             server.createContext("/info", infoHandler);
             server.createContext("/balance", balanceHandler);
