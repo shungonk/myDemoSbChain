@@ -130,4 +130,5 @@
       </plugins>
     </pluginManagement>
   </build>
+  <packaging>jar</packaging>
 </project>
