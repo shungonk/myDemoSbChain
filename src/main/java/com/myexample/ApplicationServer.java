@@ -18,7 +18,7 @@ import com.myexample.utils.LogWriter;
 import com.myexample.utils.StringUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpsServer;
+import com.sun.net.httpserver.HttpServer;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class ApplicationServer {
@@ -187,10 +187,9 @@ public class ApplicationServer {
             // var host = Property.getProperty("host");
             // var port = Property.getProperty("port");
             // var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
-            // var server = HttpServer.create(socketAddress, 0);
             var port = System.getenv("PORT");
             var socketAddress = new InetSocketAddress(Integer.parseInt(port));
-            var server = HttpsServer.create(socketAddress, 0);
+            var server = HttpServer.create(socketAddress, 0);
             server.createContext("/info", infoHandler);
             server.createContext("/balance", balanceHandler);
             server.createContext("/purchase", purchaseHandler);
