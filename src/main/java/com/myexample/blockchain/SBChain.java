@@ -131,7 +131,7 @@ public class SBChain {
 
             LogWriter.info("Mining...");
             var transactions = List.copyOf(transactionPool);
-            var newBlock = new Block(lastBlock().getHash(), transactions);
+            var newBlock = new Block(lastBlock().calculateHash(), transactions);
             newBlock.proofOfWork(MINING_DIFFICULTY);
             chain.add(newBlock);
             transactionPool.removeAll(transactions);
@@ -154,11 +154,9 @@ public class SBChain {
         for (int i = 1; i < chain.size(); i++) {
             previousBlock = chain.get(i - 1);
             currentBlock = chain.get(i);
-            if (!previousBlock.getHash().equals(currentBlock.getPreviousHash()))
+            if (!previousBlock.calculateHash().equals(currentBlock.getPreviousHash()))
                 return false;
-            if (!currentBlock.getHash().equals(currentBlock.calculateHash()))
-                return false;
-            if (!currentBlock.getHash().startsWith(StringUtil.repeat("0", MINING_DIFFICULTY)))
+            if (!currentBlock.calculateHash().startsWith(StringUtil.repeat("0", MINING_DIFFICULTY)))
                 return false;
         }
         return true;

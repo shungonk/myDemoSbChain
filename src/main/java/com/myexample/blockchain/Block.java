@@ -17,24 +17,23 @@ public class Block implements Serializable {
 
     private static final long serialVersionUID = 5762484348074109752L;
 
-    private String hash;
+    private long timestamp;
     private String previousHash;              
 	private List<Transaction> transactions;
     private String merkleRoot;
-    private long timestamp;
     private int nonce;
 
     public static final Block INITIAL = new Block("0", new ArrayList<>());
 
     public Block(String previousHash, List<Transaction> transactions) {
-        this.previousHash = previousHash;
         this.timestamp = Instant.now().toEpochMilli();
+        this.previousHash = previousHash;
         this.transactions = transactions;
-        this.hash = calculateHash();
+        this.merkleRoot = calculateMerkleTree();
     }
 
-    public String getHash() {
-        return hash;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public String getPreviousHash() {
@@ -47,10 +46,6 @@ public class Block implements Serializable {
 
     public List<Transaction> getTransactions() {
         return Collections.unmodifiableList(transactions);
-    }
-
-    public long getTimestamp() {
-        return timestamp;
     }
 
     public int getNonce() {
@@ -70,7 +65,7 @@ public class Block implements Serializable {
     public String calculateHash() {
         try {
             return SecurityUtil.sha256(
-                previousHash + Long.toString(timestamp) + Integer.toString(nonce) + merkleRoot);
+                Long.toString(timestamp) + previousHash + Integer.toString(nonce) + merkleRoot);
         } catch (GeneralSecurityException e) {
             LogWriter.severe("Falied to apply hash Algorithm");
             throw new RuntimeException(e);
@@ -97,11 +92,11 @@ public class Block implements Serializable {
     }
 
     public void proofOfWork(int difficulty) {
-        merkleRoot = calculateMerkleTree();
         var zeros = StringUtil.repeat("0", difficulty);
-        while (!hash.substring(0, difficulty).equals(zeros)) {
+        String hash;
+        do {
             nonce++;
             hash = calculateHash();
-        }
+        } while ((!hash.substring(0, difficulty).equals(zeros)));
     }
 }
