@@ -6,7 +6,7 @@ import java.security.GeneralSecurityException;
 import com.myexample.utils.LogWriter;
 import com.myexample.utils.SecurityUtil;
 
-public class PurchaseRequest extends SignatureRequest {
+public class PurchaseRequest extends SignatureCertifier {
 
     private String address;
     private BigDecimal amount;
