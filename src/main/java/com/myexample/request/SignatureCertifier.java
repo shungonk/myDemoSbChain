@@ -2,7 +2,6 @@ package com.myexample.request;
 
 import java.security.GeneralSecurityException;
 
-import com.google.gson.GsonBuilder;
 import com.myexample.common.LogWriter;
 import com.myexample.common.SecurityUtil;
 import com.myexample.common.StringUtil;
@@ -49,7 +48,6 @@ public abstract class SignatureCertifier {
     }
 
     public String toJsonPrettyPrinting() {
-        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
-        return gsonBuilder.toJson(this);
+        return StringUtil.toJsonPrettyPrinting(this);
     }
 }

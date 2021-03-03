@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class StringUtil {
 
@@ -16,6 +17,7 @@ public class StringUtil {
     public static final String JSON_ENTRY_FORMAT = "\"%s\":\"%s\"";
 
     private static final Gson GSON = new Gson();
+    private static final Gson GSON_PRETTY_PRINTING = new GsonBuilder().setPrettyPrinting().create();
 
     private StringUtil() {}
 
@@ -55,6 +57,10 @@ public class StringUtil {
 
     public static String toJson(Object o) {
         return GSON.toJson(o);
+    }
+
+    public static String toJsonPrettyPrinting(Object o) {
+        return GSON_PRETTY_PRINTING.toJson(o);
     }
 
     public static <T> T fromJson(String json, Class<T> cls) {

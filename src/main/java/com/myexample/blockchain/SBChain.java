@@ -16,7 +16,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.google.gson.GsonBuilder;
 import com.myexample.common.FileUtil;
 import com.myexample.common.LogWriter;
 import com.myexample.common.Property;
@@ -29,7 +28,7 @@ public class SBChain {
     public static final BigDecimal MINING_REWARD            = new BigDecimal("2");
     public static final int        TRANSACTION_AMOUNT_SCALE = 6;
     public static final BigDecimal TRANSACTION_MAX_AMOUNT   = new BigDecimal("30");
-    public static final String     BLOCKCHAIN_NAME          = "THE SBCHAIN";
+    public static final String     BLOCKCHAIN_NAME          = "SBCHAIN";
 
     private final String minerAddress = Property.getProperty("mineraddress");
     private final Path dataDir = Path.of(Property.getProperty("datadir"));
@@ -45,6 +44,10 @@ public class SBChain {
         if ((this.transactionPool = loadTransactionPool()) == null) {
             this.transactionPool = Collections.synchronizedList(new ArrayList<>());
         }
+        if (isChainValid())
+            LogWriter.info("Blockchain is valid.");
+        else
+            LogWriter.severe("Blockchain is NOT valid.", new RuntimeException());
     }
 
     public String getMinerAddress() {
@@ -60,8 +63,7 @@ public class SBChain {
     }
 
     public String chainJsonPrettyPrinting() {
-        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
-        return gsonBuilder.toJson(chain);
+        return StringUtil.toJsonPrettyPrinting(chain);
     }
 
     public String transactionPoolJson() {
@@ -69,8 +71,7 @@ public class SBChain {
     }
 
     public String transactionPoolJsonPrettyPrinting() {
-        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
-        return gsonBuilder.toJson(transactionPool);
+        return StringUtil.toJsonPrettyPrinting(transactionPool);
     }
 
     public Result addTransaction(String recipientAdr, BigDecimal val) {

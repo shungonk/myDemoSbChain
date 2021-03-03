@@ -76,13 +76,16 @@ public enum Result {
     }
 
     public String getMessage() {
-        return message;
+        if (isFailed())
+            return message + " Request discarded.";
+        else
+            return message;
     }
 
     public String getStatusAndMessage() {
         if (isFailed())
-            return "FAILED: " + message + " Request discarded.";
+            return "FAILED: " + getMessage();
         else
-            return "SUCCESS: " + message;
+            return "SUCCESS: " + getMessage();
     }
 }

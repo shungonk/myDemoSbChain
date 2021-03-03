@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.gson.GsonBuilder;
 import com.myexample.common.LogWriter;
 import com.myexample.common.SecurityUtil;
 import com.myexample.common.StringUtil;
@@ -18,8 +17,8 @@ public class Block implements Serializable {
     private static final long serialVersionUID = 5762484348074109752L;
 
     private long timestamp;
-    private String previousHash;              
-	private List<Transaction> transactions;
+    private String previousHash;
+    private List<Transaction> transactions;
     private String merkleRoot;
     private int nonce;
 
@@ -57,10 +56,8 @@ public class Block implements Serializable {
     }
 
     public String toJsonPrettyPrinting() {
-        var gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
-        return gsonBuilder.toJson(this);
+        return StringUtil.toJsonPrettyPrinting(this);
     }
-
 
     public String calculateHash() {
         try {
@@ -93,10 +90,10 @@ public class Block implements Serializable {
 
     public void proofOfWork(int difficulty) {
         var zeros = StringUtil.repeat("0", difficulty);
-        String hash;
-        do {
+        String hash = "";
+        while ((!hash.substring(0, difficulty).equals(zeros))) {
             nonce++;
             hash = calculateHash();
-        } while ((!hash.substring(0, difficulty).equals(zeros)));
+        }
     }
 }

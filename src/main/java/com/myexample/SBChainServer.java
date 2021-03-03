@@ -208,10 +208,6 @@ public class SBChainServer {
     public static void main(String[] args) {
         // add provider for security
         Security.addProvider(new BouncyCastleProvider());
-        if (SBC.isChainValid())
-            LogWriter.info("Blockchain is VALID.");
-        else
-            LogWriter.severe("Blockchain is NOT VALID.", new RuntimeException());
         SBC.scheduleAutoMining(5, TimeUnit.MINUTES);
 
         new SBChainServer().run();
