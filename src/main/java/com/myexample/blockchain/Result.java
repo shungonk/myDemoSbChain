@@ -15,35 +15,35 @@ public enum Result {
 
     // Mining result
     MINING_NOT_MINER(
-        Status.FAILED, "No rights to mine"),
+        Status.FAILED, "No rights to mine."),
     MINING_POOL_EMPTY(
-        Status.FAILED, "Transaction pool is empty"),
+        Status.FAILED, "Transaction pool is empty."),
     MINING_SUCCESS(
         Status.CREATED, "Mining completed!"),
 
     // Request Vlidation result
     NOT_POSITIVE_AMOUNT(
-        Status.FAILED, "Requested amount should be positive"),
+        Status.FAILED, "Requested amount should be positive."),
     MISSING_FIELDS(
-        Status.FAILED, "Request missing field(s)"),
+        Status.FAILED, "Request missing field(s)."),
     INVALID_SIGNATURE(
-        Status.FAILED, "Invalid signature"),
+        Status.FAILED, "Invalid signature."),
     INCONSISTENT_ADDRESS(
-        Status.FAILED, "Sender address should be consistent with sender public key"),
+        Status.FAILED, "Sender address should be consistent with sender public key."),
     AMOUNT_SCALE_OVERFLOW(
-        Status.FAILED, "Amount scale overflow"),
+        Status.FAILED, "Amount scale overflow."),
     TOO_LARGE_AMOUNT(
-        Status.FAILED, "Requested amount too large"),
+        Status.FAILED, "Requested amount too large."),
     NOT_ENOUGH_BALANCE(
-        Status.FAILED, "Not enough balance"),
+        Status.FAILED, "Not enough balance."),
     SIGNATURE_ALREADY_CONSUMED(
-        Status.FAILED, "Signature is already consumed"),
+        Status.FAILED, "Signature is already consumed."),
     
     // HTTP Hundle message
     INCORRECT_JSON_CONTENT(
-        Status.FAILED, "Incorrect json content"),
+        Status.FAILED, "Incorrect json content."),
     INCORRECT_QUERY_PARAMETER(
-        Status.FAILED, "Incorrect query parameters"),
+        Status.FAILED, "Incorrect query parameters."),
     ;
 
     private enum Status {
@@ -89,7 +89,7 @@ public enum Result {
 
     public String getStatusAndMessage() {
         if (isFailed())
-            return "FAILED: " + message;
+            return "FAILED: " + message + " Request discarded.";
         else
             return "SUCCESS: " + message;
     }
