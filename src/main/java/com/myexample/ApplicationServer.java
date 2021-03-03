@@ -182,36 +182,6 @@ public class ApplicationServer {
         }
     };
 
-    ///// for demo /////
-    public HttpHandler mineHandler = (HttpExchange t) -> {
-        try (var os = t.getResponseBody()) {
-            switch (t.getRequestMethod()) {
-            case "POST":
-                LogWriter.info("Request post mining");
-                var query = StringUtil.splitQuery(t.getRequestURI().getQuery());
-                var address = query.get("address");
-                Result result;
-                if (address == null)
-                    result = Result.INCORRECT_QUERY_PARAMETER;
-                else if (!address.equals(SBC.getMinerAddress()))
-                    result = Result.MINING_NOT_MINER;
-                else
-                    result = SBC.mining();
-
-                LogWriter.info(result.getMessage());
-                var resPost = StringUtil.makeJson("message", result.getStatusAndMessage());
-                t.getResponseHeaders().set("Content-Type", "application/json");
-                t.sendResponseHeaders(result.getStatusCode(), resPost.length());
-                os.write(resPost.getBytes());
-                break;
-
-            default:
-                LogWriter.info("Invalid HTTP Method Requested");
-                t.sendResponseHeaders(405, -1);
-            }
-        }
-    };
-
     public void run() {
         try {
             // var host = Property.getProperty("host");
@@ -225,7 +195,6 @@ public class ApplicationServer {
             server.createContext("/purchase", purchaseHandler);
             server.createContext("/chain", chainHandler);
             server.createContext("/transaction", transactionHandler);
-            server.createContext("/mine", mineHandler); ///// for demo /////
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
             LogWriter.info("Server running on " + socketAddress);

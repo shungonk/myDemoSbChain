@@ -121,10 +121,10 @@ public class SBChain {
         }
     }
 
-    public Result mining() {
+    public void mining() {
         synchronized (chain) {
             if (transactionPool.isEmpty())
-                return Result.MINING_POOL_EMPTY;
+                return;
 
             // send reward to miner
             transactionPool.add(new Transaction(BLOCKCHAIN_NAME, minerAddress, MINING_REWARD, null));
@@ -141,7 +141,6 @@ public class SBChain {
             // save objects
             saveChain();
             saveTransactionPool();
-            return Result.MINING_SUCCESS;
         }
     }
 

@@ -13,14 +13,6 @@ public enum Result {
     TRANSACTION_SUCCESS(
         Status.CREATED, "Transaction accepted!"),
 
-    // Mining result
-    MINING_NOT_MINER(
-        Status.FAILED, "No rights to mine."),
-    MINING_POOL_EMPTY(
-        Status.FAILED, "Transaction pool is empty."),
-    MINING_SUCCESS(
-        Status.CREATED, "Mining completed!"),
-
     // Request Vlidation result
     NOT_POSITIVE_AMOUNT(
         Status.FAILED, "Requested amount should be positive."),
