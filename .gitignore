@@ -33,7 +33,7 @@ build/
 .vscode/
 
 ### Serialized Object ###
-# *.ser
+*.ser
 
 ### Log file ###
 *.log*
