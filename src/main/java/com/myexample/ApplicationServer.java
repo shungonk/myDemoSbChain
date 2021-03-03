@@ -15,6 +15,7 @@ import com.myexample.blockchain.SBChain;
 import com.myexample.request.PurchaseRequest;
 import com.myexample.request.TransactionRequest;
 import com.myexample.utils.LogWriter;
+import com.myexample.utils.Property;
 import com.myexample.utils.StringUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -214,11 +215,11 @@ public class ApplicationServer {
 
     public void run() {
         try {
-            // var host = Property.getProperty("host");
-            // var port = Property.getProperty("port");
-            // var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
-            var port = System.getenv("PORT");
-            var socketAddress = new InetSocketAddress(Integer.parseInt(port));
+            var host = Property.getProperty("host");
+            var port = Property.getProperty("port");
+            var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
+            // var port = System.getenv("PORT");
+            // var socketAddress = new InetSocketAddress(Integer.parseInt(port));
             var server = HttpServer.create(socketAddress, 0);
             server.createContext("/info", infoHandler);
             server.createContext("/balance", balanceHandler);
