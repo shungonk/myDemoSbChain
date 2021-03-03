@@ -214,10 +214,10 @@ public class ApplicationServer {
     public void run() {
         try {
             // var host = Property.getProperty("host");
-            var host = System.getenv("SERVER_URL");
             // var port = Property.getProperty("port");
+            // var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
             var port = System.getenv("PORT");
-            var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
+            var socketAddress = new InetSocketAddress(Integer.parseInt(port));
             var server = HttpServer.create(socketAddress, 0);
             server.createContext("/info", infoHandler);
             server.createContext("/balance", balanceHandler);
