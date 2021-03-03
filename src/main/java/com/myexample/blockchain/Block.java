@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.utils.LogWriter;
-import com.myexample.utils.SecurityUtil;
-import com.myexample.utils.StringUtil;
+import com.myexample.common.LogWriter;
+import com.myexample.common.SecurityUtil;
+import com.myexample.common.StringUtil;
 
 public class Block implements Serializable {
 

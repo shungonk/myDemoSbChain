@@ -3,8 +3,8 @@ package com.myexample.request;
 import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 
-import com.myexample.utils.LogWriter;
-import com.myexample.utils.SecurityUtil;
+import com.myexample.common.LogWriter;
+import com.myexample.common.SecurityUtil;
 
 public class PurchaseRequest extends SignatureCertifier {
 

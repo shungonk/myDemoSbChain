@@ -6,9 +6,9 @@ import java.security.GeneralSecurityException;
 import java.time.Instant;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.utils.LogWriter;
-import com.myexample.utils.SecurityUtil;
-import com.myexample.utils.StringUtil;
+import com.myexample.common.LogWriter;
+import com.myexample.common.SecurityUtil;
+import com.myexample.common.StringUtil;
 
 public class Transaction implements Serializable {
 

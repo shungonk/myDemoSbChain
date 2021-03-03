@@ -17,10 +17,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.google.gson.GsonBuilder;
-import com.myexample.utils.FileUtil;
-import com.myexample.utils.LogWriter;
-import com.myexample.utils.Property;
-import com.myexample.utils.StringUtil;
+import com.myexample.common.FileUtil;
+import com.myexample.common.LogWriter;
+import com.myexample.common.Property;
+import com.myexample.common.StringUtil;
 
 public class SBChain {
     // TODO: Synchronize widh Nodes

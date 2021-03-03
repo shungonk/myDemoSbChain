@@ -1,4 +1,4 @@
-package com.myexample.utils;
+package com.myexample.common;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
