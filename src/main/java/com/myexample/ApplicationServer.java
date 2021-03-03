@@ -182,6 +182,7 @@ public class ApplicationServer {
         }
     };
 
+    ///// for demo /////
     public HttpHandler mineHandler = (HttpExchange t) -> {
         try (var os = t.getResponseBody()) {
             switch (t.getRequestMethod()) {

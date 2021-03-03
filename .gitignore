@@ -36,4 +36,4 @@ build/
 *.ser
 
 ### Log file ###
-logs/
+*.log*

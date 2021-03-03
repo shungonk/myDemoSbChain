@@ -1,6 +1,30 @@
-3月 03, 2021 1:20:18 午前 com.myexample.utils.LogWriter info
+3月 03, 2021 10:58:12 午前 com.myexample.utils.LogWriter info
 情報: Blockchain successfully loaded
-3月 03, 2021 1:20:18 午前 com.myexample.utils.LogWriter info
+3月 03, 2021 10:58:12 午前 com.myexample.utils.LogWriter info
 情報: TransactionPool successfully loaded
-3月 03, 2021 1:20:18 午前 com.myexample.utils.LogWriter info
-情報: Server running on localhost/127.0.0.1:5000
+3月 03, 2021 10:58:13 午前 com.myexample.utils.LogWriter info
+情報: Server running on 0.0.0.0/0.0.0.0:5000
+3月 03, 2021 10:58:25 午前 com.myexample.utils.LogWriter info
+情報: Request get balance - 1815YjaciqFyhrAKZkyRXADrniAZH9dEof
+3月 03, 2021 10:58:25 午前 com.myexample.utils.LogWriter info
+情報: Request get info
+3月 03, 2021 10:59:00 午前 com.myexample.utils.LogWriter info
+情報: Request get balance - 1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p
+3月 03, 2021 10:59:01 午前 com.myexample.utils.LogWriter info
+情報: Request get balance - 1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p
+3月 03, 2021 10:59:01 午前 com.myexample.utils.LogWriter info
+情報: Request get info
+3月 03, 2021 10:59:41 午前 com.myexample.utils.LogWriter info
+情報: Request get balance - 1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p
+3月 03, 2021 10:59:42 午前 com.myexample.utils.LogWriter info
+情報: Request get balance - 1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p
+3月 03, 2021 10:59:42 午前 com.myexample.utils.LogWriter info
+情報: Request get info
+3月 03, 2021 11:00:35 午前 com.myexample.utils.LogWriter info
+情報: Request get chain
+3月 03, 2021 11:00:41 午前 com.myexample.utils.LogWriter info
+情報: Request get transaction pool
+3月 03, 2021 11:01:09 午前 com.myexample.utils.LogWriter info
+情報: Request get balance - 1K8if6hiWRapKLxWAdVcpys2QbReBD5P6p
+3月 03, 2021 11:01:24 午前 com.myexample.utils.LogWriter info
+情報: Request get balance - 1815YjaciqFyhrAKZkyRXADrniAZH9dEof
