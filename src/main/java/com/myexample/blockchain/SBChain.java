@@ -34,7 +34,7 @@ public class SBChain {
     private final Path dataDir = Path.of(Property.getProperty("datadir"));
 
     private List<Block> chain;
-	private List<Transaction> transactionPool;
+    private List<Transaction> transactionPool;
 
     public SBChain() {
         createDataDirIfAbsent();
@@ -137,7 +137,7 @@ public class SBChain {
             chain.add(newBlock);
             transactionPool.removeAll(transactions);
             
-		    LogWriter.info("========== Block Mined!!! ==========\n" + newBlock.toJsonPrettyPrinting());
+            LogWriter.info("========== Block Mined!!! ==========\n" + newBlock.toJsonPrettyPrinting());
 
             // save objects
             saveChain();
