@@ -210,7 +210,7 @@ public class SBChainServer {
     public static void main(String[] args) {
         // add provider for security
         Security.addProvider(new BouncyCastleProvider());
-        SBC.scheduleAutoMining(5, TimeUnit.MINUTES);
+        SBC.scheduleAutoMining(3, TimeUnit.MINUTES);
 
         new SBChainServer().run();
     }

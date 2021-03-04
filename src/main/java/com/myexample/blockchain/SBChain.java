@@ -127,15 +127,15 @@ public class SBChain {
             if (transactionPool.isEmpty())
                 return;
 
-            // send reward to miner
-            transactionPool.add(new Transaction(BLOCKCHAIN_NAME, minerAddress, MINING_REWARD, null));
-
             LogWriter.info("Mining...");
-            var transactions = List.copyOf(transactionPool);
+            var transactions = new ArrayList<>(transactionPool);
+            // send reward to miner
+            transactions.add(new Transaction(BLOCKCHAIN_NAME, minerAddress, MINING_REWARD, null));
             var newBlock = new Block(lastBlock().calculateHash(), transactions);
             newBlock.proofOfWork(MINING_DIFFICULTY);
             chain.add(newBlock);
             transactionPool.removeAll(transactions);
+    
             
             LogWriter.info("========== Block Mined!!! ==========\n" + newBlock.toJsonPrettyPrinting());
 
