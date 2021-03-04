@@ -13,7 +13,6 @@ import com.google.gson.JsonSyntaxException;
 import com.myexample.blockchain.Result;
 import com.myexample.blockchain.SBChain;
 import com.myexample.common.LogWriter;
-import com.myexample.common.Property;
 import com.myexample.common.StringUtil;
 import com.myexample.request.PurchaseRequest;
 import com.myexample.request.TransactionRequest;
@@ -186,12 +185,12 @@ public class SBChainServer {
     public void run() {
         try {
             // local
-            var host = Property.getProperty("host");
-            var port = Property.getProperty("port");
-            var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
+            // var host = Property.getProperty("host");
+            // var port = Property.getProperty("port");
+            // var socketAddress = new InetSocketAddress(host, Integer.parseInt(port));
             // Heroku
-            // var port = System.getenv("PORT");
-            // var socketAddress = new InetSocketAddress(Integer.parseInt(port));
+            var port = System.getenv("PORT");
+            var socketAddress = new InetSocketAddress(Integer.parseInt(port));
             var server = HttpServer.create(socketAddress, 0);
             server.createContext("/info", infoHandler);
             server.createContext("/balance", balanceHandler);
