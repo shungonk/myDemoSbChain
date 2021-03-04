@@ -90,10 +90,10 @@ public class Block implements Serializable {
 
     public void proofOfWork(int difficulty) {
         var zeros = StringUtil.repeat("0", difficulty);
-        String hash = "";
-        while ((!hash.substring(0, difficulty).equals(zeros))) {
+        String hash;
+        do {
             nonce++;
             hash = calculateHash();
-        }
+        } while (!hash.substring(0, difficulty).equals(zeros));
     }
 }
