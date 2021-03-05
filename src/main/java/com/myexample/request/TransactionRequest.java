@@ -68,4 +68,9 @@ public class TransactionRequest extends SignatureCertifier {
             return false;
         }
     }
+
+    public boolean isRecipientAddressBase58() {
+        var pattern = "[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{34}";
+		return recipientAddress.matches(pattern);
+    }
 }

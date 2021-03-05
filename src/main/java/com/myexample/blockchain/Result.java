@@ -18,6 +18,8 @@ public enum Result {
         Status.FAILED, "Requested amount should be positive."),
     MISSING_FIELDS(
         Status.FAILED, "Request missing field(s)."),
+    UNSUPPORTED_CHARACTER(
+        Status.FAILED, "Request contains unsupported character(s)."),
     INVALID_SIGNATURE(
         Status.FAILED, "Invalid signature."),
     INCONSISTENT_ADDRESS(

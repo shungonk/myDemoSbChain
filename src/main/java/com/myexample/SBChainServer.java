@@ -155,6 +155,8 @@ public class SBChainServer {
     
                     if (!req.validateFields())
                         result = Result.MISSING_FIELDS;
+                    else if (!req.isRecipientAddressBase58())
+                        result = Result.UNSUPPORTED_CHARACTER;
                     else if (!req.verifySignature())
                         result = Result.INVALID_SIGNATURE;
                     else if (!req.validateAmount())
