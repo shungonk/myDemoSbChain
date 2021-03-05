@@ -58,6 +58,14 @@ public class SBChain {
         return chain.get(chain.size() - 1);
     }
 
+    public int getChainSize() {
+        return chain.size();
+    }
+
+    public int getTransactionPoolSize() {
+        return transactionPool.size();
+    }
+
     public String chainJson() {
         return StringUtil.toJson(chain);
     }

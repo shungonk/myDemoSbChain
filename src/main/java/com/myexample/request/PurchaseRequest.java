@@ -41,7 +41,7 @@ public class PurchaseRequest extends SignatureCertifier {
     public boolean validateFields() {
         if (publicKey == null || publicKey.isBlank() ||
             address == null || address.isBlank() ||
-            amount == null || amount.equals(BigDecimal.ZERO) ||
+            amount == null ||
             signature == null || signature.isBlank() ||
             timestamp == 0) {
             return false;

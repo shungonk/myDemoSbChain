@@ -48,7 +48,7 @@ public class TransactionRequest extends SignatureCertifier {
         if (publicKey == null || publicKey.isBlank() ||
             senderAddress == null || senderAddress.isBlank() ||
             recipientAddress == null || recipientAddress.isBlank() ||
-            amount == null || amount.equals(BigDecimal.ZERO) ||
+            amount == null ||
             signature == null || signature.isBlank() ||
             timestamp == 0) {
             return false;
@@ -70,7 +70,7 @@ public class TransactionRequest extends SignatureCertifier {
     }
 
     public boolean isRecipientAddressBase58() {
-        var pattern = "[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{34}";
+        var pattern = "[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]*";
 		return recipientAddress.matches(pattern);
     }
 }
