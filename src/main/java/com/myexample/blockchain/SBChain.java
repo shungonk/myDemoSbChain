@@ -30,8 +30,8 @@ public class SBChain {
     public static final BigDecimal TRANSACTION_MAX_AMOUNT   = new BigDecimal("30");
     public static final String     BLOCKCHAIN_NAME          = "SBCHAIN";
 
-    private final String minerAddress = Property.getProperty("mineraddress");
-    private final Path dataDir = Path.of(Property.getProperty("datadir"));
+    public final String minerAddress = Property.getProperty("mineraddress");
+    public final Path dataDir = Path.of(Property.getProperty("datadir"));
 
     private List<Block> chain;
     private List<Transaction> transactionPool;
@@ -48,10 +48,6 @@ public class SBChain {
             LogWriter.info("Blockchain is valid.");
         else
             LogWriter.severe("Blockchain is NOT valid.", new RuntimeException());
-    }
-
-    public String getMinerAddress() {
-        return minerAddress;
     }
 
     private Block lastBlock() {
