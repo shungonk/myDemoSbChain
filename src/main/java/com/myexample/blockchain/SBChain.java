@@ -3,7 +3,6 @@ package com.myexample.blockchain;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -33,21 +32,63 @@ public class SBChain {
     public final String minerAddress = Property.getProperty("mineraddress");
     public final Path dataDir = Path.of(Property.getProperty("datadir"));
 
-    private List<Block> chain;
-    private List<Transaction> transactionPool;
+    private final List<Block> chain;
+    private final List<Transaction> transactionPool;
 
     public SBChain() {
         createDataDirIfAbsent();
-        if ((this.chain = loadChain()) == null) {
-            this.chain = new ArrayList<>(Arrays.asList(Block.INITIAL));
-        }
-        if ((this.transactionPool = loadTransactionPool()) == null) {
-            this.transactionPool = Collections.synchronizedList(new ArrayList<>());
-        }
+        this.chain = loadChain();
+        this.transactionPool = loadTransactionPool();
+
         if (isChainValid())
             LogWriter.info("Blockchain is valid.");
         else
             LogWriter.severe("Blockchain is NOT valid.", new RuntimeException());
+    }
+
+    private void createDataDirIfAbsent() {
+        if (!Files.exists(dataDir)) {
+            try {
+                Files.createDirectories(dataDir);
+                LogWriter.info("Success to create directory for saving serialized objects - " 
+                    + dataDir.toAbsolutePath());
+            } catch (IOException e) {
+                LogWriter.severe("Failed to create directory for saving serialized objects - " 
+                    + dataDir.toAbsolutePath(), new RuntimeException(e));
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Block> loadChain() {
+        try {
+            var path = dataDir.resolve(Property.getProperty("chainfile"));
+            var obj = (List<Block>) FileUtil.deserializeObject(path);
+            LogWriter.info("Blockchain successfully loaded");
+            return obj;
+        } catch (NoSuchFileException e) {
+            LogWriter.warning("Blockchain file not found: " + e.getMessage());
+            return new ArrayList<>(Arrays.asList(Block.INITIAL));
+        } catch (IOException | ClassNotFoundException e) {
+            LogWriter.severe("Failed to load blockchain file");
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Transaction> loadTransactionPool() {
+        try {
+            var path = dataDir.resolve(Property.getProperty("transactionsfile"));
+            var obj = (List<Transaction>) FileUtil.deserializeObject(path);
+            LogWriter.info("TransactionPool successfully loaded");
+            return obj;
+        } catch (NoSuchFileException e) {
+            LogWriter.warning("TransactionPool file not found: " + e.getMessage());
+            return Collections.synchronizedList(new ArrayList<>());
+        } catch (IOException | ClassNotFoundException | ClassCastException e) {
+            LogWriter.severe("Failed to load transaction pool file");
+            throw new RuntimeException(e);
+        }
     }
 
     private Block lastBlock() {
@@ -154,6 +195,10 @@ public class SBChain {
         miningExecutor.scheduleWithFixedDelay(() -> mining(), 0, delay, unit);
     }
 
+    public void waitUntilChainUnlocked() {
+        synchronized (chain) {return;}
+    }
+
     public boolean isChainValid() {
         Block previousBlock, currentBlock;
         for (int i = 1; i < chain.size(); i++) {
@@ -195,19 +240,6 @@ public class SBChain {
         return transactions;
     }
 
-    public void createDataDirIfAbsent() {
-        if (!Files.exists(dataDir, LinkOption.NOFOLLOW_LINKS)) {
-            try {
-                Files.createDirectories(dataDir);
-                LogWriter.info("Success to create directory for saving serialized objects - " 
-                    + dataDir.toAbsolutePath());
-            } catch (IOException e) {
-                LogWriter.severe("Failed to create directory for saving serialized objects - " 
-                    + dataDir.toAbsolutePath(), new RuntimeException(e));
-            }
-        }
-    }
-
     private void saveChain() {
         try {
             var path = dataDir.resolve(Property.getProperty("chainfile"));
@@ -227,38 +259,6 @@ public class SBChain {
         } catch (IOException e) {
             LogWriter.warning("Failed to save transaction pool");
             e.printStackTrace();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Block> loadChain() {
-        try {
-            var path = dataDir.resolve(Property.getProperty("chainfile"));
-            var obj = (List<Block>) FileUtil.deserializeObject(path);
-            LogWriter.info("Blockchain successfully loaded");
-            return obj;
-        } catch (NoSuchFileException e) {
-            LogWriter.warning("Blockchain file not found: " + e.getMessage());
-            return null;
-        } catch (IOException | ClassNotFoundException e) {
-            LogWriter.severe("Failed to load blockchain file");
-            throw new RuntimeException(e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Transaction> loadTransactionPool() {
-        try {
-            var path = dataDir.resolve(Property.getProperty("transactionsfile"));
-            var obj = (List<Transaction>) FileUtil.deserializeObject(path);
-            LogWriter.info("TransactionPool successfully loaded");
-            return obj;
-        } catch (NoSuchFileException e) {
-            LogWriter.warning("TransactionPool file not found: " + e.getMessage());
-            return null;
-        } catch (IOException | ClassNotFoundException | ClassCastException e) {
-            LogWriter.severe("Failed to load transaction pool file");
-            throw new RuntimeException(e);
         }
     }
 }
