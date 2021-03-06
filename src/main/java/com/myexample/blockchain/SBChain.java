@@ -225,8 +225,8 @@ public class SBChain {
     }
 
     public boolean isDuplicatedSignature(String signature) {
-        var transactions = getAllTransactions();
-        return transactions.stream()
+        return getAllTransactions()
+            .stream()
             .anyMatch(t -> Objects.equals(signature, t.getSignature()));
     }
 
