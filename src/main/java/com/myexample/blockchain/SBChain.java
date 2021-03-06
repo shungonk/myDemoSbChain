@@ -189,7 +189,7 @@ public class SBChain {
             .anyMatch(t -> Objects.equals(signature, t.getSignature()));
     }
 
-    private List<Transaction> getAllTransactions() {
+    public List<Transaction> getAllTransactions() {
         var transactions = chain
             .stream()
             .map(Block::getTransactions)

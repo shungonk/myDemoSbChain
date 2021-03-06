@@ -69,7 +69,7 @@ public class Block implements Serializable {
         }
     }
 
-    private String calculateMerkleTree() {
+    public String calculateMerkleTree() {
         var treeLayer = transactions.stream()
             .map(Transaction::getTransactionId)
             .collect(Collectors.toList());
