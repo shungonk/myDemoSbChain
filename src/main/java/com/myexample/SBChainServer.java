@@ -31,9 +31,15 @@ public class SBChainServer {
                 var infoMap = new LinkedHashMap<String, String>();
                 infoMap.put("Blockchain Name", SBChain.BLOCKCHAIN_NAME);
                 infoMap.put("Maximum Transaction Amount", 
-                    SBChain.TRANSACTION_MAX_AMOUNT.setScale(SBChain.TRANSACTION_AMOUNT_SCALE).toPlainString() + " SBC");
+                    SBChain.TRANSACTION_MAX_AMOUNT
+                        .setScale(SBChain.TRANSACTION_AMOUNT_SCALE)
+                        .toPlainString()
+                    + " SBC");
                 infoMap.put("Minimum Unit of Transaction Amount", 
-                    BigDecimal.ONE.scaleByPowerOfTen(-SBChain.TRANSACTION_AMOUNT_SCALE).toPlainString() + " SBC");
+                    BigDecimal.ONE
+                        .scaleByPowerOfTen(-SBChain.TRANSACTION_AMOUNT_SCALE)
+                        .toPlainString()
+                    + " SBC");
                 var resGet = StringUtil.makeJson(infoMap);
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(200, resGet.length());
@@ -57,7 +63,7 @@ public class SBChainServer {
                 Result result;
                 BigDecimal balance;
                 if (address == null) {
-                    balance = new BigDecimal("0").setScale(SBChain.TRANSACTION_AMOUNT_SCALE);
+                    balance = BigDecimal.ZERO.setScale(SBChain.TRANSACTION_AMOUNT_SCALE);
                     result = Result.INCORRECT_QUERY_PARAMETER;
                 } else {
                     balance = SBC.calculateTotalAmount(address);
@@ -65,8 +71,8 @@ public class SBChainServer {
                 }
                 
                 var resGet = StringUtil.makeJson(
-                    "message", result.getStatusAndMessage(),
-                    "balance", StringUtil.formatDecimal(balance, SBChain.TRANSACTION_AMOUNT_SCALE)); // e.g. "1,234.567890"
+                    "message", result.getDetailMessage(),
+                    "balance", StringUtil.formatDecimal(balance, SBChain.TRANSACTION_AMOUNT_SCALE));
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(result.getStatusCode(), resGet.length());
                 os.write(resGet.getBytes());
@@ -103,11 +109,68 @@ public class SBChainServer {
                     result = Result.INCORRECT_JSON_CONTENT;
                 }
 
-                LogWriter.info(result.getMessage());
-                var resPost = StringUtil.makeJson("message", result.getStatusAndMessage());
+                LogWriter.info(result.getDetailMessage());
+                var resPost = StringUtil.makeJson("message", result.getDetailMessage());
                 t.getResponseHeaders().set("Content-Type", "application/json");
                 t.sendResponseHeaders(result.getStatusCode(), resPost.length());
                 os.write(resPost.getBytes());
+                break;
+
+            default:
+                LogWriter.info("Invalid HTTP Method Requested");
+                t.sendResponseHeaders(405, -1);
+            }
+        }
+    };
+
+    public HttpHandler transactionHandler = (HttpExchange t) -> {
+        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+            switch (t.getRequestMethod()) {
+            case "POST":
+                var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                LogWriter.info("Request post transaction - " + json);
+                Result result;
+                try {
+                    var req = StringUtil.fromJson(json, TransactionRequest.class);
+    
+                    if (!req.validateFields())
+                        result = Result.MISSING_FIELDS;
+                    else if (!req.verifySignature())
+                        result = Result.INVALID_SIGNATURE;
+                    else if (!req.validateAmount())
+                        result = Result.NOT_POSITIVE_AMOUNT;
+                    else if (!req.verifyAddress())
+                        result = Result.INCONSISTENT_ADDRESS;
+                    else
+                        result = SBC.addTransaction(
+                            req.getSenderAddress(), req.getRecipientAddress(), req.getAmount(), req.getSignature());
+                } catch (JsonSyntaxException e) {
+                    result = Result.INCORRECT_JSON_CONTENT;
+                }
+
+                LogWriter.info(result.getDetailMessage());
+                var resPost = StringUtil.makeJson("message", result.getDetailMessage());
+                t.getResponseHeaders().set("Content-Type", "application/json");
+                t.sendResponseHeaders(result.getStatusCode(), resPost.length());
+                os.write(resPost.getBytes());
+                break;
+
+            default:
+                LogWriter.info("Invalid HTTP Method Requested");
+                t.sendResponseHeaders(405, -1);
+            }
+        }
+    };
+
+    public HttpHandler poolHandler = (HttpExchange t) -> {
+        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
+            switch (t.getRequestMethod()) {
+            case "GET":
+                LogWriter.info("Request get transaction pool");
+                var resGet = SBC.transactionPoolJson();
+                t.getResponseHeaders().set("Content-Type", "application/json");
+                t.sendResponseHeaders(200, resGet.length());
+                os.write(resGet.getBytes());
                 break;
 
             default:
@@ -135,55 +198,6 @@ public class SBChainServer {
         }
     };
 
-    public HttpHandler transactionHandler = (HttpExchange t) -> {
-        try (var is = t.getRequestBody(); var os = t.getResponseBody()) {
-            switch (t.getRequestMethod()) {
-            case "GET":
-                LogWriter.info("Request get transaction pool");
-                var resGet = SBC.transactionPoolJson();
-                t.getResponseHeaders().set("Content-Type", "application/json");
-                t.sendResponseHeaders(200, resGet.length());
-                os.write(resGet.getBytes());
-                break;
-
-            case "POST":
-                var json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                LogWriter.info("Request post transaction - " + json);
-                Result result;
-                try {
-                    var req = StringUtil.fromJson(json, TransactionRequest.class);
-    
-                    if (!req.validateFields())
-                        result = Result.MISSING_FIELDS;
-                    else if (!req.isRecipientAddressBase58())
-                        result = Result.UNSUPPORTED_CHARACTER;
-                    else if (!req.verifySignature())
-                        result = Result.INVALID_SIGNATURE;
-                    else if (!req.validateAmount())
-                        result = Result.NOT_POSITIVE_AMOUNT;
-                    else if (!req.verifyAddress())
-                        result = Result.INCONSISTENT_ADDRESS;
-                    else
-                        result = SBC.addTransaction(
-                            req.getSenderAddress(), req.getRecipientAddress(), req.getAmount(), req.getSignature());
-                } catch (JsonSyntaxException e) {
-                    result = Result.INCORRECT_JSON_CONTENT;
-                }
-
-                LogWriter.info(result.getMessage());
-                var resPost = StringUtil.makeJson("message", result.getStatusAndMessage());
-                t.getResponseHeaders().set("Content-Type", "application/json");
-                t.sendResponseHeaders(result.getStatusCode(), resPost.length());
-                os.write(resPost.getBytes());
-                break;
-
-            default:
-                LogWriter.info("Invalid HTTP Method Requested");
-                t.sendResponseHeaders(405, -1);
-            }
-        }
-    };
-
     public void run() {
         try {
             var port = System.getenv("PORT");
@@ -192,8 +206,9 @@ public class SBChainServer {
             server.createContext("/info", infoHandler);
             server.createContext("/balance", balanceHandler);
             server.createContext("/purchase", purchaseHandler);
-            server.createContext("/chain", chainHandler);
             server.createContext("/transaction", transactionHandler);
+            server.createContext("/chain", chainHandler);
+            server.createContext("/pool", poolHandler);
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
             LogWriter.info("Server running on " + socketAddress);
@@ -205,10 +220,8 @@ public class SBChainServer {
     public static final SBChain SBC = new SBChain();
 
     public static void main(String[] args) {
-        // add provider for security
         Security.addProvider(new BouncyCastleProvider());
         SBC.scheduleAutoMining(3, TimeUnit.MINUTES);
-
         new SBChainServer().run();
     }
 }

@@ -32,7 +32,6 @@ public class PurchaseRequest extends SignatureCertifier {
 
     @Override
     public byte[] getData() {
-        // signature will be unique because data contain timestamp
         String data = address + amount.toPlainString() + Long.toString(timestamp);
         return data.getBytes();
     }
@@ -53,7 +52,7 @@ public class PurchaseRequest extends SignatureCertifier {
         return amount.compareTo(BigDecimal.ZERO) > 0;
     }
     
-    public final boolean verifyAddress() {
+    public boolean verifyAddress() {
         try {
             return SecurityUtil.verifyAddressByPublicKey(address, publicKey);
         } catch (GeneralSecurityException e) {

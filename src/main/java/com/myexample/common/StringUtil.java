@@ -12,10 +12,6 @@ import com.google.gson.GsonBuilder;
 
 public class StringUtil {
 
-    public static final String AMPERSAND = "&";
-    public static final String EQUAL = "=";
-    public static final String JSON_ENTRY_FORMAT = "\"%s\":\"%s\"";
-
     private static final Gson GSON = new Gson();
     private static final Gson GSON_PRETTY_PRINTING = new GsonBuilder().setPrettyPrinting().create();
 
@@ -40,7 +36,7 @@ public class StringUtil {
     public static String makeJson(LinkedHashMap<String, String> map) {
         return map.entrySet()
             .stream()
-            .map(e -> String.format(JSON_ENTRY_FORMAT, e.getKey(), e.getValue()))
+            .map(e -> String.format("\"%s\":\"%s\"", e.getKey(), e.getValue()))
             .collect(Collectors.joining(",", "{", "}"));
     }
 
@@ -69,11 +65,11 @@ public class StringUtil {
 
     public static Map<String, String> splitQuery(String query) {
         return Arrays
-            .stream(query.split(AMPERSAND))
-            .filter(s -> s.contains(EQUAL))
+            .stream(query.split("&"))
+            .filter(s -> s.contains("="))
             .collect(Collectors.toMap(
-                s -> s.substring(0, s.indexOf(EQUAL)),
-                s -> s.substring(s.indexOf(EQUAL) + 1),
+                s -> s.substring(0, s.indexOf("=")),
+                s -> s.substring(s.indexOf("=") + 1),
                 (v1, v2) -> v1
             ));
     }

@@ -76,18 +76,11 @@ public enum Result {
     public int getStatusCode() {
         return status.getStatusCode();
     }
-
-    public String getMessage() {
+    
+    public String getDetailMessage() {
         if (isFailed())
-            return message + " Request discarded.";
+            return "FAILED: " + message + " Request discarded.";
         else
-            return message;
-    }
-
-    public String getStatusAndMessage() {
-        if (isFailed())
-            return "FAILED: " + getMessage();
-        else
-            return "SUCCESS: " + getMessage();
+            return "SUCCESS: " + message;
     }
 }

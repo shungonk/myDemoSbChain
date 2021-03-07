@@ -181,8 +181,8 @@ public class SBChain {
             chain.add(newBlock);
             transactionPool.removeAll(transactions);
     
-            
-            LogWriter.info("========== Block Mined!!! ==========\n" + newBlock.toJsonPrettyPrinting());
+            LogWriter.info("========== Block Mined!!! ==========\n" 
+                + newBlock.toJsonPrettyPrinting());
 
             // save objects
             saveChain();
