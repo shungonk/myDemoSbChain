@@ -41,18 +41,18 @@ sbchain
 ## ローカルでの起動
 1. jdk-11, mavenをインストールします。
 
-2. リポジトリのクローンをローカルに作成します。
+1. リポジトリのクローンをローカルに作成します。
     ```console
     $ git clone https://github.com/shungonk/sbchain.git
     ```
 
-3. リポジトリのディレクトリに移動し、mavenでビルドします。
+1. リポジトリのディレクトリに移動し、mavenでビルドします。
     ```console
     $ cd sbchain
     $ mvn clean install -DskipTests=true
     ```
 
-4. 環境変数`PORT`を設定し、jarファイルを実行します。
+1. 環境変数`PORT`を設定し、jarファイルを実行します。
     ```console
     $ export PORT=5000
     $ java -jar target/sbchain-1.0-jar-with-dependencies.jar
