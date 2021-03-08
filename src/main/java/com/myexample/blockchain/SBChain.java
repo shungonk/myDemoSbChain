@@ -430,6 +430,9 @@ public class SBChain {
             if (transactionPool.isEmpty())
                 return;
 
+            if (!isChainValid())
+                LogWriter.severe("Blockchain is NOT valid.", new RuntimeException());
+
             LogWriter.info("Mining...");
             var transactions = new ArrayList<>(transactionPool);
             // send reward to miner
