@@ -5,6 +5,8 @@ import static org.junit.Assert.assertThat;
 
 import java.nio.file.Files;
 
+import com.myexample.util.FileUtil;
+
 import org.junit.Test;
 
 public class FileUtilTest {

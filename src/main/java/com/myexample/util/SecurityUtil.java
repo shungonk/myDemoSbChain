@@ -1,4 +1,4 @@
-package com.myexample.common;
+package com.myexample.util;
 
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;

@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import com.myexample.common.Property;
+import com.myexample.common.Result;
 
 import org.junit.AfterClass;
 import org.junit.Before;

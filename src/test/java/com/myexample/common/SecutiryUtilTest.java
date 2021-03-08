@@ -6,6 +6,8 @@ import static org.junit.Assert.assertThat;
 import java.security.KeyPair;
 import java.security.Security;
 
+import com.myexample.util.SecurityUtil;
+
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.BeforeClass;
 import org.junit.Test;

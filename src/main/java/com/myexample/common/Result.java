@@ -1,4 +1,4 @@
-package com.myexample.blockchain;
+package com.myexample.common;
 
 /**
  * リクエスト結果の列挙型

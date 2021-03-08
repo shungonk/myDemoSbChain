@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.security.Security;
 
-import com.myexample.common.SecurityUtil;
-import com.myexample.common.StringUtil;
+import com.myexample.util.SecurityUtil;
+import com.myexample.util.StringUtil;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.BeforeClass;

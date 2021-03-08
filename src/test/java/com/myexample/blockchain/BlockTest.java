@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.myexample.common.StringUtil;
+import com.myexample.util.StringUtil;
 
 import org.junit.Test;
 

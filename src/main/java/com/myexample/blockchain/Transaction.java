@@ -6,8 +6,8 @@ import java.security.GeneralSecurityException;
 import java.time.Instant;
 
 import com.myexample.common.LogWriter;
-import com.myexample.common.SecurityUtil;
-import com.myexample.common.StringUtil;
+import com.myexample.util.SecurityUtil;
+import com.myexample.util.StringUtil;
 
 /**
  * 取引データクラス

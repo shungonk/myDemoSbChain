@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.myexample.common.LogWriter;
-import com.myexample.common.SecurityUtil;
-import com.myexample.common.StringUtil;
+import com.myexample.util.SecurityUtil;
+import com.myexample.util.StringUtil;
 
 /**
  * ブロックチェーンに格納するブロッククラス

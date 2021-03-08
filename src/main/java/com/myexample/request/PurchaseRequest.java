@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 
 import com.myexample.common.LogWriter;
-import com.myexample.common.SecurityUtil;
+import com.myexample.util.SecurityUtil;
 
 /**
  * 通貨購入のリクエストクラス

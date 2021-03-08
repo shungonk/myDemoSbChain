@@ -11,12 +11,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.google.gson.JsonSyntaxException;
-import com.myexample.blockchain.Result;
 import com.myexample.blockchain.SBChain;
 import com.myexample.common.LogWriter;
-import com.myexample.common.StringUtil;
+import com.myexample.common.Result;
 import com.myexample.request.PurchaseRequest;
 import com.myexample.request.TransactionRequest;
+import com.myexample.util.StringUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;

@@ -6,6 +6,8 @@ import static org.junit.Assert.assertThat;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 
+import com.myexample.util.StringUtil;
+
 import org.junit.Test;
 
 public class StringUtilTest {

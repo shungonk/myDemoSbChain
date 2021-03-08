@@ -14,10 +14,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.myexample.common.FileUtil;
 import com.myexample.common.LogWriter;
 import com.myexample.common.Property;
-import com.myexample.common.StringUtil;
+import com.myexample.common.Result;
+import com.myexample.util.FileUtil;
+import com.myexample.util.StringUtil;
 
 /**
  * ブロックチェーンクラス
