@@ -82,6 +82,7 @@
           <docencoding>UTF-8</docencoding>
           <reportOutputDirectory>site</reportOutputDirectory>
           <destDir>apidocs</destDir>
+          <overview>${basedir}/overview.html</overview>
         </configuration>
 				<executions>
 					<execution>
