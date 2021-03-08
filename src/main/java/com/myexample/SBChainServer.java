@@ -26,6 +26,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 /**
  * クライアントからのリクエストに応答して{@link SBChain}に処理を行うサーバクラス
  * 
+ * <p>以下のリクエストパスに対してサーバは応答します。
  * <table class="striped" style="text-align:left">
  * <caption>リクエストパスに対応するHTTPメソッド及びハンドラ
  * </caption>
