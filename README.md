@@ -30,10 +30,10 @@ sbchain
 | /pool         | GET         | ブロックチェーンに未格納の取引データを提供します。              |
 
 各パスへの詳細なリクエスト方法は[Javadoc](site/apidocs.zip)の `SBChainServer.java` クラスのドキュメント
-に記載されていますのでそちらをご覧ください。
+をご覧ください。
 
 このAPIを使用するためには暗号通貨用の「ウォレット」を所持している必要があります。ウォレットを作成して通貨の取引を
-ブラウザから行うことができるWebアプリケーションを以下に公開していますのでこちらもご参照ください。
+行うことができるWebアプリケーションを以下に公開していますのでこちらもご参照ください。
 
 - GitHub: <https://github.com/shungonk/wallet_app>
 - Heroku: <https://frozen-beyond-11362.herokuapp.com>
