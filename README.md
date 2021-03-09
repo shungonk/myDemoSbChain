@@ -4,12 +4,12 @@ sbchain
 ブロックチェーンによる通貨取引システム
 
 ## 説明
-`sbchain`はブロックチェーンを用いて暗号通貨の取引を管理するシステムです。このAPIはRESTアーキテクチャ
+`sbchain`はブロックチェーンを用いて暗号通貨の取引を管理するシステムです。このアプリケーションはRESTアーキテクチャ
 設計です。
 
-## デモ
+※デモアプリケーションであるため実際の暗号通貨は扱いません。
 
-以下のURLにアプリケーションを公開しています。※デモアプリケーションであるため実際の通貨は扱いません。
+以下のURLにアプリケーションを公開しています。
 - <https://murmuring-depths-71832.herokuapp.com>
 ## 要件
 - Java 11
@@ -29,7 +29,7 @@ sbchain
 | /chain        | GET         | ブロックチェーンに格納済みの取引データ（ブロック）を提供します。  |
 | /pool         | GET         | ブロックチェーンに未格納の取引データを提供します。              |
 
-各パスへの詳細なリクエスト方法は[Javadoc](apidocs/)の `SBChainServer.java` クラスのドキュメント
+各パスへの詳細なリクエスト方法は[Javadoc](site/apidocs.zip)の `SBChainServer.java` クラスのドキュメント
 に記載されていますのでそちらをご覧ください。
 
 このAPIを使用するためには「ウォレット」を所持している必要があります。ウォレットを作成して通貨の取引を
@@ -59,7 +59,7 @@ sbchain
     ```
 
 ## ドキュメント
-[Javadoc](apidocs/)
+[Javadoc](site/apidocs.zip)
 
 ## 作者
 [shungonk](https://github.com/shungonk)
